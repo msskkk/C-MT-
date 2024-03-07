@@ -151,7 +151,6 @@ def preprocess_anomaly_data(df1, cell):
         df_name = 'df_' + str(i) + '_test'
         globals()[df_name] = globals()[df_name].drop("cell番号", axis=1)
 
-    # 8個のデータフレームを処理
     for i in range(4):
         df_name = 'df_' + str(i) + '_test'
 
@@ -180,7 +179,113 @@ cell = pd.DataFrame([[0, 0], [1, 0], [0, 1], [1, 1]], columns=['x1', 'x2'])
 df1 = generate_anomaly_space_data()
 preprocess_anomaly_data(df1, cell)
 ```
+```
+class Chou:
+  def __init__(self,traindata,testdata,p,q):
+    self.p=p
+    self.q=q
+    self.data=traindata
+    self.testdata=testdata
+    self.mu = None
+    self.stt=None
+    self.teststt=None
+    self.sigma = None
+    self.threshold = None
+    self.corr=None
+    self.min=None
+    self.mahalanobis_dist=None
+    self.mahalanobis_dist_test =None
+    self.proportion=None
+    self.testproportion=None
 
+  def unitspace(self):
+    self.mu = self.data.mean()
+    self.sigma = self.data.std()
+    self.stt=(self.data-self.mu)/self.sigma
+    return self.stt
+  def cor(self):
+    self.corr=self.data.corr()
+    self.min= np.linalg.inv(self.corr)
+    return self.min
+  def mh(self):
+    if self.stt is None:
+            self.unitspace()
+
+    if self.corr is None:
+            self.cor()
+
+    self.mahalanobis_dist = []
+
+    for row in self.stt.values:
+     
+      row = row.reshape(-1, 1)  # 行ベクトルを列ベクトルに変形
+      distance = np.dot(row.T, np.dot(self.min, row))
+      self.mahalanobis_dist.append(distance[0, 0])
+    return self.mahalanobis_dist
+
+  def plot_mahalanobis(self):
+    if self.mahalanobis_dist is None:
+      self.mh()
+    x=np.arange(0, 5.3, 0.3)
+    # 自由度5の非心カイ2乗分布を計算
+    chi = chi2.pdf(x,self.data.shape[1])
+    plt.plot(x, chi)
+    plt.hist(self.mahalanobis_dist, bins=x,density=True)
+    plt.xlabel('Mahalanobis Distance')
+    plt.ylabel('Frequency')
+    plt.title('Frequency of Mahalanobis Distances')
+    plt.grid(True)
+    plt.show()
+
+
+    #test
+  def unitspace_test(self):
+    self.mu = self.data.mean()
+    self.sigma = self.data.std()
+    self.teststt=(self.testdata-self.mu)/self.sigma
+    return self.teststt
+
+    #MH_test
+  def mh_test(self):
+     if self.teststt is None:
+            self.unitspace_test()
+
+     if self.corr is None:
+            self.cor()
+
+     self.mahalanobis_dist_test = []
+     
+     for row in self.teststt.values:
+
+      row = row.reshape(-1, 1)  # 行ベクトルを列ベクトルに変形
+      distance = np.dot(row.T, np.dot(self.min, row))
+      self.mahalanobis_dist_test.append(distance[0, 0])
+
+
+
+     return self.mahalanobis_dist_test
+
+  def mh_det(self):
+    if self.mahalanobis_dist_test is None:
+      self.mh_test()
+
+    import scipy.stats as sps
+    K=sps.chi2.ppf(q = 0.95, df = self.data.shape[1])
+    #非心χ２分布の条件付き検出力
+    count = sum(dist >= K for dist in self.mahalanobis_dist_test)
+    self.testproportion = count / len(self.mahalanobis_dist_test)
+    return self.testproportion
+
+  def mh_sig(self):
+    if self.mahalanobis_dist is None:
+      self.mh()
+
+    import scipy.stats as sps
+    K=sps.chi2.ppf(q = 0.95, df = self.data.shape[1])
+    count = sum(dist >= K for dist in self.mahalanobis_dist)
+    self.proportion = count / len(self.mahalanobis_dist)
+    return self.proportion
+```
 ```
 # 反復
 kens = [[] for _ in range(4)]
