@@ -667,6 +667,27 @@
     }
 
     render();
+
+    // 優待未取得の銘柄をバックグラウンドで自動取得
+    async function autoFillYuutai() {
+      const stocks = loadStocks();
+      const codes = [...new Set(stocks.filter(s => !s.yuutai).map(s => s.code))];
+      if (codes.length === 0) return;
+      let updated = false;
+      for (const code of codes) {
+        try {
+          const yuutai = await fetchYuutai(code);
+          if (yuutai) {
+            const all = loadStocks();
+            all.forEach(s => { if (s.code === code && !s.yuutai) s.yuutai = yuutai; });
+            saveStocksData(all);
+            updated = true;
+          }
+        } catch (e) { /* skip */ }
+      }
+      if (updated) render();
+    }
+    autoFillYuutai();
   </script>
 </body>
 </html>
