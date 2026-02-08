@@ -217,39 +217,80 @@
 
   <script>
     const STORAGE_KEY = "dividend_stocks_v2";
-    const CORS_PROXIES = [
-      url => "https://corsproxy.io/?" + encodeURIComponent(url),
-      url => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-    ];
 
-    // --- Yahoo Finance API ---
+    // --- Yahoo Finance v8 chart API (認証不要・配当データ付き) ---
     async function fetchWithProxy(url) {
-      for (const makeProxy of CORS_PROXIES) {
+      // 複数のCORSプロキシを試行
+      const proxies = [
+        u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+        u => "https://corsproxy.io/?" + encodeURIComponent(u),
+        u => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
+      ];
+      for (const makeProxy of proxies) {
         try {
-          const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
-          if (res.ok) return await res.json();
-        } catch (e) { /* try next proxy */ }
+          const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(10000) });
+          if (!res.ok) continue;
+          const text = await res.text();
+          if (!text || text.length < 10) continue;
+          return JSON.parse(text);
+        } catch (e) { /* try next */ }
       }
-      throw new Error("API取得に失敗しました");
+      // 直接アクセスも試す（同一オリジンの場合やCORS許可されてる場合）
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        if (res.ok) return await res.json();
+      } catch (e) { /* fall through */ }
+      throw new Error("API取得に失敗しました。しばらくしてから再試行してください。");
     }
 
     async function fetchStockInfo(code) {
       const symbol = code + ".T";
-      const url = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=" + symbol +
-                  "&fields=shortName,longName,dividendRate,dividendYield,trailingAnnualDividendRate,trailingAnnualDividendYield";
+      // v8 chart APIで銘柄名+株価+配当履歴を一括取得
+      const url = "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol +
+                  "?range=2y&interval=3mo&events=div&lang=ja-JP&region=JP";
       const data = await fetchWithProxy(url);
 
-      if (!data.quoteResponse || !data.quoteResponse.result || data.quoteResponse.result.length === 0) {
+      if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
         throw new Error("銘柄が見つかりません: " + code);
       }
 
-      const q = data.quoteResponse.result[0];
-      const name = q.longName || q.shortName || symbol;
-      const annualDiv = q.dividendRate || q.trailingAnnualDividendRate || 0;
-      const divYield = q.dividendYield || q.trailingAnnualDividendYield || 0;
-      const halfDiv = Math.round(annualDiv / 2 * 10) / 10;
+      const result = data.chart.result[0];
+      const meta = result.meta;
+      const name = meta.longName || meta.shortName || symbol;
+      const price = meta.regularMarketPrice || 0;
 
-      return { name, annualDividend: annualDiv, halfDividend: halfDiv, dividendYield: divYield };
+      // 配当履歴から直近の配当金額を取得
+      const events = result.events || {};
+      const divEvents = events.dividends || {};
+      const divList = Object.values(divEvents).sort((a, b) => b.date - a.date);
+
+      let halfDividend = 0;
+      let annualDividend = 0;
+      if (divList.length >= 2) {
+        // 直近2回の配当を合算 = 年間配当
+        annualDividend = divList[0].amount + divList[1].amount;
+        halfDividend = divList[0].amount;
+      } else if (divList.length === 1) {
+        halfDividend = divList[0].amount;
+        annualDividend = halfDividend * 2;
+      }
+
+      const dividendYield = price > 0 ? annualDividend / price : 0;
+
+      return { name, price, annualDividend, halfDividend, dividendYield, divHistory: divList };
+    }
+
+    // 銘柄名だけ取得するフォールバック (Yahoo search API)
+    async function fetchStockName(code) {
+      const url = "https://query2.finance.yahoo.com/v1/finance/search?q=" + code +
+                  "&quotesCount=1&lang=ja-JP&region=JP&newsCount=0";
+      try {
+        const data = await fetchWithProxy(url);
+        if (data.quotes && data.quotes.length > 0) {
+          return data.quotes[0].longname || data.quotes[0].shortname || code + ".T";
+        }
+      } catch (e) { /* ignore */ }
+      return null;
     }
 
     // --- データ管理 ---
@@ -262,7 +303,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks));
     }
 
-    function calcFiscalDates(code) {
+    function calcFiscalDates() {
       // 日本株の一般的な権利確定日 (3月決算が大半)
       const now = new Date();
       const year = now.getFullYear();
@@ -317,9 +358,23 @@
       status.textContent = code + ".T の情報を取得中...";
 
       try {
-        const info = await fetchStockInfo(code);
+        let info;
+        try {
+          info = await fetchStockInfo(code);
+        } catch (chartErr) {
+          // chart APIが失敗したら search API で名前だけ取得してフォールバック
+          const fallbackName = await fetchStockName(code);
+          if (fallbackName) {
+            info = { name: fallbackName, price: 0, annualDividend: 0, halfDividend: 0, dividendYield: 0 };
+            status.className = "fetch-status loading";
+            status.textContent = fallbackName + " を発見。配当データはAPIから取得できなかったため0円で登録します（後で編集可能）";
+          } else {
+            throw chartErr;
+          }
+        }
+
         const shares = parseInt(sharesInput.value) || 0;
-        const fiscalDates = calcFiscalDates(code);
+        const fiscalDates = calcFiscalDates();
 
         const newEntries = fiscalDates.map(fd => ({
           id: crypto.randomUUID(),
@@ -337,15 +392,19 @@
         stocks.push(...newEntries);
         saveStocksData(stocks);
 
-        status.className = "fetch-status success";
-        status.textContent = info.name + "(" + code + ") を追加しました！ 年間配当: " +
-                             info.annualDividend + "円/株, 利回り: " +
-                             (info.dividendYield * 100).toFixed(2) + "%";
+        if (info.annualDividend > 0) {
+          status.className = "fetch-status success";
+          status.textContent = info.name + "(" + code + ") を追加！ " +
+                               "年間配当: " + info.annualDividend.toFixed(1) + "円/株, " +
+                               "利回り: " + (info.dividendYield * 100).toFixed(2) + "%";
+        } else if (info.name) {
+          status.className = "fetch-status success";
+        }
         codeInput.value = "";
         render();
       } catch (e) {
         status.className = "fetch-status error";
-        status.textContent = e.message || "取得に失敗しました。銘柄コードを確認してください。";
+        status.textContent = "取得に失敗しました: " + (e.message || "銘柄コードを確認してください");
       } finally {
         btn.disabled = false;
       }
