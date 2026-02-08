@@ -333,6 +333,68 @@
       return null;
     }
 
+    // --- 優待情報を kabutan.jp から動的取得 ---
+    async function fetchYuutai(code) {
+      const kabutanUrl = "https://kabutan.jp/stock/yutai/?code=" + code;
+      const proxies = [
+        u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+        u => "https://corsproxy.io/?" + encodeURIComponent(u),
+        u => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
+      ];
+      for (const makeProxy of proxies) {
+        try {
+          const res = await fetch(makeProxy(kabutanUrl), { signal: AbortSignal.timeout(10000) });
+          if (!res.ok) continue;
+          const html = await res.text();
+          if (!html || html.length < 500) continue;
+          // リダイレクトされた場合（優待なし）、yutaiページ特有の要素がない
+          if (!html.includes("stock_yutai") && !html.includes("優待内容")) return "なし";
+          return parseYuutaiHtml(html);
+        } catch (e) { /* try next proxy */ }
+      }
+      return "";
+    }
+
+    function parseYuutaiHtml(html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const parts = [];
+      // h3タグから優待の種類を取得
+      const headings = doc.querySelectorAll("h3");
+      headings.forEach(h => {
+        const text = h.textContent.trim();
+        if (text && !text.includes("プレミアム") && !text.includes("広告")
+            && (text.includes("優待") || text.includes("券") || text.includes("割引")
+            || text.includes("ポイント") || text.includes("カード") || text.includes("商品")
+            || text.includes("食事") || text.includes("チケット") || text.includes("Wallet")
+            || text.includes("カタログ") || text.includes("QUO"))) {
+          parts.push(text);
+        }
+      });
+      if (parts.length > 0) {
+        // テーブルから最小株数を取得
+        const tables = doc.querySelectorAll("table");
+        let minShares = "";
+        for (const table of tables) {
+          const cells = table.querySelectorAll("td");
+          for (const td of cells) {
+            const t = td.textContent.trim();
+            if (t.includes("株以上")) { minShares = t; break; }
+          }
+          if (minShares) break;
+        }
+        const prefix = minShares ? minShares + ": " : "";
+        return prefix + parts.join("、");
+      }
+      // フォールバック: ページ内テキストから優待情報を探す
+      const body = doc.body ? doc.body.textContent : html;
+      if (body.includes("優待内容") || body.includes("優待制度")) {
+        const match = body.match(/優待内容[：:\s]*([^\n]{5,80})/);
+        if (match) return match[1].trim();
+      }
+      return "なし";
+    }
+
     // --- データ管理 ---
     function loadStocks() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -398,12 +460,18 @@
         }
 
         const shares = parseInt(sharesInput.value) || 0;
+
+        // 優待情報を並行して取得
+        status.textContent = info.name + " の優待情報を取得中...";
+        let yuutaiText = "";
+        try { yuutaiText = await fetchYuutai(code); } catch (e) { /* ignore */ }
+
         const fiscalDates = calcFiscalDates();
         const newEntries = fiscalDates.map(fd => ({
           id: crypto.randomUUID(), code, name: info.name,
           record_date: fd.record_date, dividend_type: fd.type,
           dividend_per_share: info.halfDividend, annual_dividend: info.annualDividend,
-          dividend_yield: info.dividendYield, shares_held: shares, yuutai: "",
+          dividend_yield: info.dividendYield, shares_held: shares, yuutai: yuutaiText,
         }));
 
         const stocks = loadStocks();
@@ -411,9 +479,10 @@
         saveStocksData(stocks);
 
         status.className = "fetch-status success";
+        const yuutaiMsg = yuutaiText && yuutaiText !== "なし" ? " / 優待: " + yuutaiText : "";
         status.textContent = info.annualDividend > 0
-          ? info.name + "(" + code + ") を追加！ 年間配当: " + info.annualDividend.toFixed(1) + "円/株"
-          : info.name + "(" + code + ") を追加しました";
+          ? info.name + "(" + code + ") を追加！ 年間配当: " + info.annualDividend.toFixed(1) + "円/株" + yuutaiMsg
+          : info.name + "(" + code + ") を追加しました" + yuutaiMsg;
         codeInput.value = "";
         render();
       } catch (e) {
