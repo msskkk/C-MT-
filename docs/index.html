@@ -8,15 +8,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
-      --text: #0f172a; --text2: #475569; --text3: #94a3b8;
-      --accent: #6366f1; --accent2: #818cf8; --accent-bg: #eef2ff;
-      --green: #10b981; --green-bg: #ecfdf5;
-      --amber: #f59e0b; --amber-bg: #fffbeb;
-      --red: #ef4444; --red-bg: #fef2f2;
-      --border: #e2e8f0; --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
-      --shadow-lg: 0 4px 24px rgba(0,0,0,0.08);
-      --radius: 16px; --radius-sm: 10px;
+      --bg: #fafafa; --surface: #ffffff;
+      --text: #1a1a1a; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #f43f5e; --accent2: #fb7185; --accent-light: #fff1f2;
+      --indigo: #6366f1; --indigo-light: #eef2ff;
+      --green: #10b981; --green-light: #ecfdf5;
+      --amber: #f59e0b; --amber-light: #fffbeb;
+      --red: #ef4444; --red-light: #fef2f2;
+      --border: #f0f0f0;
+      --r: 20px; --r-sm: 12px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -25,262 +25,239 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ヘッダー */
+    /* ヘッダー - Mojo風ミニマル */
     .header {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);
-      color: #fff; padding: 2rem 1.5rem 2.5rem; position: relative; overflow: hidden;
+      background: var(--surface); padding: 1.4rem 1.5rem 1.2rem;
+      border-bottom: 1px solid var(--border);
     }
-    .header::before {
-      content: ""; position: absolute; top: -40%; right: -5%; width: 280px; height: 280px;
-      background: radial-gradient(circle, rgba(129,140,248,0.25) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-    .header::after {
-      content: ""; position: absolute; bottom: -30%; left: 10%; width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-    .header-inner { max-width: 960px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-inner { max-width: 540px; margin: 0 auto; }
     .header h1 {
-      font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;
-      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -0.03em;
+      display: flex; align-items: center; gap: 0.4rem;
     }
-    .header p { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.25rem; font-weight: 400; }
+    .header p { font-size: 0.75rem; color: var(--text3); margin-top: 0.15rem; }
 
-    .content { max-width: 960px; margin: -1rem auto 0; padding: 0 1rem 2rem; position: relative; z-index: 2; }
+    .content { max-width: 540px; margin: 0 auto; padding: 1rem 1rem 3rem; }
 
-    /* サマリーカード */
-    .summary-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem; margin-bottom: 1.25rem;
+    /* サマリー - ピル型カード */
+    .stats {
+      display: flex; gap: 0.5rem; margin-bottom: 1.2rem; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
-    .stat-card {
-      background: var(--surface); border-radius: var(--radius); padding: 1.1rem 1.2rem;
-      box-shadow: var(--shadow); position: relative; overflow: hidden;
+    .stats::-webkit-scrollbar { display: none; }
+    .stat {
+      flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 0.9rem 1rem; text-align: center;
     }
-    .stat-card::after {
-      content: ""; position: absolute; top: 0; right: 0; width: 50px; height: 50px;
-      border-radius: 0 0 0 50px; opacity: 0.07;
-    }
-    .stat-card:nth-child(1)::after { background: var(--accent); }
-    .stat-card:nth-child(2)::after { background: var(--amber); }
-    .stat-card:nth-child(3)::after { background: var(--green); }
-    .stat-icon {
-      width: 32px; height: 32px; border-radius: 8px; display: flex;
-      align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 0.6rem;
-    }
-    .stat-card:nth-child(1) .stat-icon { background: var(--accent-bg); }
-    .stat-card:nth-child(2) .stat-icon { background: var(--amber-bg); }
-    .stat-card:nth-child(3) .stat-icon { background: var(--green-bg); }
-    .stat-label { font-size: 0.7rem; color: var(--text3); font-weight: 500; letter-spacing: 0.02em; }
-    .stat-value { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; margin-top: 0.15rem; }
+    .stat-emoji { font-size: 1.2rem; margin-bottom: 0.3rem; }
+    .stat-val { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.03em; }
+    .stat-lbl { font-size: 0.62rem; color: var(--text3); font-weight: 500; margin-top: 0.1rem; letter-spacing: 0.02em; }
 
-    /* グラフ */
-    .panel {
-      background: var(--surface); border-radius: var(--radius); padding: 1.25rem 1.3rem;
-      box-shadow: var(--shadow); margin-bottom: 1rem;
+    /* チャート */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1.1rem 1.2rem; margin-bottom: 0.75rem;
     }
-    .panel-title {
-      font-size: 0.82rem; font-weight: 700; color: var(--text2); margin-bottom: 1rem;
-      display: flex; align-items: center; gap: 0.35rem; letter-spacing: -0.01em;
+    .card-head {
+      font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 0.8rem;
+      display: flex; align-items: center; gap: 0.3rem;
     }
-    .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; }
-    .chart-bar-wrap {
+    .chart-bars { display: flex; align-items: flex-end; gap: 5px; height: 100px; }
+    .chart-col {
       flex: 1; display: flex; flex-direction: column; align-items: center;
       gap: 3px; height: 100%; justify-content: flex-end;
     }
     .chart-bar {
-      width: 100%; border-radius: 6px 6px 2px 2px; min-height: 2px;
+      width: 100%; border-radius: 6px; min-height: 2px;
       background: linear-gradient(180deg, var(--accent), var(--accent2));
-      transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .chart-bar.empty { background: var(--surface2); }
-    .chart-bar.has-value:hover { opacity: 0.85; transform: scaleY(1.02); transform-origin: bottom; }
-    .chart-label { font-size: 0.6rem; color: var(--text3); font-weight: 600; }
-    .chart-value { font-size: 0.58rem; color: var(--accent); font-weight: 700; min-height: 13px; white-space: nowrap; }
-    .chart-empty { text-align: center; color: var(--text3); padding: 1.5rem 0; font-size: 0.82rem; }
+    .chart-bar.nil { background: var(--border); }
+    .chart-lbl { font-size: 0.55rem; color: var(--text3); font-weight: 600; }
+    .chart-val { font-size: 0.52rem; color: var(--accent); font-weight: 700; min-height: 12px; white-space: nowrap; }
+    .chart-empty { text-align: center; color: var(--text3); padding: 1.2rem 0; font-size: 0.8rem; }
 
     /* 追加エリア */
-    .add-panel { margin-bottom: 1.25rem; }
-    .add-panel h2 {
-      font-size: 0.88rem; font-weight: 700; margin-bottom: 0.75rem;
-      display: flex; align-items: center; gap: 0.35rem; color: var(--text);
+    .add-card { margin-bottom: 1rem; }
+    .add-card h2 { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.3rem; }
+    .add-row { display: flex; gap: 0.5rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
+    .field label { font-size: 0.6rem; color: var(--text3); font-weight: 600; letter-spacing: 0.04em; }
+    .field input {
+      padding: 0.6rem 0.7rem; border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      font-size: 0.85rem; outline: none; font-family: inherit; background: var(--bg);
+      transition: border-color 0.15s;
     }
-    .add-row { display: flex; gap: 0.6rem; align-items: flex-end; flex-wrap: wrap; }
-    .input-group { display: flex; flex-direction: column; gap: 0.2rem; }
-    .input-group label { font-size: 0.68rem; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    .input-group input {
-      padding: 0.55rem 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-      font-size: 0.88rem; outline: none; width: 130px; font-family: inherit;
-      background: var(--surface); transition: all 0.15s;
-    }
-    .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    .field input:focus { border-color: var(--accent); }
     .btn {
-      padding: 0.6rem 1.3rem; border-radius: var(--radius-sm); font-size: 0.82rem;
+      padding: 0.6rem 1.1rem; border-radius: 50px; font-size: 0.78rem;
       font-weight: 700; cursor: pointer; border: none; font-family: inherit;
       transition: all 0.15s; white-space: nowrap;
     }
-    .btn-primary {
-      background: var(--accent); color: #fff;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent), #e11d48); color: #fff;
     }
-    .btn-primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.35); }
-    .btn-primary:disabled { background: var(--text3); cursor: not-allowed; transform: none; box-shadow: none; }
-    .fetch-status {
-      font-size: 0.78rem; margin-top: 0.5rem; padding: 0.45rem 0.7rem;
-      border-radius: 8px; display: none; font-weight: 500;
+    .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(244,63,94,0.3); }
+    .btn-accent:disabled { background: #d1d5db; cursor: not-allowed; transform: none; box-shadow: none; }
+    .status {
+      font-size: 0.74rem; margin-top: 0.45rem; padding: 0.4rem 0.65rem;
+      border-radius: 50px; display: none; font-weight: 500;
     }
-    .fetch-status.loading { display: block; background: #eef2ff; color: #4338ca; }
-    .fetch-status.error { display: block; background: var(--red-bg); color: var(--red); }
-    .fetch-status.success { display: block; background: var(--green-bg); color: #065f46; }
+    .status.loading { display: inline-block; background: var(--indigo-light); color: var(--indigo); }
+    .status.error { display: inline-block; background: var(--red-light); color: var(--red); }
+    .status.success { display: inline-block; background: var(--green-light); color: #065f46; }
 
     /* 銘柄リスト */
-    .list-title {
-      font-size: 0.82rem; font-weight: 700; color: var(--text2); margin-bottom: 0.75rem;
-      display: flex; align-items: center; gap: 0.35rem;
+    .sec-title {
+      font-size: 0.78rem; font-weight: 700; color: var(--text); margin: 0.5rem 0 0.6rem;
+      display: flex; align-items: center; gap: 0.3rem;
     }
-    .stock-list { display: flex; flex-direction: column; gap: 0.65rem; }
-    .empty-msg { text-align: center; color: var(--text3); padding: 2.5rem 1rem; font-size: 0.88rem; }
+    .list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .empty-msg { text-align: center; color: var(--text3); padding: 2rem; font-size: 0.82rem; }
 
-    .stock-card {
-      background: var(--surface); border-radius: var(--radius); padding: 1rem 1.2rem;
-      box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 0;
-      transition: box-shadow 0.2s, transform 0.15s; border: 1px solid transparent;
+    .item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1rem 1.1rem;
+      transition: border-color 0.15s;
     }
-    .stock-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); border-color: #eef2ff; }
-    .stock-card.past { opacity: 0.4; }
-    .stock-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
-    .stock-info { flex: 1; min-width: 0; }
-    .stock-header { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
-    .stock-code {
-      font-size: 0.68rem; background: var(--accent-bg); color: var(--accent);
-      padding: 0.15rem 0.5rem; border-radius: 5px; font-weight: 700; letter-spacing: 0.02em;
+    .item:hover { border-color: #e5e5e5; }
+    .item.past { opacity: 0.35; }
+    .item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.6rem; }
+    .item-info { flex: 1; min-width: 0; }
+    .item-head { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.35rem; }
+    .code-chip {
+      font-size: 0.62rem; background: var(--bg); color: var(--text2);
+      padding: 0.12rem 0.45rem; border-radius: 50px; font-weight: 600;
+      border: 1px solid var(--border);
     }
-    .stock-name { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; }
-    .stock-type { font-size: 0.62rem; padding: 0.12rem 0.4rem; border-radius: 4px; font-weight: 700; }
+    .item-name { font-size: 0.92rem; font-weight: 700; letter-spacing: -0.01em; }
+    .type-chip {
+      font-size: 0.58rem; padding: 0.1rem 0.4rem; border-radius: 50px; font-weight: 700;
+    }
     .type-期末 { background: #fce7f3; color: #be185d; }
     .type-中間 { background: #dbeafe; color: #1d4ed8; }
 
-    .stock-dates { display: flex; gap: 1rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
-    .date-item { }
-    .date-label { font-size: 0.62rem; color: var(--text3); font-weight: 500; margin-bottom: 0.1rem; }
-    .date-value { font-size: 0.8rem; font-weight: 600; color: var(--text); }
-    .badge {
-      display: inline-flex; align-items: center; font-size: 0.65rem; font-weight: 700;
-      padding: 0.15rem 0.5rem; border-radius: 20px; margin-left: 0.3rem;
+    .item-dates { display: flex; gap: 0.8rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+    .dlabel { font-size: 0.58rem; color: var(--text3); font-weight: 500; }
+    .dval { font-size: 0.78rem; font-weight: 600; }
+    .pill {
+      display: inline-flex; font-size: 0.6rem; font-weight: 700;
+      padding: 0.12rem 0.5rem; border-radius: 50px; margin-left: 0.25rem;
     }
-    .badge.urgent { background: var(--red-bg); color: var(--red); }
-    .badge.soon   { background: var(--amber-bg); color: #b45309; }
-    .badge.ok     { background: var(--green-bg); color: var(--green); }
-    .badge.passed { background: var(--surface2); color: var(--text3); }
+    .pill-red { background: var(--red-light); color: var(--red); }
+    .pill-amber { background: var(--amber-light); color: #b45309; }
+    .pill-green { background: var(--green-light); color: var(--green); }
+    .pill-gray { background: #f3f4f6; color: var(--text3); }
 
-    .stock-dividend { text-align: right; flex-shrink: 0; }
-    .div-amount { font-size: 1.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; }
-    .div-sub { font-size: 0.68rem; color: var(--text3); font-weight: 500; }
-    .div-yield { font-size: 0.72rem; color: var(--green); font-weight: 700; margin-top: 0.1rem; }
-    .div-total { font-size: 0.72rem; color: var(--text2); font-weight: 600; }
-    .div-total strong { color: var(--text); }
+    .item-div { text-align: right; flex-shrink: 0; }
+    .div-amt { font-size: 1.3rem; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; }
+    .div-note { font-size: 0.62rem; color: var(--text3); }
+    .div-yield { font-size: 0.68rem; color: var(--green); font-weight: 700; }
+    .div-total { font-size: 0.68rem; color: var(--text2); font-weight: 600; }
 
-    .stock-actions { display: flex; gap: 0.35rem; margin-top: 0.15rem; }
-    .stock-actions button {
-      background: none; border: 1px solid var(--border); border-radius: 6px;
-      padding: 0.2rem 0.5rem; font-size: 0.68rem; color: var(--text3); cursor: pointer;
+    .item-actions { display: flex; gap: 0.3rem; margin-top: 0.2rem; }
+    .item-actions button {
+      background: none; border: 1px solid var(--border); border-radius: 50px;
+      padding: 0.18rem 0.55rem; font-size: 0.62rem; color: var(--text3); cursor: pointer;
       font-family: inherit; font-weight: 500; transition: all 0.15s;
     }
-    .stock-actions button:hover { background: var(--surface2); color: var(--text2); border-color: #cbd5e1; }
-    .stock-actions button.del:hover { background: var(--red-bg); color: var(--red); border-color: #fca5a5; }
+    .item-actions button:hover { background: #f9fafb; color: var(--text2); }
+    .item-actions button.del:hover { background: var(--red-light); color: var(--red); border-color: #fecaca; }
 
-    /* 優待アコーディオン */
-    .yuutai-wrap { margin-top: 0.6rem; }
-    .yuutai-toggle {
-      display: flex; align-items: center; gap: 0.4rem; width: 100%;
-      background: var(--amber-bg); border: 1px solid #fde68a; border-radius: var(--radius-sm);
-      padding: 0.5rem 0.8rem; cursor: pointer; font-size: 0.76rem;
+    /* 優待 */
+    .yu-wrap { margin-top: 0.55rem; }
+    .yu-btn {
+      display: flex; align-items: center; gap: 0.35rem; width: 100%;
+      background: var(--amber-light); border: 1px solid #fde68a; border-radius: var(--r-sm);
+      padding: 0.45rem 0.7rem; cursor: pointer; font-size: 0.72rem;
       color: #92400e; font-weight: 600; font-family: inherit; transition: all 0.15s;
     }
-    .yuutai-toggle:hover { background: #fef3c7; }
-    .yuutai-toggle.open { border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-bottom-color: transparent; }
-    .yuutai-toggle .arr { margin-left: auto; font-size: 0.55rem; color: #b45309; transition: transform 0.2s; }
-    .yuutai-toggle.open .arr { transform: rotate(180deg); }
-    .yuutai-none { font-size: 0.72rem; color: var(--text3); margin-top: 0.4rem; padding-left: 0.1rem; }
+    .yu-btn:hover { background: #fef3c7; }
+    .yu-btn.open { border-radius: var(--r-sm) var(--r-sm) 0 0; border-bottom-color: transparent; }
+    .yu-btn .chevron { margin-left: auto; font-size: 0.5rem; color: #b45309; transition: transform 0.2s; }
+    .yu-btn.open .chevron { transform: rotate(180deg); }
+    .yu-none { font-size: 0.68rem; color: var(--text3); margin-top: 0.35rem; }
 
-    .yuutai-body {
+    .yu-detail {
       display: none; background: #fffdf7; border: 1px solid #fde68a; border-top: none;
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-      padding: 0.75rem 0.85rem; font-size: 0.76rem; color: var(--text2);
+      border-radius: 0 0 var(--r-sm) var(--r-sm);
+      padding: 0.7rem 0.8rem; font-size: 0.72rem; color: var(--text2);
     }
-    .yuutai-body.open { display: block; }
-    .yu-section { margin-bottom: 0.7rem; }
-    .yu-section:last-child { margin-bottom: 0; }
-    .yu-title {
-      font-weight: 700; color: #92400e; font-size: 0.78rem; margin-bottom: 0.25rem;
-      display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap;
+    .yu-detail.open { display: block; }
+    .yu-sec { margin-bottom: 0.6rem; }
+    .yu-sec:last-child { margin-bottom: 0; }
+    .yu-sec-title {
+      font-weight: 700; color: #92400e; font-size: 0.74rem; margin-bottom: 0.2rem;
+      display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap;
     }
-    .yu-months {
-      font-size: 0.65rem; color: #b45309; font-weight: 500; margin-left: auto;
-      background: #fef3c7; padding: 0.1rem 0.4rem; border-radius: 4px;
+    .yu-mo {
+      font-size: 0.6rem; color: #b45309; font-weight: 500; margin-left: auto;
+      background: #fef3c7; padding: 0.08rem 0.4rem; border-radius: 50px;
     }
-    .yu-table {
+    .yu-tbl {
       width: 100%; border-collapse: separate; border-spacing: 0;
-      border-radius: 8px; overflow: hidden; margin: 0.25rem 0;
-      border: 1px solid #fde68a;
+      border-radius: 8px; overflow: hidden; margin: 0.2rem 0; border: 1px solid #fde68a;
     }
-    .yu-table th {
-      background: #fef3c7; color: #92400e; font-size: 0.65rem; font-weight: 700;
-      padding: 0.35rem 0.6rem; text-align: left;
+    .yu-tbl th {
+      background: #fef3c7; color: #92400e; font-size: 0.6rem; font-weight: 700;
+      padding: 0.3rem 0.5rem; text-align: left;
     }
-    .yu-table td {
-      padding: 0.3rem 0.6rem; font-size: 0.72rem; background: #fff;
-      border-top: 1px solid #fef3c7;
+    .yu-tbl td {
+      padding: 0.28rem 0.5rem; font-size: 0.68rem; background: #fff; border-top: 1px solid #fef3c7;
     }
-    .yu-table td:first-child { font-weight: 600; color: #78716c; white-space: nowrap; }
-    .yu-table tr:hover td { background: #fefce8; }
+    .yu-tbl td:first-child { font-weight: 600; color: #78716c; white-space: nowrap; }
+    .yu-tbl tr:hover td { background: #fefce8; }
     .yu-notes {
-      margin-top: 0.35rem; padding: 0.45rem 0.6rem; background: #fff;
-      border-radius: 8px; font-size: 0.68rem; color: #78716c; line-height: 1.55;
+      margin-top: 0.3rem; padding: 0.4rem 0.55rem; background: #fff;
+      border-radius: 8px; font-size: 0.64rem; color: #78716c; line-height: 1.5;
       white-space: pre-line; border: 1px solid #fef3c7;
     }
-    .yu-notes-label { font-size: 0.62rem; font-weight: 700; color: var(--text3); margin-bottom: 0.15rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .yu-notes b { font-size: 0.58rem; color: var(--text3); display: block; margin-bottom: 0.1rem; letter-spacing: 0.03em; }
 
     /* モーダル */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5);
-      z-index: 100; justify-content: center; align-items: center;
+    .overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 100; justify-content: center; align-items: flex-end;
       backdrop-filter: blur(4px);
     }
-    .modal-overlay.active { display: flex; }
-    .modal {
-      background: var(--surface); border-radius: 20px; padding: 1.5rem 1.8rem;
-      width: 92%; max-width: 420px; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+    .overlay.active { display: flex; }
+    .sheet {
+      background: var(--surface); border-radius: var(--r) var(--r) 0 0;
+      padding: 1.5rem 1.5rem 2rem; width: 100%; max-width: 540px;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+      animation: slideUp 0.25s ease;
     }
-    .modal h2 { font-size: 1rem; margin-bottom: 1rem; font-weight: 700; }
-    .form-group { margin-bottom: 0.75rem; }
-    .form-group label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--text2); margin-bottom: 0.25rem; }
-    .form-group input, .form-group textarea {
-      width: 100%; padding: 0.55rem 0.75rem; border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); font-size: 0.88rem; outline: none; font-family: inherit;
-      transition: all 0.15s;
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet h2 { font-size: 0.95rem; margin-bottom: 0.9rem; font-weight: 700; }
+    .fg { margin-bottom: 0.7rem; }
+    .fg label { display: block; font-size: 0.65rem; font-weight: 600; color: var(--text2); margin-bottom: 0.2rem; }
+    .fg input, .fg textarea {
+      width: 100%; padding: 0.55rem 0.7rem; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); font-size: 0.85rem; outline: none; font-family: inherit;
     }
-    .form-group textarea { resize: vertical; min-height: 60px; }
-    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-    .form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
-    .btn-ghost {
-      background: var(--surface2); color: var(--text2); border: none;
-      padding: 0.55rem 1.2rem; border-radius: var(--radius-sm);
-      font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    .fg textarea { resize: vertical; min-height: 55px; }
+    .fg input:focus, .fg textarea:focus { border-color: var(--accent); }
+    .sheet-btns { display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.8rem; }
+    .btn-flat {
+      background: #f3f4f6; color: var(--text2); border: none;
+      padding: 0.55rem 1.1rem; border-radius: 50px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
     }
-    .btn-ghost:hover { background: #e2e8f0; }
+    .btn-flat:hover { background: #e5e7eb; }
 
     @media (max-width: 640px) {
-      .summary-grid { grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
-      .stat-card { padding: 0.8rem; }
-      .stat-value { font-size: 1.2rem; }
-      .stat-icon { width: 26px; height: 26px; font-size: 0.8rem; }
-      .add-row { flex-direction: column; align-items: stretch; }
-      .input-group input { width: 100%; }
-      .stock-top { flex-direction: column; }
-      .stock-dividend { text-align: left; display: flex; gap: 0.8rem; align-items: baseline; flex-wrap: wrap; }
-      .chart-bars { height: 90px; }
+      .stats { gap: 0.4rem; }
+      .stat { padding: 0.7rem 0.6rem; }
+      .stat-val { font-size: 1.1rem; }
+      .add-row { flex-direction: column; }
+      .item-top { flex-direction: column; }
+      .item-div { text-align: left; display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; }
+      .chart-bars { height: 80px; }
+    }
+    @media (min-width: 641px) {
+      .overlay { align-items: center; }
+      .sheet { border-radius: var(--r); max-width: 420px; animation: fadeIn 0.2s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
     }
   </style>
 </head>
@@ -288,73 +265,64 @@
   <div class="header">
     <div class="header-inner">
       <h1>&#128200; Dividend Tracker</h1>
-      <p>銘柄コードを入力するだけ。配当 &amp; 優待を自動取得。</p>
+      <p>銘柄コードを入れるだけ。配当・優待を自動取得。</p>
     </div>
   </div>
 
   <div class="content">
-    <section class="summary-grid">
-      <div class="stat-card">
-        <div class="stat-icon">&#128203;</div>
-        <div class="stat-label">登録銘柄</div>
-        <div class="stat-value" id="val-total">-</div>
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-emoji">&#128203;</div>
+        <div class="stat-val" id="val-total">-</div>
+        <div class="stat-lbl">銘柄</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">&#128197;</div>
-        <div class="stat-label">配当予定</div>
-        <div class="stat-value" id="val-upcoming">-</div>
+      <div class="stat">
+        <div class="stat-emoji">&#128197;</div>
+        <div class="stat-val" id="val-upcoming">-</div>
+        <div class="stat-lbl">配当予定</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">&#128176;</div>
-        <div class="stat-label">予想合計</div>
-        <div class="stat-value" id="val-income">-</div>
+      <div class="stat">
+        <div class="stat-emoji">&#128176;</div>
+        <div class="stat-val" id="val-income">-</div>
+        <div class="stat-lbl">予想合計</div>
       </div>
     </section>
 
-    <section class="panel" id="chart-section">
-      <div class="panel-title">&#128202; 月別 配当予定</div>
+    <section class="card">
+      <div class="card-head">&#128202; 月別 配当予定</div>
       <div id="chart-container"></div>
     </section>
 
-    <section class="panel add-panel">
+    <section class="card add-card">
       <h2>&#10133; 銘柄を追加</h2>
       <div class="add-row">
-        <div class="input-group">
+        <div class="field">
           <label>銘柄コード</label>
-          <input type="text" id="add-code" placeholder="例: 7203" maxlength="5">
+          <input type="text" id="add-code" placeholder="7203" maxlength="5">
         </div>
-        <div class="input-group">
+        <div class="field">
           <label>保有株数</label>
           <input type="number" id="add-shares" placeholder="100" min="0" value="100">
         </div>
-        <button class="btn btn-primary" id="add-btn" onclick="addByCode()">自動取得して追加</button>
+        <button class="btn btn-accent" id="add-btn" onclick="addByCode()">追加</button>
       </div>
-      <div class="fetch-status" id="fetch-status"></div>
+      <div class="status" id="fetch-status"></div>
     </section>
 
-    <div class="list-title" id="list-title" style="display:none">&#128196; 登録銘柄</div>
-    <section class="stock-list" id="stock-list"></section>
+    <div class="sec-title" id="list-title" style="display:none">&#128196; 登録銘柄</div>
+    <section class="list" id="stock-list"></section>
   </div>
 
-  <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
-    <div class="modal">
-      <h2 id="modal-title">&#9999;&#65039; 銘柄を編集</h2>
+  <div class="overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="sheet">
+      <h2>&#9999;&#65039; 編集</h2>
       <input type="hidden" id="edit-id">
-      <div class="form-group">
-        <label>銘柄</label>
-        <input type="text" id="edit-label" disabled>
-      </div>
-      <div class="form-group">
-        <label>保有株数</label>
-        <input type="number" id="edit-shares" min="0">
-      </div>
-      <div class="form-group">
-        <label>&#127873; 株主優待メモ</label>
-        <textarea id="edit-yuutai" placeholder="例: 100株以上で自社製品詰め合わせ"></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
-        <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+      <div class="fg"><label>銘柄</label><input type="text" id="edit-label" disabled></div>
+      <div class="fg"><label>保有株数</label><input type="number" id="edit-shares" min="0"></div>
+      <div class="fg"><label>&#127873; 優待メモ</label><textarea id="edit-yuutai" placeholder="自動取得されます"></textarea></div>
+      <div class="sheet-btns">
+        <button class="btn btn-flat" onclick="closeModal()">キャンセル</button>
+        <button class="btn btn-accent" onclick="saveEdit()">保存</button>
       </div>
     </div>
   </div>
@@ -362,70 +330,57 @@
   <script>
     const STORAGE_KEY = "dividend_stocks_v2";
 
-    // --- Yahoo Finance v8 chart API ---
     async function fetchWithProxy(url) {
       const proxies = [
         u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
         u => "https://corsproxy.io/?" + encodeURIComponent(u),
         u => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
       ];
-      for (const makeProxy of proxies) {
+      for (const p of proxies) {
         try {
-          const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(10000) });
-          if (!res.ok) continue;
-          const text = await res.text();
-          if (!text || text.length < 10) continue;
-          return JSON.parse(text);
-        } catch (e) { /* try next */ }
+          const r = await fetch(p(url), { signal: AbortSignal.timeout(10000) });
+          if (!r.ok) continue;
+          const t = await r.text(); if (!t || t.length < 10) continue;
+          return JSON.parse(t);
+        } catch (e) {}
       }
-      try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-        if (res.ok) return await res.json();
-      } catch (e) {}
-      throw new Error("API取得に失敗しました。しばらくしてから再試行してください。");
+      try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) return await r.json(); } catch (e) {}
+      throw new Error("API取得に失敗しました");
     }
 
     async function fetchStockInfo(code) {
-      const symbol = code + ".T";
-      const url = "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol +
-                  "?range=2y&interval=3mo&events=div&lang=ja-JP&region=JP";
-      const data = await fetchWithProxy(url);
-      if (!data.chart || !data.chart.result || data.chart.result.length === 0)
-        throw new Error("銘柄が見つかりません: " + code);
-      const result = data.chart.result[0];
-      const meta = result.meta;
-      const name = meta.longName || meta.shortName || symbol;
-      const price = meta.regularMarketPrice || 0;
-      const divList = Object.values((result.events || {}).dividends || {}).sort((a, b) => b.date - a.date);
-      let halfDividend = 0, annualDividend = 0;
-      if (divList.length >= 2) { annualDividend = divList[0].amount + divList[1].amount; halfDividend = divList[0].amount; }
-      else if (divList.length === 1) { halfDividend = divList[0].amount; annualDividend = halfDividend * 2; }
-      return { name, price, annualDividend, halfDividend, dividendYield: price > 0 ? annualDividend / price : 0 };
+      const sym = code + ".T";
+      const data = await fetchWithProxy("https://query1.finance.yahoo.com/v8/finance/chart/" + sym + "?range=2y&interval=3mo&events=div&lang=ja-JP&region=JP");
+      if (!data.chart?.result?.length) throw new Error("銘柄が見つかりません: " + code);
+      const r = data.chart.result[0], m = r.meta;
+      const name = m.longName || m.shortName || sym, price = m.regularMarketPrice || 0;
+      const dl = Object.values((r.events || {}).dividends || {}).sort((a, b) => b.date - a.date);
+      let hd = 0, ad = 0;
+      if (dl.length >= 2) { ad = dl[0].amount + dl[1].amount; hd = dl[0].amount; }
+      else if (dl.length === 1) { hd = dl[0].amount; ad = hd * 2; }
+      return { name, price, annualDividend: ad, halfDividend: hd, dividendYield: price > 0 ? ad / price : 0 };
     }
 
     async function fetchStockName(code) {
-      const url = "https://query2.finance.yahoo.com/v1/finance/search?q=" + code + "&quotesCount=1&lang=ja-JP&region=JP&newsCount=0";
       try {
-        const data = await fetchWithProxy(url);
-        if (data.quotes && data.quotes.length > 0) return data.quotes[0].longname || data.quotes[0].shortname || code + ".T";
+        const d = await fetchWithProxy("https://query2.finance.yahoo.com/v1/finance/search?q=" + code + "&quotesCount=1&lang=ja-JP&region=JP&newsCount=0");
+        if (d.quotes?.length) return d.quotes[0].longname || d.quotes[0].shortname || code + ".T";
       } catch (e) {}
       return null;
     }
 
-    // --- 優待情報を kabutan.jp から動的取得 ---
     async function fetchYuutai(code) {
-      const kabutanUrl = "https://kabutan.jp/stock/yutai/?code=" + code;
+      const url = "https://kabutan.jp/stock/yutai/?code=" + code;
       const proxies = [
         u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
         u => "https://corsproxy.io/?" + encodeURIComponent(u),
         u => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
       ];
-      for (const makeProxy of proxies) {
+      for (const p of proxies) {
         try {
-          const res = await fetch(makeProxy(kabutanUrl), { signal: AbortSignal.timeout(10000) });
-          if (!res.ok) continue;
-          const html = await res.text();
-          if (!html || html.length < 500) continue;
+          const r = await fetch(p(url), { signal: AbortSignal.timeout(10000) });
+          if (!r.ok) continue;
+          const html = await r.text(); if (!html || html.length < 500) continue;
           if (!html.includes("stock_yutai") && !html.includes("優待内容")) return "なし";
           return parseYuutaiHtml(html);
         } catch (e) {}
@@ -434,43 +389,27 @@
     }
 
     function parseYuutaiHtml(html) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-      const sections = [];
-      const detailBox = doc.querySelector(".stock_yutai_detail_box");
-      if (!detailBox) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const sections = [], box = doc.querySelector(".stock_yutai_detail_box");
+      if (!box) {
         const h3s = doc.querySelectorAll("h3.floatl");
-        if (h3s.length > 0) {
-          for (const h3 of h3s) sections.push({ title: h3.textContent.trim(), months: "", rows: [], notes: "" });
-          return JSON.stringify({ type: "detailed", sections });
-        }
+        if (h3s.length) { for (const h of h3s) sections.push({ title: h.textContent.trim(), months: "", rows: [], notes: "" }); return JSON.stringify({ type: "detailed", sections }); }
         return "なし";
       }
-      const children = Array.from(detailBox.children);
-      let i = 0;
-      while (i < children.length) {
-        const el = children[i];
-        if (el.querySelector && el.querySelector("h3")) {
-          const h3 = el.querySelector("h3");
-          const monthsDiv = el.querySelector(".floatr");
-          const title = h3 ? h3.textContent.trim() : "";
-          let months = "";
-          if (monthsDiv) { const m = monthsDiv.textContent.match(/権利確定月[：:\s]*(.+)/); if (m) months = m[1].trim(); }
-          const rows = []; let notes = "";
-          i++;
-          while (i < children.length) {
-            const next = children[i];
-            if (next.querySelector && next.querySelector("h3")) break;
-            if (next.tagName === "TABLE") {
-              if (next.className.includes("detail_1")) {
-                next.querySelectorAll("tr").forEach(tr => {
-                  const tds = tr.querySelectorAll("td");
-                  if (tds.length >= 2) rows.push({ shares: tds[0].textContent.trim(), content: tds[1].textContent.trim() });
-                });
-              } else if (next.className.includes("detail_3")) {
-                const td = next.querySelector("td");
-                if (td) notes = td.innerHTML.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim();
-              }
+      const ch = Array.from(box.children); let i = 0;
+      while (i < ch.length) {
+        const el = ch[i];
+        if (el.querySelector?.("h3")) {
+          const h3 = el.querySelector("h3"), md = el.querySelector(".floatr");
+          const title = h3?.textContent.trim() || "";
+          let months = ""; if (md) { const mm = md.textContent.match(/権利確定月[：:\s]*(.+)/); if (mm) months = mm[1].trim(); }
+          const rows = []; let notes = ""; i++;
+          while (i < ch.length) {
+            const nx = ch[i];
+            if (nx.querySelector?.("h3")) break;
+            if (nx.tagName === "TABLE") {
+              if (nx.className.includes("detail_1")) nx.querySelectorAll("tr").forEach(tr => { const td = tr.querySelectorAll("td"); if (td.length >= 2) rows.push({ shares: td[0].textContent.trim(), content: td[1].textContent.trim() }); });
+              else if (nx.className.includes("detail_3")) { const td = nx.querySelector("td"); if (td) notes = td.innerHTML.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim(); }
             }
             i++;
           }
@@ -479,213 +418,178 @@
         }
         i++;
       }
-      if (sections.length > 0) return JSON.stringify({ type: "detailed", sections });
-      return "なし";
+      return sections.length ? JSON.stringify({ type: "detailed", sections }) : "なし";
     }
 
-    // --- データ管理 ---
     function loadStocks() { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : []; }
-    function saveStocksData(stocks) { localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks)); }
-    function calcFiscalDates() {
-      const now = new Date(), y = now.getFullYear(), m = now.getMonth() + 1;
-      return [
-        { type: "期末", record_date: (m <= 3 ? y : y + 1) + "-03-31" },
-        { type: "中間", record_date: (m <= 9 ? y : y + 1) + "-09-30" },
-      ];
+    function saveStocks(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+    function fiscalDates() {
+      const n = new Date(), y = n.getFullYear(), m = n.getMonth() + 1;
+      return [{ type: "期末", record_date: (m <= 3 ? y : y+1) + "-03-31" }, { type: "中間", record_date: (m <= 9 ? y : y+1) + "-09-30" }];
     }
-    function calcLastBuyDate(rd) {
+    function lastBuyDate(rd) {
       const d = new Date(rd + "T00:00:00"); let b = 0;
-      while (b < 2) { d.setDate(d.getDate() - 1); if (d.getDay() >= 1 && d.getDay() <= 5) b++; }
-      return d;
+      while (b < 2) { d.setDate(d.getDate()-1); if (d.getDay()>=1 && d.getDay()<=5) b++; } return d;
     }
 
-    // --- 銘柄追加 ---
     async function addByCode() {
-      const codeInput = document.getElementById("add-code");
-      const sharesInput = document.getElementById("add-shares");
-      const btn = document.getElementById("add-btn");
-      const status = document.getElementById("fetch-status");
-      const code = codeInput.value.trim();
-      if (!code || !/^\d{4,5}$/.test(code)) { status.className = "fetch-status error"; status.textContent = "4〜5桁の銘柄コードを入力してください"; return; }
-      if (loadStocks().some(s => s.code === code)) { status.className = "fetch-status error"; status.textContent = code + " は既に登録済みです"; return; }
-      btn.disabled = true; status.className = "fetch-status loading"; status.textContent = code + ".T の情報を取得中...";
+      const ci = document.getElementById("add-code"), si = document.getElementById("add-shares");
+      const btn = document.getElementById("add-btn"), st = document.getElementById("fetch-status");
+      const code = ci.value.trim();
+      if (!code || !/^\d{4,5}$/.test(code)) { st.className = "status error"; st.textContent = "4〜5桁のコードを入力"; return; }
+      if (loadStocks().some(s => s.code === code)) { st.className = "status error"; st.textContent = code + " は登録済み"; return; }
+      btn.disabled = true; st.className = "status loading"; st.textContent = code + ".T を取得中...";
       try {
         let info;
         try { info = await fetchStockInfo(code); } catch (e) {
           const fn = await fetchStockName(code);
-          if (fn) info = { name: fn, price: 0, annualDividend: 0, halfDividend: 0, dividendYield: 0 };
-          else throw e;
+          if (fn) info = { name: fn, price: 0, annualDividend: 0, halfDividend: 0, dividendYield: 0 }; else throw e;
         }
-        const shares = parseInt(sharesInput.value) || 0;
-        status.textContent = info.name + " の優待情報を取得中...";
-        let yuutai = ""; try { yuutai = await fetchYuutai(code); } catch (e) {}
-        const entries = calcFiscalDates().map(fd => ({
+        const shares = parseInt(si.value) || 0;
+        st.textContent = info.name + " の優待情報を取得中...";
+        let yu = ""; try { yu = await fetchYuutai(code); } catch (e) {}
+        const entries = fiscalDates().map(fd => ({
           id: crypto.randomUUID(), code, name: info.name, record_date: fd.record_date,
           dividend_type: fd.type, dividend_per_share: info.halfDividend,
           annual_dividend: info.annualDividend, dividend_yield: info.dividendYield,
-          shares_held: shares, yuutai,
+          shares_held: shares, yuutai: yu,
         }));
-        const stocks = loadStocks(); stocks.push(...entries); saveStocksData(stocks);
-        status.className = "fetch-status success";
-        status.textContent = info.annualDividend > 0
-          ? info.name + "(" + code + ") を追加！ 年間配当: " + info.annualDividend.toFixed(1) + "円/株"
-          : info.name + "(" + code + ") を追加しました";
-        codeInput.value = ""; render();
-      } catch (e) { status.className = "fetch-status error"; status.textContent = "取得に失敗: " + (e.message || "銘柄コードを確認してください"); }
+        const all = loadStocks(); all.push(...entries); saveStocks(all);
+        st.className = "status success";
+        st.textContent = info.name + " を追加！" + (info.annualDividend > 0 ? " 配当: " + info.annualDividend.toFixed(1) + "円/株" : "");
+        ci.value = ""; render();
+      } catch (e) { st.className = "status error"; st.textContent = "失敗: " + (e.message || "コードを確認"); }
       finally { btn.disabled = false; }
     }
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("add-code").addEventListener("keydown", e => { if (e.key === "Enter") addByCode(); });
-    });
+    document.addEventListener("DOMContentLoaded", () => { document.getElementById("add-code").addEventListener("keydown", e => { if (e.key === "Enter") addByCode(); }); });
 
-    // --- グラフ ---
     function renderChart(stocks) {
       const c = document.getElementById("chart-container");
-      if (stocks.length === 0) { c.innerHTML = '<div class="chart-empty">銘柄を追加するとグラフが表示されます</div>'; return; }
-      const mo = {}; const ms = ["1","2","3","4","5","6","7","8","9","10","11","12"];
-      ms.forEach((_, i) => mo[i] = 0);
-      stocks.forEach(s => { mo[parseInt(s.record_date.split("-")[1]) - 1] += s.dividend_per_share * (s.shares_held || 0); });
+      if (!stocks.length) { c.innerHTML = '<div class="chart-empty">銘柄を追加するとグラフが表示されます</div>'; return; }
+      const mo = {}; for (let i=0;i<12;i++) mo[i]=0;
+      stocks.forEach(s => { mo[parseInt(s.record_date.split("-")[1])-1] += s.dividend_per_share * (s.shares_held||0); });
       const mx = Math.max(...Object.values(mo), 1);
       let h = '<div class="chart-bars">';
-      for (let i = 0; i < 12; i++) {
-        const v = mo[i], pct = Math.max((v / mx) * 100, v > 0 ? 5 : 2);
-        h += `<div class="chart-bar-wrap">
-          <div class="chart-value">${v > 0 ? "¥" + v.toLocaleString() : ""}</div>
-          <div class="chart-bar${v > 0 ? " has-value" : " empty"}" style="height:${pct}%"></div>
-          <div class="chart-label">${ms[i]}月</div></div>`;
+      for (let i=0;i<12;i++) {
+        const v = mo[i], pct = Math.max((v/mx)*100, v>0?5:2);
+        h += `<div class="chart-col"><div class="chart-val">${v>0?"¥"+v.toLocaleString():""}</div><div class="chart-bar${v>0?"":" nil"}" style="height:${pct}%"></div><div class="chart-lbl">${i+1}月</div></div>`;
       }
       c.innerHTML = h + '</div>';
     }
 
-    // --- 描画 ---
     function render() {
-      const stocks = loadStocks();
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      document.getElementById("val-total").textContent = new Set(stocks.map(s => s.code)).size;
-      let upcoming = 0, total = 0;
-      stocks.forEach(s => { if (calcLastBuyDate(s.record_date) >= today) upcoming++; total += s.dividend_per_share * (s.shares_held || 0); });
-      document.getElementById("val-upcoming").textContent = upcoming + "件";
-      document.getElementById("val-income").textContent = "¥" + total.toLocaleString();
+      const stocks = loadStocks(), today = new Date(); today.setHours(0,0,0,0);
+      document.getElementById("val-total").textContent = new Set(stocks.map(s=>s.code)).size;
+      let up=0, tot=0;
+      stocks.forEach(s => { if(lastBuyDate(s.record_date)>=today) up++; tot+=s.dividend_per_share*(s.shares_held||0); });
+      document.getElementById("val-upcoming").textContent = up + "件";
+      document.getElementById("val-income").textContent = "¥" + tot.toLocaleString();
       renderChart(stocks);
-      stocks.sort((a, b) => a.record_date.localeCompare(b.record_date));
+      stocks.sort((a,b) => a.record_date.localeCompare(b.record_date));
       const cont = document.getElementById("stock-list"), lt = document.getElementById("list-title");
-      if (stocks.length === 0) { lt.style.display = "none"; cont.innerHTML = '<p class="empty-msg">上の入力欄に銘柄コードを入れて「自動取得して追加」を押してください。</p>'; return; }
+      if (!stocks.length) { lt.style.display="none"; cont.innerHTML='<p class="empty-msg">銘柄コードを入力して追加してください</p>'; return; }
       lt.style.display = "flex";
       cont.innerHTML = stocks.map(s => {
-        const lb = calcLastBuyDate(s.record_date);
-        const diff = Math.ceil((lb - today) / 864e5);
-        let bc, bt;
-        if (diff < 0) { bc = "passed"; bt = "終了"; }
-        else if (diff === 0) { bc = "urgent"; bt = "今日が最終日！"; }
-        else if (diff <= 7) { bc = "urgent"; bt = "あと" + diff + "日"; }
-        else if (diff <= 30) { bc = "soon"; bt = "あと" + diff + "日"; }
-        else { bc = "ok"; bt = "あと" + diff + "日"; }
-        const td = s.dividend_per_share * (s.shares_held || 0);
-        const ys = s.dividend_yield ? (s.dividend_yield * 100).toFixed(2) + "%" : "";
-        return `<div class="stock-card${diff < 0 ? " past" : ""}">
-          <div class="stock-top">
-            <div class="stock-info">
-              <div class="stock-header">
-                <span class="stock-code">${esc(s.code)}</span>
-                <span class="stock-name">${esc(s.name)}</span>
-                <span class="stock-type type-${esc(s.dividend_type)}">${esc(s.dividend_type)}</span>
+        const lb = lastBuyDate(s.record_date), diff = Math.ceil((lb-today)/864e5);
+        let pc, pt;
+        if (diff<0) { pc="pill-gray"; pt="終了"; }
+        else if (diff===0) { pc="pill-red"; pt="今日！"; }
+        else if (diff<=7) { pc="pill-red"; pt="あと"+diff+"日"; }
+        else if (diff<=30) { pc="pill-amber"; pt="あと"+diff+"日"; }
+        else { pc="pill-green"; pt="あと"+diff+"日"; }
+        const td = s.dividend_per_share*(s.shares_held||0);
+        const ys = s.dividend_yield ? (s.dividend_yield*100).toFixed(2)+"%" : "";
+        return `<div class="item${diff<0?" past":""}">
+          <div class="item-top">
+            <div class="item-info">
+              <div class="item-head">
+                <span class="code-chip">${esc(s.code)}</span>
+                <span class="item-name">${esc(s.name)}</span>
+                <span class="type-chip type-${esc(s.dividend_type)}">${esc(s.dividend_type)}</span>
               </div>
-              <div class="stock-dates">
-                <div class="date-item">
-                  <div class="date-label">権利付最終日</div>
-                  <div class="date-value">${fmtDate(lb)}<span class="badge ${bc}">${bt}</span></div>
-                </div>
-                <div class="date-item">
-                  <div class="date-label">権利確定日</div>
-                  <div class="date-value">${fmtDate(new Date(s.record_date + "T00:00:00"))}</div>
-                </div>
+              <div class="item-dates">
+                <div><div class="dlabel">権利付最終日</div><div class="dval">${fmtD(lb)}<span class="pill ${pc}">${pt}</span></div></div>
+                <div><div class="dlabel">権利確定日</div><div class="dval">${fmtD(new Date(s.record_date+"T00:00:00"))}</div></div>
               </div>
-              <div class="stock-actions">
+              <div class="item-actions">
                 <button onclick="editStock('${s.id}')">&#9999;&#65039; 編集</button>
                 <button class="del" onclick="deleteStock('${s.id}')">&#128465; 削除</button>
               </div>
             </div>
-            <div class="stock-dividend">
-              <div class="div-amount">¥${s.dividend_per_share.toLocaleString()}</div>
-              <div class="div-sub">1株あたり</div>
-              ${ys ? `<div class="div-yield">&#128200; ${ys}</div>` : ""}
-              ${s.shares_held > 0 ? `<div class="div-total">${s.shares_held}株 → <strong>¥${td.toLocaleString()}</strong></div>` : ""}
+            <div class="item-div">
+              <div class="div-amt">¥${s.dividend_per_share.toLocaleString()}</div>
+              <div class="div-note">1株あたり</div>
+              ${ys?`<div class="div-yield">&#128200; ${ys}</div>`:""}
+              ${s.shares_held>0?`<div class="div-total">${s.shares_held}株→<strong>¥${td.toLocaleString()}</strong></div>`:""}
             </div>
           </div>
-          ${renderYuutai(s)}
+          ${renderYu(s)}
         </div>`;
       }).join("");
     }
 
-    function renderYuutai(s) {
+    function renderYu(s) {
       if (!s.yuutai) return "";
-      if (s.yuutai === "なし") return '<div class="yuutai-none">&#127873; 優待制度なし</div>';
-      let data = null;
-      try { data = JSON.parse(s.yuutai); } catch (e) {}
-      if (data && data.type === "detailed" && data.sections) {
+      if (s.yuutai === "なし") return '<div class="yu-none">&#127873; 優待制度なし</div>';
+      let data; try { data = JSON.parse(s.yuutai); } catch(e) {}
+      if (data?.type === "detailed" && data.sections) {
         const uid = "yu-" + s.id;
-        const names = data.sections.map(sec => sec.title).join("、");
+        const nm = data.sections.map(x=>x.title).join("、");
         let body = "";
         for (const sec of data.sections) {
           let tbl = "";
-          if (sec.rows && sec.rows.length > 0) {
-            tbl = `<table class="yu-table"><tr><th>必要株数</th><th>優待内容</th></tr>`;
+          if (sec.rows?.length) {
+            tbl = `<table class="yu-tbl"><tr><th>必要株数</th><th>優待内容</th></tr>`;
             for (const r of sec.rows) tbl += `<tr><td>${esc(r.shares)}</td><td>${esc(r.content)}</td></tr>`;
             tbl += "</table>";
           }
-          const nt = sec.notes ? `<div class="yu-notes"><div class="yu-notes-label">備考</div>${esc(sec.notes)}</div>` : "";
-          const mo = sec.months ? `<span class="yu-months">${esc(sec.months)}</span>` : "";
-          body += `<div class="yu-section"><div class="yu-title">&#127915; ${esc(sec.title)}${mo}</div>${tbl}${nt}</div>`;
+          const nt = sec.notes ? `<div class="yu-notes"><b>備考</b>${esc(sec.notes)}</div>` : "";
+          const mo = sec.months ? `<span class="yu-mo">${esc(sec.months)}</span>` : "";
+          body += `<div class="yu-sec"><div class="yu-sec-title">&#127915; ${esc(sec.title)}${mo}</div>${tbl}${nt}</div>`;
         }
-        return `<div class="yuutai-wrap">
-          <button class="yuutai-toggle" onclick="toggleYu('${uid}',this)">&#127873; 優待あり: ${esc(names)}<span class="arr">&#9660;</span></button>
-          <div class="yuutai-body" id="${uid}">${body}</div></div>`;
+        return `<div class="yu-wrap"><button class="yu-btn" onclick="togYu('${uid}',this)">&#127873; 優待あり: ${esc(nm)}<span class="chevron">&#9660;</span></button><div class="yu-detail" id="${uid}">${body}</div></div>`;
       }
-      return `<div class="yuutai-wrap">
-        <button class="yuutai-toggle" onclick="toggleYu('yu-${s.id}',this)">&#127873; 優待情報<span class="arr">&#9660;</span></button>
-        <div class="yuutai-body" id="yu-${s.id}" style="white-space:pre-line">${esc(s.yuutai)}</div></div>`;
+      return `<div class="yu-wrap"><button class="yu-btn" onclick="togYu('yu-${s.id}',this)">&#127873; 優待情報<span class="chevron">&#9660;</span></button><div class="yu-detail" id="yu-${s.id}" style="white-space:pre-line">${esc(s.yuutai)}</div></div>`;
     }
 
-    function toggleYu(id, btn) { const b = document.getElementById(id); const o = b.classList.toggle("open"); btn.classList.toggle("open", o); }
-    function fmtDate(d) { const w = ["日","月","火","水","木","金","土"]; return d.getFullYear() + "/" + (d.getMonth()+1) + "/" + d.getDate() + " (" + w[d.getDay()] + ")"; }
-    function esc(s) { const d = document.createElement("div"); d.textContent = String(s); return d.innerHTML; }
+    function togYu(id,btn) { document.getElementById(id).classList.toggle("open"); btn.classList.toggle("open"); }
+    function fmtD(d) { return d.getFullYear()+"/"+(d.getMonth()+1)+"/"+d.getDate()+" ("+["日","月","火","水","木","金","土"][d.getDay()]+")"; }
+    function esc(s) { const d=document.createElement("div"); d.textContent=String(s); return d.innerHTML; }
 
-    // --- 編集・削除 ---
     function editStock(id) {
-      const s = loadStocks().find(x => x.id === id); if (!s) return;
+      const s=loadStocks().find(x=>x.id===id); if(!s) return;
       document.getElementById("modal").classList.add("active");
-      document.getElementById("edit-id").value = s.id;
-      document.getElementById("edit-label").value = s.code + " " + s.name + " (" + s.dividend_type + ")";
-      document.getElementById("edit-shares").value = s.shares_held || 0;
-      document.getElementById("edit-yuutai").value = s.yuutai || "";
+      document.getElementById("edit-id").value=s.id;
+      document.getElementById("edit-label").value=s.code+" "+s.name+" ("+s.dividend_type+")";
+      document.getElementById("edit-shares").value=s.shares_held||0;
+      document.getElementById("edit-yuutai").value=s.yuutai||"";
     }
     function saveEdit() {
-      const id = document.getElementById("edit-id").value;
-      const shares = parseInt(document.getElementById("edit-shares").value) || 0;
-      const yuutai = document.getElementById("edit-yuutai").value.trim();
-      let stocks = loadStocks(); const t = stocks.find(s => s.id === id);
-      if (t) stocks = stocks.map(s => s.code === t.code ? { ...s, shares_held: shares, yuutai } : s);
-      saveStocksData(stocks); closeModal(); render();
+      const id=document.getElementById("edit-id").value;
+      const shares=parseInt(document.getElementById("edit-shares").value)||0;
+      const yuutai=document.getElementById("edit-yuutai").value.trim();
+      let stocks=loadStocks(); const t=stocks.find(s=>s.id===id);
+      if(t) stocks=stocks.map(s=>s.code===t.code?{...s,shares_held:shares,yuutai}:s);
+      saveStocks(stocks); closeModal(); render();
     }
     function closeModal() { document.getElementById("modal").classList.remove("active"); }
     function deleteStock(id) {
-      const stocks = loadStocks(), t = stocks.find(s => s.id === id);
-      if (!t || !confirm(t.name + "(" + t.dividend_type + ") を削除しますか？")) return;
-      saveStocksData(stocks.filter(s => s.id !== id)); render();
+      const stocks=loadStocks(),t=stocks.find(s=>s.id===id);
+      if(!t||!confirm(t.name+" を削除しますか？")) return;
+      saveStocks(stocks.filter(s=>s.id!==id)); render();
     }
 
     render();
 
-    // 優待データ自動取得
     async function autoFillYuutai() {
-      const isOk = y => { try { return JSON.parse(y).type === "detailed"; } catch(e) { return false; } };
-      const need = s => !s.yuutai || (s.yuutai !== "なし" && !isOk(s.yuutai));
-      const codes = [...new Set(loadStocks().filter(need).map(s => s.code))];
+      const ok=y=>{try{return JSON.parse(y).type==="detailed"}catch(e){return false}};
+      const need=s=>!s.yuutai||(s.yuutai!=="なし"&&!ok(s.yuutai));
+      const codes=[...new Set(loadStocks().filter(need).map(s=>s.code))];
       for (const code of codes) {
         try {
-          const yu = await fetchYuutai(code);
-          if (yu) { const all = loadStocks(); all.forEach(s => { if (s.code === code && need(s)) s.yuutai = yu; }); saveStocksData(all); render(); }
-        } catch (e) {}
+          const yu=await fetchYuutai(code);
+          if(yu){const all=loadStocks();all.forEach(s=>{if(s.code===code&&need(s))s.yuutai=yu});saveStocks(all);render();}
+        } catch(e){}
       }
     }
     autoFillYuutai();
