@@ -132,9 +132,13 @@
     .badge.passed { background: #f1f5f9; color: #94a3b8; }
 
     .yuutai-row {
-      display: flex; align-items: center; gap: 0.3rem;
-      font-size: 0.78rem; color: #d97706; margin-top: 0.15rem;
+      display: flex; align-items: flex-start; gap: 0.4rem;
+      font-size: 0.78rem; color: #d97706; margin-top: 0.4rem;
+      background: #fffbeb; border-radius: 8px; padding: 0.5rem 0.7rem;
+      border: 1px solid #fde68a; line-height: 1.6;
     }
+    .yuutai-icon { flex-shrink: 0; font-size: 1rem; }
+    .yuutai-detail { flex: 1; }
 
     .stock-dividend { text-align: right; min-width: 130px; }
     .dividend-amount { font-size: 1.35rem; font-weight: 800; color: #6366f1; }
@@ -358,39 +362,68 @@
     function parseYuutaiHtml(html) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
-      const parts = [];
-      // h3タグから優待の種類を取得
-      const headings = doc.querySelectorAll("h3");
-      headings.forEach(h => {
-        const text = h.textContent.trim();
-        if (text && !text.includes("プレミアム") && !text.includes("広告")
-            && (text.includes("優待") || text.includes("券") || text.includes("割引")
-            || text.includes("ポイント") || text.includes("カード") || text.includes("商品")
-            || text.includes("食事") || text.includes("チケット") || text.includes("Wallet")
-            || text.includes("カタログ") || text.includes("QUO"))) {
-          parts.push(text);
-        }
+      const sections = [];
+
+      // stock_yutai_detail_box 内のテーブルを探す or h3 + table ペアを探す
+      const allH3 = doc.querySelectorAll("h3");
+      const yuutaiHeadings = [];
+      allH3.forEach(h => {
+        const t = h.textContent.trim();
+        if (!t || t.includes("プレミアム") || t.includes("広告") || t.includes("利回り")) return;
+        // 優待関連のh3かどうか (株関連ページなので大半が該当)
+        const parent = h.closest(".stock_yutai_detail_box") || h.parentElement;
+        if (parent) yuutaiHeadings.push(h);
       });
-      if (parts.length > 0) {
-        // テーブルから最小株数を取得
-        const tables = doc.querySelectorAll("table");
-        let minShares = "";
-        for (const table of tables) {
-          const cells = table.querySelectorAll("td");
-          for (const td of cells) {
-            const t = td.textContent.trim();
-            if (t.includes("株以上")) { minShares = t; break; }
-          }
-          if (minShares) break;
+
+      for (const h3 of yuutaiHeadings) {
+        const title = h3.textContent.trim();
+        // h3の次のテーブルを探す
+        let el = h3.nextElementSibling;
+        let table = null;
+        for (let i = 0; i < 5 && el; i++) {
+          if (el.tagName === "TABLE") { table = el; break; }
+          if (el.querySelector && el.querySelector("table")) { table = el.querySelector("table"); break; }
+          el = el.nextElementSibling;
         }
-        const prefix = minShares ? minShares + ": " : "";
-        return prefix + parts.join("、");
+
+        const rows = [];
+        if (table) {
+          const trs = table.querySelectorAll("tr");
+          trs.forEach(tr => {
+            const tds = tr.querySelectorAll("td");
+            if (tds.length >= 2) {
+              const shares = tds[0].textContent.trim();
+              const content = tds[1].textContent.trim();
+              if (shares && content && shares.includes("株")) {
+                rows.push(shares + ": " + content);
+              }
+            }
+          });
+        }
+
+        if (rows.length > 0) {
+          sections.push("【" + title + "】\n" + rows.join("\n"));
+        } else if (title) {
+          sections.push("【" + title + "】");
+        }
       }
-      // フォールバック: ページ内テキストから優待情報を探す
-      const body = doc.body ? doc.body.textContent : html;
-      if (body.includes("優待内容") || body.includes("優待制度")) {
-        const match = body.match(/優待内容[：:\s]*([^\n]{5,80})/);
-        if (match) return match[1].trim();
+
+      if (sections.length > 0) return sections.join("\n");
+
+      // フォールバック: テーブルだけでも探す
+      const tables = doc.querySelectorAll("table");
+      for (const table of tables) {
+        const trs = table.querySelectorAll("tr");
+        const rows = [];
+        trs.forEach(tr => {
+          const tds = tr.querySelectorAll("td");
+          if (tds.length >= 2) {
+            const s = tds[0].textContent.trim();
+            const c = tds[1].textContent.trim();
+            if (s.includes("株")) rows.push(s + ": " + c);
+          }
+        });
+        if (rows.length > 0) return rows.join("\n");
       }
       return "なし";
     }
@@ -576,7 +609,7 @@
         const typeCls = "type-" + esc(s.dividend_type);
         const yieldStr = s.dividend_yield ? (s.dividend_yield * 100).toFixed(2) + "%" : "";
         const yuutaiHtml = s.yuutai
-          ? `<div class="yuutai-row">&#127873; ${esc(s.yuutai)}</div>` : "";
+          ? `<div class="yuutai-row"><span class="yuutai-icon">&#127873;</span><div class="yuutai-detail">${esc(s.yuutai).replace(/\n/g, "<br>")}</div></div>` : "";
 
         return `
           <div class="stock-card${pastCls}">
@@ -668,10 +701,12 @@
 
     render();
 
-    // 優待未取得の銘柄をバックグラウンドで自動取得
+    // 優待未取得 or 簡易データの銘柄をバックグラウンドで自動取得
     async function autoFillYuutai() {
       const stocks = loadStocks();
-      const codes = [...new Set(stocks.filter(s => !s.yuutai).map(s => s.code))];
+      // 未取得 or 旧形式(改行なし&「なし」以外)の銘柄を再取得対象にする
+      const needsFetch = s => !s.yuutai || (s.yuutai !== "なし" && !s.yuutai.includes("\n") && s.yuutai.length < 50);
+      const codes = [...new Set(stocks.filter(needsFetch).map(s => s.code))];
       if (codes.length === 0) return;
       let updated = false;
       for (const code of codes) {
@@ -679,7 +714,7 @@
           const yuutai = await fetchYuutai(code);
           if (yuutai) {
             const all = loadStocks();
-            all.forEach(s => { if (s.code === code && !s.yuutai) s.yuutai = yuutai; });
+            all.forEach(s => { if (s.code === code && needsFetch(s)) s.yuutai = yuutai; });
             saveStocksData(all);
             updated = true;
           }
