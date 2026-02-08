@@ -18,7 +18,6 @@
     .subtitle { font-size: 0.85rem; color: #a0aec0; margin-top: 0.25rem; }
     main { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
 
-    /* サマリー */
     .summary-cards {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem; margin-bottom: 1.5rem;
@@ -30,18 +29,37 @@
     .card-label { font-size: 0.8rem; color: #718096; margin-bottom: 0.4rem; }
     .card-value { font-size: 1.6rem; font-weight: 700; }
 
-    /* ボタン */
-    .actions { margin-bottom: 1.2rem; }
+    /* 追加エリア */
+    .add-area {
+      background: #fff; border-radius: 12px; padding: 1.2rem 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1.5rem;
+    }
+    .add-area h2 { font-size: 1rem; margin-bottom: 0.8rem; }
+    .add-row {
+      display: flex; gap: 0.6rem; align-items: flex-end; flex-wrap: wrap;
+    }
+    .add-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .add-group label { font-size: 0.75rem; color: #718096; font-weight: 600; }
+    .add-group input {
+      padding: 0.5rem 0.7rem; border: 1px solid #e2e8f0; border-radius: 8px;
+      font-size: 0.9rem; outline: none; width: 140px;
+    }
+    .add-group input:focus { border-color: #2563eb; }
     .btn-primary {
-      background: #2563eb; color: #fff; border: none; padding: 0.6rem 1.4rem;
+      background: #2563eb; color: #fff; border: none; padding: 0.55rem 1.2rem;
       border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      white-space: nowrap;
     }
     .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary {
-      background: #e2e8f0; color: #4a5568; border: none; padding: 0.6rem 1.4rem;
-      border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; }
+
+    .fetch-status {
+      font-size: 0.8rem; margin-top: 0.6rem; padding: 0.4rem 0.6rem;
+      border-radius: 6px; display: none;
     }
-    .btn-secondary:hover { background: #cbd5e0; }
+    .fetch-status.loading { display: block; background: #ebf8ff; color: #2b6cb0; }
+    .fetch-status.error { display: block; background: #fed7d7; color: #c53030; }
+    .fetch-status.success { display: block; background: #c6f6d5; color: #276749; }
 
     /* 銘柄リスト */
     .stock-list { display: flex; flex-direction: column; gap: 0.8rem; }
@@ -68,13 +86,12 @@
     }
     .type-中間 { background: #dbeafe; color: #1e40af; }
     .type-期末 { background: #fce7f3; color: #9d174d; }
-    .type-四半期 { background: #d1fae5; color: #065f46; }
 
-    .stock-dates {
+    .stock-info-row {
       display: flex; gap: 1.2rem; font-size: 0.82rem; color: #4a5568; flex-wrap: wrap;
     }
-    .stock-dates strong { color: #1a1a2e; }
-    .date-label { font-size: 0.7rem; color: #a0aec0; }
+    .stock-info-row strong { color: #1a1a2e; }
+    .info-label { font-size: 0.7rem; color: #a0aec0; }
 
     .badge {
       display: inline-block; font-size: 0.75rem; font-weight: 700;
@@ -85,10 +102,11 @@
     .badge.ok     { background: #c6f6d5; color: #276749; }
     .badge.passed { background: #e2e8f0; color: #a0aec0; }
 
-    .stock-dividend { text-align: right; min-width: 120px; }
+    .stock-dividend { text-align: right; min-width: 130px; }
     .dividend-amount { font-size: 1.3rem; font-weight: 700; color: #2563eb; }
     .dividend-sub { font-size: 0.75rem; color: #718096; }
     .dividend-sub strong { color: #1a1a2e; }
+    .dividend-yield { font-size: 0.75rem; color: #38a169; font-weight: 600; }
 
     .stock-actions { display: flex; gap: 0.3rem; margin-top: 0.4rem; }
     .stock-actions button {
@@ -100,7 +118,7 @@
       background: #fed7d7; color: #c53030; border-color: #feb2b2;
     }
 
-    /* モーダル */
+    /* 編集モーダル */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
       z-index: 100; justify-content: center; align-items: center;
@@ -108,25 +126,28 @@
     .modal-overlay.active { display: flex; }
     .modal {
       background: #fff; border-radius: 16px; padding: 1.5rem 2rem;
-      width: 90%; max-width: 520px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      width: 90%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
     .modal h2 { font-size: 1.1rem; margin-bottom: 1rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
     .form-group { margin-bottom: 0.8rem; }
     .form-group label {
       display: block; font-size: 0.8rem; font-weight: 600;
       color: #4a5568; margin-bottom: 0.3rem;
     }
-    .req { color: #e53e3e; }
-    .form-group input, .form-group select {
+    .form-group input {
       width: 100%; padding: 0.5rem 0.7rem; border: 1px solid #e2e8f0;
       border-radius: 8px; font-size: 0.9rem; outline: none;
     }
-    .form-group input:focus, .form-group select:focus { border-color: #2563eb; }
-    .form-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.8rem; }
+    .form-group input:focus { border-color: #2563eb; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
+    .btn-secondary {
+      background: #e2e8f0; color: #4a5568; border: none; padding: 0.6rem 1.4rem;
+      border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    }
 
     @media (max-width: 600px) {
-      .form-row { grid-template-columns: 1fr; }
+      .add-row { flex-direction: column; align-items: stretch; }
+      .add-group input { width: 100%; }
       .stock-card { grid-template-columns: 1fr; }
       .stock-dividend { text-align: left; }
     }
@@ -135,7 +156,7 @@
 <body>
   <header>
     <h1>配当管理</h1>
-    <p class="subtitle">日本株の配当スケジュールをひと目で確認</p>
+    <p class="subtitle">銘柄コードを入力するだけ。配当情報を自動取得。</p>
   </header>
 
   <main>
@@ -154,91 +175,111 @@
       </div>
     </section>
 
-    <section class="actions">
-      <button class="btn-primary" onclick="openModal()">+ 銘柄を追加</button>
+    <!-- 銘柄追加 -->
+    <section class="add-area">
+      <h2>銘柄を追加</h2>
+      <div class="add-row">
+        <div class="add-group">
+          <label>銘柄コード</label>
+          <input type="text" id="add-code" placeholder="例: 7203" maxlength="5">
+        </div>
+        <div class="add-group">
+          <label>保有株数</label>
+          <input type="number" id="add-shares" placeholder="例: 100" min="0" value="100">
+        </div>
+        <button class="btn-primary" id="add-btn" onclick="addByCode()">自動取得して追加</button>
+      </div>
+      <div class="fetch-status" id="fetch-status"></div>
     </section>
 
     <section class="stock-list" id="stock-list"></section>
   </main>
 
-  <!-- モーダル -->
+  <!-- 保有株数の編集モーダル -->
   <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
     <div class="modal">
-      <h2 id="modal-title">銘柄を追加</h2>
-      <form id="stock-form" onsubmit="saveStock(event)">
-        <input type="hidden" id="edit-id">
-        <div class="form-row">
-          <div class="form-group">
-            <label>銘柄コード <span class="req">*</span></label>
-            <input type="text" id="f-code" placeholder="例: 7203" required>
-          </div>
-          <div class="form-group">
-            <label>銘柄名 <span class="req">*</span></label>
-            <input type="text" id="f-name" placeholder="例: トヨタ自動車" required>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>権利確定日 <span class="req">*</span></label>
-            <input type="date" id="f-record-date" required>
-          </div>
-          <div class="form-group">
-            <label>配当区分</label>
-            <select id="f-type">
-              <option value="中間">中間配当</option>
-              <option value="期末">期末配当</option>
-              <option value="四半期">四半期配当</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>1株あたり配当金 (円) <span class="req">*</span></label>
-            <input type="number" id="f-dividend" step="0.1" min="0" placeholder="例: 35" required>
-          </div>
-          <div class="form-group">
-            <label>保有株数</label>
-            <input type="number" id="f-shares" min="0" value="0" placeholder="例: 100">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>メモ</label>
-          <input type="text" id="f-note" placeholder="自由メモ">
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" onclick="closeModal()">キャンセル</button>
-          <button type="submit" class="btn-primary">保存</button>
-        </div>
-      </form>
+      <h2>保有株数を変更</h2>
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>銘柄</label>
+        <input type="text" id="edit-label" disabled>
+      </div>
+      <div class="form-group">
+        <label>保有株数</label>
+        <input type="number" id="edit-shares" min="0">
+      </div>
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="closeModal()">キャンセル</button>
+        <button class="btn-primary" onclick="saveEdit()">保存</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "dividend_stocks";
+    const STORAGE_KEY = "dividend_stocks_v2";
+    const CORS_PROXIES = [
+      url => "https://corsproxy.io/?" + encodeURIComponent(url),
+      url => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+    ];
 
-    // --- データ ---
-    function loadStocks() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        // 初回はサンプルデータ
-        const samples = [
-          { id: "s1", code: "7203", name: "トヨタ自動車", record_date: "2026-03-31", dividend_per_share: 40, shares_held: 100, dividend_type: "期末", note: "" },
-          { id: "s2", code: "8306", name: "三菱UFJ FG", record_date: "2026-03-31", dividend_per_share: 25, shares_held: 300, dividend_type: "期末", note: "" },
-          { id: "s3", code: "9432", name: "NTT", record_date: "2026-03-31", dividend_per_share: 5, shares_held: 500, dividend_type: "期末", note: "株式分割後" },
-          { id: "s4", code: "8058", name: "三菱商事", record_date: "2026-09-30", dividend_per_share: 50, shares_held: 100, dividend_type: "中間", note: "" },
-          { id: "s5", code: "6758", name: "ソニーG", record_date: "2026-09-30", dividend_per_share: 55, shares_held: 0, dividend_type: "中間", note: "購入検討中" },
-        ];
-        saveStocks(samples);
-        return samples;
+    // --- Yahoo Finance API ---
+    async function fetchWithProxy(url) {
+      for (const makeProxy of CORS_PROXIES) {
+        try {
+          const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
+          if (res.ok) return await res.json();
+        } catch (e) { /* try next proxy */ }
       }
-      return JSON.parse(raw);
+      throw new Error("API取得に失敗しました");
     }
 
-    function saveStocks(stocks) {
+    async function fetchStockInfo(code) {
+      const symbol = code + ".T";
+      const url = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=" + symbol +
+                  "&fields=shortName,longName,dividendRate,dividendYield,trailingAnnualDividendRate,trailingAnnualDividendYield";
+      const data = await fetchWithProxy(url);
+
+      if (!data.quoteResponse || !data.quoteResponse.result || data.quoteResponse.result.length === 0) {
+        throw new Error("銘柄が見つかりません: " + code);
+      }
+
+      const q = data.quoteResponse.result[0];
+      const name = q.longName || q.shortName || symbol;
+      const annualDiv = q.dividendRate || q.trailingAnnualDividendRate || 0;
+      const divYield = q.dividendYield || q.trailingAnnualDividendYield || 0;
+      const halfDiv = Math.round(annualDiv / 2 * 10) / 10;
+
+      return { name, annualDividend: annualDiv, halfDividend: halfDiv, dividendYield: divYield };
+    }
+
+    // --- データ管理 ---
+    function loadStocks() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveStocksData(stocks) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks));
     }
 
-    // --- 権利付最終日の計算（権利確定日の2営業日前）---
+    function calcFiscalDates(code) {
+      // 日本株の一般的な権利確定日 (3月決算が大半)
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      const dates = [];
+      // 期末: 3/31
+      const yearEnd = month <= 3 ? year : year + 1;
+      dates.push({ type: "期末", record_date: yearEnd + "-03-31" });
+      // 中間: 9/30
+      const yearMid = month <= 9 ? year : year + 1;
+      dates.push({ type: "中間", record_date: yearMid + "-09-30" });
+
+      return dates;
+    }
+
+    // --- 権利付最終日 ---
     function calcLastBuyDate(recordDateStr) {
       const d = new Date(recordDateStr + "T00:00:00");
       let back = 0;
@@ -249,13 +290,82 @@
       return d;
     }
 
+    // --- 銘柄追加 ---
+    async function addByCode() {
+      const codeInput = document.getElementById("add-code");
+      const sharesInput = document.getElementById("add-shares");
+      const btn = document.getElementById("add-btn");
+      const status = document.getElementById("fetch-status");
+      const code = codeInput.value.trim();
+
+      if (!code || !/^\d{4,5}$/.test(code)) {
+        status.className = "fetch-status error";
+        status.textContent = "4〜5桁の銘柄コードを入力してください";
+        return;
+      }
+
+      // 重複チェック
+      const existing = loadStocks();
+      if (existing.some(s => s.code === code)) {
+        status.className = "fetch-status error";
+        status.textContent = code + " は既に登録済みです";
+        return;
+      }
+
+      btn.disabled = true;
+      status.className = "fetch-status loading";
+      status.textContent = code + ".T の情報を取得中...";
+
+      try {
+        const info = await fetchStockInfo(code);
+        const shares = parseInt(sharesInput.value) || 0;
+        const fiscalDates = calcFiscalDates(code);
+
+        const newEntries = fiscalDates.map(fd => ({
+          id: crypto.randomUUID(),
+          code: code,
+          name: info.name,
+          record_date: fd.record_date,
+          dividend_type: fd.type,
+          dividend_per_share: info.halfDividend,
+          annual_dividend: info.annualDividend,
+          dividend_yield: info.dividendYield,
+          shares_held: shares,
+        }));
+
+        const stocks = loadStocks();
+        stocks.push(...newEntries);
+        saveStocksData(stocks);
+
+        status.className = "fetch-status success";
+        status.textContent = info.name + "(" + code + ") を追加しました！ 年間配当: " +
+                             info.annualDividend + "円/株, 利回り: " +
+                             (info.dividendYield * 100).toFixed(2) + "%";
+        codeInput.value = "";
+        render();
+      } catch (e) {
+        status.className = "fetch-status error";
+        status.textContent = e.message || "取得に失敗しました。銘柄コードを確認してください。";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Enterキーで追加
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("add-code").addEventListener("keydown", e => {
+        if (e.key === "Enter") addByCode();
+      });
+    });
+
     // --- 描画 ---
     function render() {
       const stocks = loadStocks();
       const today = new Date(); today.setHours(0, 0, 0, 0);
 
       // サマリー
-      document.getElementById("val-total").textContent = stocks.length;
+      document.getElementById("val-total").textContent =
+        new Set(stocks.map(s => s.code)).size;
       let upcomingCount = 0;
       let totalIncome = 0;
       stocks.forEach(s => {
@@ -269,10 +379,9 @@
       // ソート: 権利確定日順
       stocks.sort((a, b) => a.record_date.localeCompare(b.record_date));
 
-      // リスト
       const container = document.getElementById("stock-list");
       if (stocks.length === 0) {
-        container.innerHTML = '<p class="empty-msg">銘柄が登録されていません。「+ 銘柄を追加」から始めましょう。</p>';
+        container.innerHTML = '<p class="empty-msg">上の入力欄に銘柄コードを入れて「自動取得して追加」を押してください。</p>';
         return;
       }
       container.innerHTML = stocks.map(s => {
@@ -289,6 +398,7 @@
         const totalDiv = s.dividend_per_share * (s.shares_held || 0);
         const pastCls = diff < 0 ? " past" : "";
         const typeCls = "type-" + esc(s.dividend_type);
+        const yieldStr = s.dividend_yield ? (s.dividend_yield * 100).toFixed(2) + "%" : "";
 
         return `
           <div class="stock-card${pastCls}">
@@ -298,27 +408,28 @@
                 <span class="stock-name">${esc(s.name)}</span>
                 <span class="stock-type ${typeCls}">${esc(s.dividend_type)}</span>
               </div>
-              <div class="stock-dates">
+              <div class="stock-info-row">
                 <div>
-                  <div class="date-label">権利付最終日</div>
+                  <div class="info-label">権利付最終日</div>
                   <strong>${fmtDate(lastBuy)}</strong>
                   <span class="badge ${badgeCls}">${badgeTxt}</span>
                 </div>
                 <div>
-                  <div class="date-label">権利確定日</div>
+                  <div class="info-label">権利確定日</div>
                   <strong>${fmtDate(new Date(s.record_date + "T00:00:00"))}</strong>
                 </div>
               </div>
               <div class="stock-actions">
-                <button onclick="editStock('${s.id}')">編集</button>
+                <button onclick="editShares('${s.id}')">株数変更</button>
                 <button class="delete" onclick="deleteStock('${s.id}')">削除</button>
               </div>
             </div>
             <div class="stock-dividend">
               <div class="dividend-amount">&yen;${s.dividend_per_share.toLocaleString()}</div>
-              <div class="dividend-sub">1株あたり</div>
+              <div class="dividend-sub">1株あたり(予想)</div>
+              ${yieldStr ? `<div class="dividend-yield">利回り ${yieldStr}</div>` : ""}
               ${s.shares_held > 0
-                ? `<div class="dividend-sub">${s.shares_held}株 &times; &yen;${s.dividend_per_share} = <strong>&yen;${totalDiv.toLocaleString()}</strong></div>`
+                ? `<div class="dividend-sub">${s.shares_held}株 &rarr; <strong>&yen;${totalDiv.toLocaleString()}</strong></div>`
                 : '<div class="dividend-sub">保有株数未設定</div>'}
             </div>
           </div>`;
@@ -336,62 +447,43 @@
       return d.innerHTML;
     }
 
-    // --- モーダル ---
-    function openModal(id) {
+    // --- 編集・削除 ---
+    function editShares(id) {
+      const stocks = loadStocks();
+      const s = stocks.find(x => x.id === id);
+      if (!s) return;
       document.getElementById("modal").classList.add("active");
-      document.getElementById("stock-form").reset();
-      document.getElementById("edit-id").value = "";
-      document.getElementById("modal-title").textContent = "銘柄を追加";
+      document.getElementById("edit-id").value = s.id;
+      document.getElementById("edit-label").value = s.code + " " + s.name;
+      document.getElementById("edit-shares").value = s.shares_held || 0;
+    }
 
-      if (id) {
-        document.getElementById("modal-title").textContent = "銘柄を編集";
-        const s = loadStocks().find(x => x.id === id);
-        if (!s) return;
-        document.getElementById("edit-id").value = s.id;
-        document.getElementById("f-code").value = s.code;
-        document.getElementById("f-name").value = s.name;
-        document.getElementById("f-record-date").value = s.record_date;
-        document.getElementById("f-type").value = s.dividend_type;
-        document.getElementById("f-dividend").value = s.dividend_per_share;
-        document.getElementById("f-shares").value = s.shares_held || 0;
-        document.getElementById("f-note").value = s.note || "";
+    function saveEdit() {
+      const id = document.getElementById("edit-id").value;
+      const shares = parseInt(document.getElementById("edit-shares").value) || 0;
+      let stocks = loadStocks();
+      // 同じ銘柄コードの全エントリの株数を更新
+      const target = stocks.find(s => s.id === id);
+      if (target) {
+        stocks = stocks.map(s =>
+          s.code === target.code ? { ...s, shares_held: shares } : s
+        );
       }
+      saveStocksData(stocks);
+      closeModal();
+      render();
     }
 
     function closeModal() {
       document.getElementById("modal").classList.remove("active");
     }
 
-    function editStock(id) { openModal(id); }
-
     function deleteStock(id) {
-      if (!confirm("この銘柄を削除しますか？")) return;
-      const stocks = loadStocks().filter(s => s.id !== id);
-      saveStocks(stocks);
-      render();
-    }
-
-    function saveStock(e) {
-      e.preventDefault();
-      const id = document.getElementById("edit-id").value;
-      const entry = {
-        id: id || crypto.randomUUID(),
-        code: document.getElementById("f-code").value,
-        name: document.getElementById("f-name").value,
-        record_date: document.getElementById("f-record-date").value,
-        dividend_type: document.getElementById("f-type").value,
-        dividend_per_share: parseFloat(document.getElementById("f-dividend").value),
-        shares_held: parseInt(document.getElementById("f-shares").value) || 0,
-        note: document.getElementById("f-note").value,
-      };
-      let stocks = loadStocks();
-      if (id) {
-        stocks = stocks.map(s => s.id === id ? entry : s);
-      } else {
-        stocks.push(entry);
-      }
-      saveStocks(stocks);
-      closeModal();
+      const stocks = loadStocks();
+      const target = stocks.find(s => s.id === id);
+      if (!target) return;
+      if (!confirm(target.name + "(" + target.dividend_type + ") を削除しますか？")) return;
+      saveStocksData(stocks.filter(s => s.id !== id));
       render();
     }
 
