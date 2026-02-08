@@ -259,6 +259,64 @@
       .sheet { border-radius: var(--r); max-width: 420px; animation: fadeIn 0.2s ease; }
       @keyframes fadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
     }
+
+    /* タブ */
+    .tabs {
+      display: flex; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 50px; padding: 3px; margin-bottom: 1rem;
+    }
+    .tab {
+      flex: 1; padding: 0.55rem; border: none; background: none; border-radius: 50px;
+      font-size: 0.78rem; font-weight: 600; color: var(--text3); cursor: pointer;
+      font-family: inherit; transition: all 0.2s; text-align: center;
+    }
+    .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+    /* ランキング */
+    .rank-cats { display: flex; gap: 0.4rem; margin-bottom: 0.8rem; overflow-x: auto; scrollbar-width: none; }
+    .rank-cats::-webkit-scrollbar { display: none; }
+    .rank-cat {
+      padding: 0.35rem 0.75rem; border: 1px solid var(--border); border-radius: 50px;
+      font-size: 0.68rem; font-weight: 600; color: var(--text3); cursor: pointer;
+      font-family: inherit; background: var(--surface); white-space: nowrap; transition: all 0.15s;
+    }
+    .rank-cat.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent2); }
+    .rank-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;
+    }
+    .rank-header h2 { font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; }
+    .rank-update { font-size: 0.6rem; color: var(--text3); }
+    .rank-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .rank-item {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 0.9rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); transition: border-color 0.15s;
+    }
+    .rank-item:hover { border-color: #e5e5e5; }
+    .rank-num { font-size: 1rem; font-weight: 800; min-width: 1.6rem; text-align: center; color: var(--text3); }
+    .rank-num.top1 { color: #f59e0b; }
+    .rank-num.top2 { color: #94a3b8; }
+    .rank-num.top3 { color: #cd7f32; }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rank-meta { display: flex; gap: 0.4rem; align-items: center; margin-top: 0.1rem; }
+    .rank-code {
+      font-size: 0.6rem; color: var(--text3); background: var(--bg);
+      padding: 0.05rem 0.35rem; border-radius: 50px; border: 1px solid var(--border); font-weight: 600;
+    }
+    .rank-price { font-size: 0.6rem; color: var(--text3); }
+    .rank-right { text-align: right; flex-shrink: 0; }
+    .rank-yield { font-size: 1rem; font-weight: 800; color: var(--green); }
+    .rank-div { font-size: 0.6rem; color: var(--text3); }
+    .rank-add-btn {
+      background: none; border: 1.5px solid var(--accent); border-radius: 50px;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--accent); font-size: 0.85rem; font-weight: 700;
+      transition: all 0.15s; flex-shrink: 0; font-family: inherit;
+    }
+    .rank-add-btn:hover { background: var(--accent); color: #fff; }
+    .rank-add-btn.added { background: var(--green-light); border-color: var(--green); color: var(--green); cursor: default; }
+    .rank-loading, .rank-empty { text-align: center; padding: 2rem; color: var(--text3); font-size: 0.82rem; }
   </style>
 </head>
 <body>
@@ -270,6 +328,12 @@
   </div>
 
   <div class="content">
+    <div class="tabs">
+      <button class="tab active" id="tab-btn-home" onclick="switchTab('home')">&#128200; ホーム</button>
+      <button class="tab" id="tab-btn-ranking" onclick="switchTab('ranking')">&#127942; ランキング</button>
+    </div>
+
+    <div id="tab-home">
     <section class="stats">
       <div class="stat">
         <div class="stat-emoji">&#128203;</div>
@@ -311,6 +375,21 @@
 
     <div class="sec-title" id="list-title" style="display:none">&#128196; 登録銘柄</div>
     <section class="list" id="stock-list"></section>
+    </div>
+
+    <div id="tab-ranking" style="display:none">
+      <div class="rank-cats">
+        <button class="rank-cat active" onclick="changeRankType('dividend_yield',this)">&#128176; 配当利回り</button>
+        <button class="rank-cat" onclick="changeRankType('increment',this)">&#128200; 連続増配</button>
+      </div>
+      <div class="rank-header">
+        <h2 id="rank-title">&#127942; 配当利回りランキング</h2>
+        <span class="rank-update" id="rank-updated"></span>
+      </div>
+      <div id="ranking-list" class="rank-list">
+        <div class="rank-loading">&#128225; ランキングを取得中...</div>
+      </div>
+    </div>
   </div>
 
   <div class="overlay" id="modal" onclick="if(event.target===this)closeModal()">
@@ -580,6 +659,192 @@
     }
 
     render();
+
+    /* ===== ランキング機能 ===== */
+    let rankCache = {};
+    let currentRankType = 'dividend_yield';
+
+    function switchTab(tab) {
+      document.getElementById('tab-home').style.display = tab === 'home' ? '' : 'none';
+      document.getElementById('tab-ranking').style.display = tab === 'ranking' ? '' : 'none';
+      document.getElementById('tab-btn-home').classList.toggle('active', tab === 'home');
+      document.getElementById('tab-btn-ranking').classList.toggle('active', tab === 'ranking');
+      if (tab === 'ranking' && !rankCache[currentRankType]) fetchRanking(currentRankType);
+    }
+
+    function changeRankType(type, btn) {
+      currentRankType = type;
+      document.querySelectorAll('.rank-cat').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const titles = { dividend_yield: '\u{1F3C6} 配当利回りランキング', increment: '\u{1F3C6} 連続増配ランキング' };
+      document.getElementById('rank-title').innerHTML = titles[type] || '';
+      if (rankCache[type]) renderRanking(rankCache[type]);
+      else fetchRanking(type);
+    }
+
+    async function fetchRanking(type) {
+      const list = document.getElementById('ranking-list');
+      list.innerHTML = '<div class="rank-loading">\u{1F4E1} ランキングを取得中...</div>';
+      try {
+        const url = type === 'dividend_yield'
+          ? 'https://kabutan.jp/ranking/?type=dividend_yield'
+          : 'https://kabutan.jp/ranking/?type=dividend_up';
+        const proxies = [
+          u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+          u => "https://corsproxy.io/?" + encodeURIComponent(u),
+          u => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
+        ];
+        let html = null;
+        for (const p of proxies) {
+          try {
+            const r = await fetch(p(url), { signal: AbortSignal.timeout(12000) });
+            if (!r.ok) continue;
+            const t = await r.text(); if (t && t.length > 500) { html = t; break; }
+          } catch(e) {}
+        }
+        if (html) {
+          const data = parseRankingHtml(html, type);
+          if (data.length > 0) {
+            rankCache[type] = data;
+            document.getElementById('rank-updated').textContent = '\u{1F504} ' + new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+            renderRanking(data); return;
+          }
+        }
+        rankCache[type] = getStaticRanking(type);
+        document.getElementById('rank-updated').textContent = '\u{1F4CB} 参考データ';
+        renderRanking(rankCache[type]);
+      } catch(e) {
+        rankCache[type] = getStaticRanking(type);
+        document.getElementById('rank-updated').textContent = '\u{1F4CB} 参考データ';
+        renderRanking(rankCache[type]);
+      }
+    }
+
+    function parseRankingHtml(html, type) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const results = [];
+      const rows = doc.querySelectorAll('table.stock_ranking_table tr, table tr');
+      for (const row of rows) {
+        const tds = row.querySelectorAll('td');
+        if (tds.length < 3) continue;
+        let code='', name='', yieldVal=0, price=0;
+        for (const td of tds) {
+          const text = td.textContent.trim();
+          const a = td.querySelector('a');
+          if (/^\d{4,5}$/.test(text)) code = text;
+          else if (a) {
+            const hm = (a.getAttribute('href')||'').match(/code=(\d{4,5})/);
+            if (hm) { code = code || hm[1]; if (text.length > 1 && !/^\d/.test(text)) name = text; }
+            else if (text.length > 2 && !/^[\d,.%¥円]+$/.test(text)) name = text;
+          }
+          const ym = text.match(/([\d.]+)\s*%/);
+          if (ym && !yieldVal) yieldVal = parseFloat(ym[1]);
+          const pm = text.replace(/,/g,'').match(/^(\d{3,})$/);
+          if (pm && !price) price = parseInt(pm[1]);
+        }
+        if (code && (yieldVal > 0 || name)) {
+          results.push({ rank: results.length+1, code, name: name||code, yield: yieldVal, price });
+        }
+        if (results.length >= 30) break;
+      }
+      return results;
+    }
+
+    function getStaticRanking(type) {
+      if (type === 'increment') return [
+        {rank:1,code:'4452',name:'花王',yield:2.8,price:5800,info:'34期連続'},
+        {rank:2,code:'8566',name:'リコーリース',yield:3.1,price:4500,info:'28期連続'},
+        {rank:3,code:'4732',name:'ユー・エス・エス',yield:2.9,price:2800,info:'27期連続'},
+        {rank:4,code:'7466',name:'SPK',yield:2.7,price:2100,info:'26期連続'},
+        {rank:5,code:'8593',name:'三菱HCキャピタル',yield:3.5,price:980,info:'25期連続'},
+        {rank:6,code:'9058',name:'トランコム',yield:2.2,price:7200,info:'24期連続'},
+        {rank:7,code:'9436',name:'沖縄セルラー電話',yield:3.0,price:3100,info:'23期連続'},
+        {rank:8,code:'9433',name:'KDDI',yield:3.2,price:4600,info:'22期連続'},
+        {rank:9,code:'2391',name:'プラネット',yield:3.2,price:1200,info:'22期連続'},
+        {rank:10,code:'8113',name:'ユニ・チャーム',yield:0.8,price:5200,info:'22期連続'},
+        {rank:11,code:'4967',name:'小林製薬',yield:1.5,price:4800,info:'21期連続'},
+        {rank:12,code:'9989',name:'サンドラッグ',yield:2.5,price:3500,info:'21期連続'},
+        {rank:13,code:'2124',name:'JAC Recruitment',yield:3.0,price:1400,info:'20期連続'},
+        {rank:14,code:'4547',name:'キッセイ薬品',yield:2.8,price:3200,info:'20期連続'},
+        {rank:15,code:'5947',name:'リンナイ',yield:1.8,price:4100,info:'20期連続'},
+      ];
+      return [
+        {rank:1,code:'9104',name:'商船三井',yield:5.5,price:4200},
+        {rank:2,code:'9101',name:'日本郵船',yield:4.8,price:4500},
+        {rank:3,code:'2914',name:'JT',yield:4.8,price:4100},
+        {rank:4,code:'9434',name:'ソフトバンク',yield:4.5,price:1900},
+        {rank:5,code:'1605',name:'INPEX',yield:4.2,price:2100},
+        {rank:6,code:'4502',name:'武田薬品工業',yield:4.2,price:4500},
+        {rank:7,code:'5401',name:'日本製鉄',yield:5.0,price:3200},
+        {rank:8,code:'8316',name:'三井住友FG',yield:3.8,price:8500},
+        {rank:9,code:'8411',name:'みずほFG',yield:3.8,price:2800},
+        {rank:10,code:'6178',name:'日本郵政',yield:3.8,price:1300},
+        {rank:11,code:'5020',name:'ENEOS HD',yield:3.5,price:600},
+        {rank:12,code:'8593',name:'三菱HCキャピタル',yield:3.5,price:980},
+        {rank:13,code:'7267',name:'本田技研工業',yield:3.5,price:1500},
+        {rank:14,code:'9432',name:'NTT',yield:3.2,price:170},
+        {rank:15,code:'8058',name:'三菱商事',yield:3.2,price:2500},
+        {rank:16,code:'9433',name:'KDDI',yield:3.0,price:4600},
+        {rank:17,code:'8306',name:'三菱UFJ FG',yield:3.0,price:1600},
+        {rank:18,code:'8766',name:'東京海上HD',yield:3.0,price:3800},
+        {rank:19,code:'8031',name:'三井物産',yield:3.0,price:5500},
+        {rank:20,code:'7203',name:'トヨタ自動車',yield:2.8,price:2800},
+      ];
+    }
+
+    function renderRanking(data) {
+      const list = document.getElementById('ranking-list');
+      const codes = new Set(loadStocks().map(s => s.code));
+      if (!data.length) { list.innerHTML = '<div class="rank-empty">ランキングデータがありません</div>'; return; }
+      list.innerHTML = data.map(d => {
+        const added = codes.has(d.code);
+        const nc = d.rank<=3 ? ' top'+d.rank : '';
+        const addBtn = added
+          ? '<button class="rank-add-btn added" title="\u767B\u9332\u6E08\u307F">\u2713</button>'
+          : `<button class="rank-add-btn" onclick="addFromRanking('${d.code}',this)" title="\u8FFD\u52A0">+</button>`;
+        return `<div class="rank-item">
+          <div class="rank-num${nc}">${d.rank}</div>
+          <div class="rank-info">
+            <div class="rank-name">${esc(d.name)}</div>
+            <div class="rank-meta">
+              <span class="rank-code">${d.code}</span>
+              ${d.price?`<span class="rank-price">\u00A5${d.price.toLocaleString()}</span>`:''}
+              ${d.info?`<span class="rank-price">${esc(d.info)}</span>`:''}
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-yield">${d.yield.toFixed(1)}%</div>
+            <div class="rank-div">\u914D\u5F53\u5229\u56DE\u308A</div>
+          </div>
+          ${addBtn}
+        </div>`;
+      }).join('');
+    }
+
+    async function addFromRanking(code, btn) {
+      if (loadStocks().some(s => s.code === code)) return;
+      btn.textContent = '...'; btn.style.fontSize = '0.6rem';
+      try {
+        let info;
+        try { info = await fetchStockInfo(code); } catch(e) {
+          const fn = await fetchStockName(code);
+          if (fn) info = { name:fn, price:0, annualDividend:0, halfDividend:0, dividendYield:0 }; else throw e;
+        }
+        let yu = ''; try { yu = await fetchYuutai(code); } catch(e) {}
+        const entries = fiscalDates().map(fd => ({
+          id: crypto.randomUUID(), code, name: info.name, record_date: fd.record_date,
+          dividend_type: fd.type, dividend_per_share: info.halfDividend,
+          annual_dividend: info.annualDividend, dividend_yield: info.dividendYield,
+          shares_held: 100, yuutai: yu,
+        }));
+        const all = loadStocks(); all.push(...entries); saveStocks(all);
+        btn.textContent = '\u2713'; btn.classList.add('added');
+        render();
+      } catch(e) {
+        btn.textContent = '\u2717'; btn.style.color = 'var(--red)';
+        setTimeout(() => { btn.textContent='+'; btn.style.color=''; btn.style.fontSize=''; }, 2000);
+      }
+    }
 
     async function autoFillYuutai() {
       const ok=y=>{try{return JSON.parse(y).type==="detailed"}catch(e){return false}};
