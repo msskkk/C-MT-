@@ -402,56 +402,57 @@
       const doc = parser.parseFromString(html, "text/html");
       const sections = [];
 
-      // 優待関連のh3だけを抽出 (ページナビ系を除外)
-      const skipWords = ["プレミアム","広告","利回り","日経","ニュース","コラム","特集","関連サイト","お知らせ","外部","ベスト","ランキング","人気"];
-      const allH3 = doc.querySelectorAll("h3");
-
-      for (const h3 of allH3) {
-        const title = h3.textContent.trim();
-        if (!title || skipWords.some(w => title.includes(w))) continue;
-
-        // 近くのテーブルを探す
-        let el = h3.nextElementSibling;
-        let table = null, notesEl = null, monthsText = "";
-        for (let i = 0; i < 8 && el; i++) {
-          const txt = el.textContent || "";
-          if (!monthsText && txt.includes("権利確定月")) {
-            const m = txt.match(/権利確定月[：:\s]*([0-9０-９]+月[、,\s]*(?:[0-9０-９]+月)?)/);
-            if (m) monthsText = m[1].replace(/０/g,"0").replace(/１/g,"1").replace(/２/g,"2").replace(/３/g,"3").replace(/４/g,"4").replace(/５/g,"5").replace(/６/g,"6").replace(/７/g,"7").replace(/８/g,"8").replace(/９/g,"9");
-          }
-          if (!table && (el.tagName === "TABLE" || (el.querySelector && el.querySelector("table")))) {
-            table = el.tagName === "TABLE" ? el : el.querySelector("table");
-          }
-          if (txt.includes("備考")) { notesEl = el; break; }
-          el = el.nextElementSibling;
+      // kabutan構造: div.stock_yutai_detail_box > div.h3box + table.detail_1 + table.detail_3
+      const detailBox = doc.querySelector(".stock_yutai_detail_box");
+      if (!detailBox) {
+        // フォールバック: h3.floatlだけでも探す
+        const h3s = doc.querySelectorAll("h3.floatl");
+        if (h3s.length > 0) {
+          for (const h3 of h3s) sections.push({ title: h3.textContent.trim(), months: "", rows: [], notes: "" });
+          return JSON.stringify({ type: "detailed", sections });
         }
+        return "なし";
+      }
 
-        // テーブル行を抽出
-        const rows = [];
-        if (table) {
-          table.querySelectorAll("tr").forEach(tr => {
-            const tds = tr.querySelectorAll("td");
-            if (tds.length >= 2) {
-              const shares = tds[0].textContent.trim();
-              const content = tds[1].textContent.trim();
-              if (shares && content && shares.includes("株")) {
-                rows.push({ shares, content });
+      const children = Array.from(detailBox.children);
+      let i = 0;
+      while (i < children.length) {
+        const el = children[i];
+        if (el.querySelector && el.querySelector("h3")) {
+          const h3 = el.querySelector("h3");
+          const monthsDiv = el.querySelector(".floatr");
+          const title = h3 ? h3.textContent.trim() : "";
+          let months = "";
+          if (monthsDiv) {
+            const m = monthsDiv.textContent.match(/権利確定月[：:\s]*(.+)/);
+            if (m) months = m[1].trim();
+          }
+
+          const rows = [];
+          let notes = "";
+          i++;
+          while (i < children.length) {
+            const next = children[i];
+            if (next.querySelector && next.querySelector("h3")) break;
+            if (next.tagName === "TABLE") {
+              if (next.className.includes("detail_1")) {
+                next.querySelectorAll("tr").forEach(tr => {
+                  const tds = tr.querySelectorAll("td");
+                  if (tds.length >= 2) {
+                    rows.push({ shares: tds[0].textContent.trim(), content: tds[1].textContent.trim() });
+                  }
+                });
+              } else if (next.className.includes("detail_3")) {
+                const td = next.querySelector("td");
+                if (td) notes = td.innerHTML.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim();
               }
             }
-          });
+            i++;
+          }
+          if (title) sections.push({ title, months, rows, notes });
+          continue;
         }
-
-        // 備考テキストを抽出
-        let notes = "";
-        if (notesEl) {
-          let noteText = notesEl.textContent.trim();
-          noteText = noteText.replace(/^備考\s*/, "").trim();
-          if (noteText.length > 3 && noteText.length < 500) notes = noteText;
-        }
-
-        if (rows.length > 0 || notes) {
-          sections.push({ title, months: monthsText, rows, notes });
-        }
+        i++;
       }
 
       if (sections.length > 0) return JSON.stringify({ type: "detailed", sections });
