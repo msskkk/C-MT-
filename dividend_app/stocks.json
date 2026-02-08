@@ -1,0 +1,52 @@
+[
+  {
+    "id": "sample-001",
+    "code": "7203",
+    "name": "トヨタ自動車",
+    "record_date": "2026-03-31",
+    "dividend_per_share": 40,
+    "shares_held": 100,
+    "dividend_type": "期末",
+    "note": ""
+  },
+  {
+    "id": "sample-002",
+    "code": "8306",
+    "name": "三菱UFJ FG",
+    "record_date": "2026-03-31",
+    "dividend_per_share": 25,
+    "shares_held": 300,
+    "dividend_type": "期末",
+    "note": ""
+  },
+  {
+    "id": "sample-003",
+    "code": "9432",
+    "name": "NTT",
+    "record_date": "2026-03-31",
+    "dividend_per_share": 5,
+    "shares_held": 500,
+    "dividend_type": "期末",
+    "note": "株式分割後"
+  },
+  {
+    "id": "sample-004",
+    "code": "8058",
+    "name": "三菱商事",
+    "record_date": "2026-09-30",
+    "dividend_per_share": 50,
+    "shares_held": 100,
+    "dividend_type": "中間",
+    "note": ""
+  },
+  {
+    "id": "sample-005",
+    "code": "6758",
+    "name": "ソニーG",
+    "record_date": "2026-09-30",
+    "dividend_per_share": 55,
+    "shares_held": 0,
+    "dividend_type": "中間",
+    "note": "購入検討中"
+  }
+]

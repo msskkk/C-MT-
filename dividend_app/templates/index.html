@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配当管理アプリ</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>配当管理</h1>
+    <p class="subtitle">日本株の配当スケジュールをひと目で確認</p>
+  </header>
+
+  <main>
+    <!-- サマリーカード -->
+    <section class="summary-cards">
+      <div class="card summary" id="summary-total">
+        <div class="card-label">登録銘柄数</div>
+        <div class="card-value" id="val-total">-</div>
+      </div>
+      <div class="card summary" id="summary-upcoming">
+        <div class="card-label">今後の配当予定</div>
+        <div class="card-value" id="val-upcoming">-</div>
+      </div>
+      <div class="card summary" id="summary-income">
+        <div class="card-label">予想配当合計</div>
+        <div class="card-value" id="val-income">-</div>
+      </div>
+    </section>
+
+    <!-- 銘柄追加ボタン -->
+    <section class="actions">
+      <button class="btn-primary" onclick="openModal()">+ 銘柄を追加</button>
+    </section>
+
+    <!-- 銘柄リスト -->
+    <section class="stock-list" id="stock-list">
+      <p class="loading">読み込み中...</p>
+    </section>
+  </main>
+
+  <!-- 追加/編集モーダル -->
+  <div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <h2 id="modal-title">銘柄を追加</h2>
+      <form id="stock-form" onsubmit="saveStock(event)">
+        <input type="hidden" id="edit-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>銘柄コード <span class="req">*</span></label>
+            <input type="text" id="f-code" placeholder="例: 7203" required>
+          </div>
+          <div class="form-group">
+            <label>銘柄名 <span class="req">*</span></label>
+            <input type="text" id="f-name" placeholder="例: トヨタ自動車" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>権利確定日 <span class="req">*</span></label>
+            <input type="date" id="f-record-date" required>
+          </div>
+          <div class="form-group">
+            <label>配当区分</label>
+            <select id="f-type">
+              <option value="中間">中間配当</option>
+              <option value="期末">期末配当</option>
+              <option value="四半期">四半期配当</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>1株あたり配当金 (円) <span class="req">*</span></label>
+            <input type="number" id="f-dividend" step="0.1" min="0" placeholder="例: 35" required>
+          </div>
+          <div class="form-group">
+            <label>保有株数</label>
+            <input type="number" id="f-shares" min="0" value="0" placeholder="例: 100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>メモ</label>
+          <input type="text" id="f-note" placeholder="自由メモ">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">キャンセル</button>
+          <button type="submit" class="btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  padding: 1.5rem 2rem;
+}
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.subtitle {
+  font-size: 0.85rem;
+  color: #a0aec0;
+  margin-top: 0.25rem;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* サマリーカード */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.card.summary {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.card-label {
+  font-size: 0.8rem;
+  color: #718096;
+  margin-bottom: 0.4rem;
+}
+.card-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* アクション */
+.actions {
+  margin-bottom: 1.2rem;
+}
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+.btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: #cbd5e0;
+}
+
+/* 銘柄カード */
+.stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.loading {
+  text-align: center;
+  color: #a0aec0;
+  padding: 2rem;
+}
+
+.stock-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+  transition: box-shadow 0.2s;
+}
+.stock-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.stock-card.past {
+  opacity: 0.55;
+}
+
+.stock-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.stock-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.stock-code {
+  font-size: 0.75rem;
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.stock-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.stock-type {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.stock-type.中間 { background: #dbeafe; color: #1e40af; }
+.stock-type.期末 { background: #fce7f3; color: #9d174d; }
+.stock-type.四半期 { background: #d1fae5; color: #065f46; }
+
+.stock-dates {
+  display: flex;
+  gap: 1.2rem;
+  font-size: 0.82rem;
+  color: #4a5568;
+  flex-wrap: wrap;
+}
+.stock-dates strong {
+  color: #1a1a2e;
+}
+
+.date-label {
+  font-size: 0.7rem;
+  color: #a0aec0;
+}
+
+.badge-deadline {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  margin-top: 0.2rem;
+}
+.badge-deadline.urgent {
+  background: #fed7d7;
+  color: #c53030;
+}
+.badge-deadline.soon {
+  background: #fefcbf;
+  color: #975a16;
+}
+.badge-deadline.ok {
+  background: #c6f6d5;
+  color: #276749;
+}
+.badge-deadline.passed {
+  background: #e2e8f0;
+  color: #a0aec0;
+}
+
+.stock-dividend {
+  text-align: right;
+  min-width: 120px;
+}
+.dividend-amount {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+.dividend-sub {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.stock-actions {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+.stock-actions button {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  color: #718096;
+  cursor: pointer;
+}
+.stock-actions button:hover {
+  background: #f7fafc;
+  color: #1a1a2e;
+}
+.stock-actions button.delete:hover {
+  background: #fed7d7;
+  color: #c53030;
+  border-color: #feb2b2;
+}
+
+/* モーダル */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+.modal h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.form-group {
+  margin-bottom: 0.8rem;
+}
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.3rem;
+}
+.req {
+  color: #e53e3e;
+}
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  .stock-card {
+    grid-template-columns: 1fr;
+  }
+  .stock-dividend {
+    text-align: left;
+  }
+}
