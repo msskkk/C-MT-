@@ -131,14 +131,52 @@
     .badge.ok     { background: #d1fae5; color: #059669; }
     .badge.passed { background: #f1f5f9; color: #94a3b8; }
 
-    .yuutai-row {
-      display: flex; align-items: flex-start; gap: 0.4rem;
-      font-size: 0.78rem; color: #d97706; margin-top: 0.4rem;
-      background: #fffbeb; border-radius: 8px; padding: 0.5rem 0.7rem;
-      border: 1px solid #fde68a; line-height: 1.6;
+    .yuutai-accordion { margin-top: 0.5rem; grid-column: 1 / -1; }
+    .yuutai-toggle {
+      display: flex; align-items: center; gap: 0.4rem; width: 100%;
+      background: none; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 0.5rem 0.8rem; cursor: pointer; font-size: 0.8rem;
+      color: #92400e; font-weight: 600; font-family: inherit;
+      transition: all 0.2s;
     }
-    .yuutai-icon { flex-shrink: 0; font-size: 1rem; }
-    .yuutai-detail { flex: 1; }
+    .yuutai-toggle:hover { background: #fffbeb; border-color: #fde68a; }
+    .yuutai-toggle.open { border-radius: 10px 10px 0 0; background: #fffbeb; border-color: #fde68a; border-bottom: none; }
+    .yuutai-toggle .arrow { transition: transform 0.2s; font-size: 0.65rem; margin-left: auto; color: #a0aec0; }
+    .yuutai-toggle.open .arrow { transform: rotate(180deg); }
+    .yuutai-nashi { font-size: 0.78rem; color: #a0aec0; padding: 0.3rem 0; margin-top: 0.3rem; }
+
+    .yuutai-body {
+      display: none; background: #fffbeb; border: 1px solid #fde68a;
+      border-top: none; border-radius: 0 0 10px 10px; padding: 0.8rem;
+      font-size: 0.78rem; color: #4a5568;
+    }
+    .yuutai-body.open { display: block; }
+    .yuutai-section { margin-bottom: 0.8rem; }
+    .yuutai-section:last-child { margin-bottom: 0; }
+    .yuutai-section-title {
+      font-weight: 700; color: #92400e; font-size: 0.82rem;
+      margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.3rem;
+    }
+    .yuutai-months { font-size: 0.72rem; color: #b45309; font-weight: 400; margin-left: auto; }
+    .yuutai-table {
+      width: 100%; border-collapse: collapse; margin: 0.3rem 0;
+      background: #fff; border-radius: 6px; overflow: hidden;
+    }
+    .yuutai-table th {
+      background: #fef3c7; color: #92400e; font-size: 0.7rem; font-weight: 700;
+      padding: 0.35rem 0.5rem; text-align: left; border-bottom: 1px solid #fde68a;
+    }
+    .yuutai-table td {
+      padding: 0.3rem 0.5rem; border-bottom: 1px solid #fef3c7; font-size: 0.75rem;
+    }
+    .yuutai-table tr:last-child td { border-bottom: none; }
+    .yuutai-table tr:hover td { background: #fefce8; }
+    .yuutai-notes {
+      margin-top: 0.4rem; padding: 0.4rem 0.6rem; background: #fff;
+      border-radius: 6px; font-size: 0.72rem; color: #78716c; line-height: 1.5;
+      white-space: pre-line;
+    }
+    .yuutai-notes-label { font-weight: 700; color: #a0aec0; font-size: 0.68rem; margin-bottom: 0.15rem; }
 
     .stock-dividend { text-align: right; min-width: 130px; }
     .dividend-amount { font-size: 1.35rem; font-weight: 800; color: #6366f1; }
@@ -364,67 +402,59 @@
       const doc = parser.parseFromString(html, "text/html");
       const sections = [];
 
-      // stock_yutai_detail_box 内のテーブルを探す or h3 + table ペアを探す
+      // 優待関連のh3だけを抽出 (ページナビ系を除外)
+      const skipWords = ["プレミアム","広告","利回り","日経","ニュース","コラム","特集","関連サイト","お知らせ","外部","ベスト","ランキング","人気"];
       const allH3 = doc.querySelectorAll("h3");
-      const yuutaiHeadings = [];
-      allH3.forEach(h => {
-        const t = h.textContent.trim();
-        if (!t || t.includes("プレミアム") || t.includes("広告") || t.includes("利回り")) return;
-        // 優待関連のh3かどうか (株関連ページなので大半が該当)
-        const parent = h.closest(".stock_yutai_detail_box") || h.parentElement;
-        if (parent) yuutaiHeadings.push(h);
-      });
 
-      for (const h3 of yuutaiHeadings) {
+      for (const h3 of allH3) {
         const title = h3.textContent.trim();
-        // h3の次のテーブルを探す
+        if (!title || skipWords.some(w => title.includes(w))) continue;
+
+        // 近くのテーブルを探す
         let el = h3.nextElementSibling;
-        let table = null;
-        for (let i = 0; i < 5 && el; i++) {
-          if (el.tagName === "TABLE") { table = el; break; }
-          if (el.querySelector && el.querySelector("table")) { table = el.querySelector("table"); break; }
+        let table = null, notesEl = null, monthsText = "";
+        for (let i = 0; i < 8 && el; i++) {
+          const txt = el.textContent || "";
+          if (!monthsText && txt.includes("権利確定月")) {
+            const m = txt.match(/権利確定月[：:\s]*([0-9０-９]+月[、,\s]*(?:[0-9０-９]+月)?)/);
+            if (m) monthsText = m[1].replace(/０/g,"0").replace(/１/g,"1").replace(/２/g,"2").replace(/３/g,"3").replace(/４/g,"4").replace(/５/g,"5").replace(/６/g,"6").replace(/７/g,"7").replace(/８/g,"8").replace(/９/g,"9");
+          }
+          if (!table && (el.tagName === "TABLE" || (el.querySelector && el.querySelector("table")))) {
+            table = el.tagName === "TABLE" ? el : el.querySelector("table");
+          }
+          if (txt.includes("備考")) { notesEl = el; break; }
           el = el.nextElementSibling;
         }
 
+        // テーブル行を抽出
         const rows = [];
         if (table) {
-          const trs = table.querySelectorAll("tr");
-          trs.forEach(tr => {
+          table.querySelectorAll("tr").forEach(tr => {
             const tds = tr.querySelectorAll("td");
             if (tds.length >= 2) {
               const shares = tds[0].textContent.trim();
               const content = tds[1].textContent.trim();
               if (shares && content && shares.includes("株")) {
-                rows.push(shares + ": " + content);
+                rows.push({ shares, content });
               }
             }
           });
         }
 
-        if (rows.length > 0) {
-          sections.push("【" + title + "】\n" + rows.join("\n"));
-        } else if (title) {
-          sections.push("【" + title + "】");
+        // 備考テキストを抽出
+        let notes = "";
+        if (notesEl) {
+          let noteText = notesEl.textContent.trim();
+          noteText = noteText.replace(/^備考\s*/, "").trim();
+          if (noteText.length > 3 && noteText.length < 500) notes = noteText;
+        }
+
+        if (rows.length > 0 || notes) {
+          sections.push({ title, months: monthsText, rows, notes });
         }
       }
 
-      if (sections.length > 0) return sections.join("\n");
-
-      // フォールバック: テーブルだけでも探す
-      const tables = doc.querySelectorAll("table");
-      for (const table of tables) {
-        const trs = table.querySelectorAll("tr");
-        const rows = [];
-        trs.forEach(tr => {
-          const tds = tr.querySelectorAll("td");
-          if (tds.length >= 2) {
-            const s = tds[0].textContent.trim();
-            const c = tds[1].textContent.trim();
-            if (s.includes("株")) rows.push(s + ": " + c);
-          }
-        });
-        if (rows.length > 0) return rows.join("\n");
-      }
+      if (sections.length > 0) return JSON.stringify({ type: "detailed", sections });
       return "なし";
     }
 
@@ -608,8 +638,7 @@
         const pastCls = diff < 0 ? " past" : "";
         const typeCls = "type-" + esc(s.dividend_type);
         const yieldStr = s.dividend_yield ? (s.dividend_yield * 100).toFixed(2) + "%" : "";
-        const yuutaiHtml = s.yuutai
-          ? `<div class="yuutai-row"><span class="yuutai-icon">&#127873;</span><div class="yuutai-detail">${esc(s.yuutai).replace(/\n/g, "<br>")}</div></div>` : "";
+        const yuutaiHtml = renderYuutai(s);
 
         return `
           <div class="stock-card${pastCls}">
@@ -630,7 +659,6 @@
                   <strong>${fmtDate(new Date(s.record_date + "T00:00:00"))}</strong>
                 </div>
               </div>
-              ${yuutaiHtml}
               <div class="stock-actions">
                 <button onclick="editStock('${s.id}')">&#9999;&#65039; 編集</button>
                 <button class="delete" onclick="deleteStock('${s.id}')">&#128465; 削除</button>
@@ -644,8 +672,60 @@
                 ? `<div class="dividend-sub">${s.shares_held}株 &rarr; <strong>&yen;${totalDiv.toLocaleString()}</strong></div>`
                 : '<div class="dividend-sub">保有株数未設定</div>'}
             </div>
+            ${yuutaiHtml}
           </div>`;
       }).join("");
+    }
+
+    function renderYuutai(s) {
+      if (!s.yuutai) return "";
+      if (s.yuutai === "なし") return '<div class="yuutai-nashi">&#127873; 優待なし</div>';
+
+      // JSON構造化データかチェック
+      let data = null;
+      try { data = JSON.parse(s.yuutai); } catch (e) {}
+
+      if (data && data.type === "detailed" && data.sections) {
+        const uid = "yu-" + s.id;
+        const summaryNames = data.sections.map(sec => sec.title).join("、");
+        let body = "";
+        for (const sec of data.sections) {
+          let tableHtml = "";
+          if (sec.rows && sec.rows.length > 0) {
+            tableHtml = `<table class="yuutai-table"><tr><th>必要株数</th><th>優待内容</th></tr>`;
+            for (const r of sec.rows) {
+              tableHtml += `<tr><td>${esc(r.shares)}</td><td>${esc(r.content)}</td></tr>`;
+            }
+            tableHtml += "</table>";
+          }
+          const notesHtml = sec.notes
+            ? `<div class="yuutai-notes"><div class="yuutai-notes-label">備考</div>${esc(sec.notes)}</div>` : "";
+          const monthsHtml = sec.months ? `<span class="yuutai-months">権利確定月: ${esc(sec.months)}</span>` : "";
+          body += `<div class="yuutai-section">
+            <div class="yuutai-section-title">&#127915; ${esc(sec.title)}${monthsHtml}</div>
+            ${tableHtml}${notesHtml}</div>`;
+        }
+        return `<div class="yuutai-accordion">
+          <button class="yuutai-toggle" onclick="toggleYuutai('${uid}',this)">
+            &#127873; 優待あり: ${esc(summaryNames)}<span class="arrow">&#9660;</span>
+          </button>
+          <div class="yuutai-body" id="${uid}">${body}</div>
+        </div>`;
+      }
+
+      // 旧形式のプレーンテキスト
+      return `<div class="yuutai-accordion">
+        <button class="yuutai-toggle" onclick="toggleYuutai('yu-${s.id}',this)">
+          &#127873; 優待情報<span class="arrow">&#9660;</span>
+        </button>
+        <div class="yuutai-body" id="yu-${s.id}" style="white-space:pre-line">${esc(s.yuutai)}</div>
+      </div>`;
+    }
+
+    function toggleYuutai(id, btn) {
+      const body = document.getElementById(id);
+      const isOpen = body.classList.toggle("open");
+      btn.classList.toggle("open", isOpen);
     }
 
     function fmtDate(d) {
@@ -701,11 +781,11 @@
 
     render();
 
-    // 優待未取得 or 簡易データの銘柄をバックグラウンドで自動取得
+    // 優待データが未取得 or 旧形式の銘柄をバックグラウンドで自動取得
     async function autoFillYuutai() {
       const stocks = loadStocks();
-      // 未取得 or 旧形式(改行なし&「なし」以外)の銘柄を再取得対象にする
-      const needsFetch = s => !s.yuutai || (s.yuutai !== "なし" && !s.yuutai.includes("\n") && s.yuutai.length < 50);
+      const isDetailed = y => { try { return JSON.parse(y).type === "detailed"; } catch(e) { return false; } };
+      const needsFetch = s => !s.yuutai || (s.yuutai !== "なし" && !isDetailed(s.yuutai));
       const codes = [...new Set(stocks.filter(needsFetch).map(s => s.code))];
       if (codes.length === 0) return;
       let updated = false;
@@ -717,10 +797,10 @@
             all.forEach(s => { if (s.code === code && needsFetch(s)) s.yuutai = yuutai; });
             saveStocksData(all);
             updated = true;
+            render(); // 1銘柄ごとに即反映
           }
         } catch (e) { /* skip */ }
       }
-      if (updated) render();
     }
     autoFillYuutai();
   </script>
