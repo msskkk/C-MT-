@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreatorAI - クリエイターのためのAIスタジオ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    background: #0a0a0a;
+    color: #e5e5e5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bg-grain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .hero-gradient {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(225, 29, 72, 0.18), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 0%, rgba(244, 63, 94, 0.12), transparent),
+                radial-gradient(ellipse 50% 30% at 20% 5%, rgba(251, 113, 133, 0.08), transparent);
+  }
+
+  .tab-panel {
+    display: none;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  .tab-panel.active {
+    display: block;
+    animation: fadeSlideIn 0.35s ease forwards;
+  }
+
+  @keyframes fadeSlideIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  .result-card-stagger > * {
+    opacity: 0;
+    animation: fadeIn 0.45s ease forwards;
+  }
+  .result-card-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+  .result-card-stagger > *:nth-child(2) { animation-delay: 0.15s; }
+  .result-card-stagger > *:nth-child(3) { animation-delay: 0.25s; }
+  .result-card-stagger > *:nth-child(4) { animation-delay: 0.35s; }
+  .result-card-stagger > *:nth-child(5) { animation-delay: 0.45s; }
+  .result-card-stagger > *:nth-child(6) { animation-delay: 0.55s; }
+  .result-card-stagger > *:nth-child(7) { animation-delay: 0.65s; }
+
+  @keyframes bounce-dot {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+
+  .dot-bounce span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #f43f5e;
+    animation: bounce-dot 1.2s infinite ease-in-out;
+  }
+  .dot-bounce span:nth-child(1) { animation-delay: -0.32s; }
+  .dot-bounce span:nth-child(2) { animation-delay: -0.16s; }
+  .dot-bounce span:nth-child(3) { animation-delay: 0s; }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+  }
+
+  .input-glow:focus {
+    box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.3), 0 0 20px rgba(244, 63, 94, 0.08);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #e11d48, #f43f5e, #fb7185);
+    background-size: 200% 200%;
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover {
+    background-position: 100% 100%;
+    box-shadow: 0 4px 24px rgba(225, 29, 72, 0.35);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+  }
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(244, 63, 94, 0.3);
+  }
+
+  .bottom-nav-item {
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .bottom-nav-item.active {
+    color: #f43f5e;
+  }
+  .bottom-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 3px;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(90deg, #e11d48, #fb7185);
+  }
+
+  textarea {
+    resize: none;
+  }
+
+  .ctr-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+  .ctr-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #e11d48, #fb7185);
+    transition: width 0.8s ease;
+  }
+
+  .accuracy-ring {
+    width: 80px;
+    height: 80px;
+  }
+
+  .slide-badge {
+    background: linear-gradient(135deg, rgba(225, 29, 72, 0.15), rgba(251, 113, 133, 0.08));
+    border: 1px solid rgba(244, 63, 94, 0.2);
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(244, 63, 94, 0.95);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grain"></div>
+
+<div class="hero-gradient relative z-10 min-h-screen pb-24">
+
+  <!-- Header -->
+  <header class="pt-8 pb-6 px-5 text-center">
+    <div class="inline-flex items-center gap-2 mb-2">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-extrabold tracking-tight">
+        <span class="bg-gradient-to-r from-rose-400 via-pink-400 to-rose-300 bg-clip-text text-transparent">Creator</span><span class="text-white">AI</span>
+      </h1>
+    </div>
+    <p class="text-sm text-neutral-500 font-medium tracking-wide">クリエイターのためのAIスタジオ</p>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="px-4 max-w-lg mx-auto">
+
+    <!-- Tool 1: Thumbnail AI -->
+    <div id="panel-thumbnail" class="tab-panel active">
+      <div class="mb-5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-2xl">🖼️</span>
+          <h2 class="text-lg font-bold text-white">サムネ生成</h2>
+        </div>
+        <p class="text-xs text-neutral-500 ml-10">動画タイトルからCTR最大化サムネイルを自動生成</p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-4 mb-4">
+        <label class="block text-xs text-neutral-400 font-medium mb-2">動画タイトルを入力</label>
+        <textarea
+          id="thumbnail-input"
+          class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 input-glow focus:outline-none focus:border-rose-500/40 transition-all"
+          rows="3"
+          placeholder="例: 【衝撃】AIで月収100万円稼ぐ方法を試してみた"
+        ></textarea>
+      </div>
+
+      <button onclick="generateThumbnail()" id="btn-thumbnail" class="btn-primary w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide shadow-lg">
+        AIで生成する
+      </button>
+
+      <div id="loading-thumbnail" class="hidden text-center py-10">
+        <div class="dot-bounce mb-3"><span></span> <span></span> <span></span></div>
+        <p class="text-xs text-neutral-500">サムネイルパターンを分析中...</p>
+      </div>
+
+      <div id="result-thumbnail" class="hidden mt-5 result-card-stagger"></div>
+    </div>
+
+    <!-- Tool 2: Voice Clone AI -->
+    <div id="panel-voice" class="tab-panel">
+      <div class="mb-5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-2xl">🎙️</span>
+          <h2 class="text-lg font-bold text-white">声クローン</h2>
+        </div>
+        <p class="text-xs text-neutral-500 ml-10">テキストからあなたの声でナレーションを自動生成</p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-4 mb-4">
+        <label class="block text-xs text-neutral-400 font-medium mb-2">ナレーション原稿を入力</label>
+        <textarea
+          id="voice-input"
+          class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 input-glow focus:outline-none focus:border-rose-500/40 transition-all"
+          rows="3"
+          placeholder="例: こんにちは、今日の動画では最新のAI技術について解説します..."
+        ></textarea>
+      </div>
+
+      <button onclick="generateVoice()" id="btn-voice" class="btn-primary w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide shadow-lg">
+        AIで生成する
+      </button>
+
+      <div id="loading-voice" class="hidden text-center py-10">
+        <div class="dot-bounce mb-3"><span></span> <span></span> <span></span></div>
+        <p class="text-xs text-neutral-500">声紋を分析・クローン生成中...</p>
+      </div>
+
+      <div id="result-voice" class="hidden mt-5 result-card-stagger"></div>
+    </div>
+
+    <!-- Tool 3: Pitch Deck AI -->
+    <div id="panel-slide" class="tab-panel">
+      <div class="mb-5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-2xl">📊</span>
+          <h2 class="text-lg font-bold text-white">スライド生成</h2>
+        </div>
+        <p class="text-xs text-neutral-500 ml-10">事業概要からピッチデッキを自動構成・生成</p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-4 mb-4">
+        <label class="block text-xs text-neutral-400 font-medium mb-2">事業概要を入力</label>
+        <textarea
+          id="slide-input"
+          class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 input-glow focus:outline-none focus:border-rose-500/40 transition-all"
+          rows="3"
+          placeholder="例: AIを使って飲食店の食品ロスを50%削減するSaaS..."
+        ></textarea>
+      </div>
+
+      <button onclick="generateSlide()" id="btn-slide" class="btn-primary w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide shadow-lg">
+        AIで生成する
+      </button>
+
+      <div id="loading-slide" class="hidden text-center py-10">
+        <div class="dot-bounce mb-3"><span></span> <span></span> <span></span></div>
+        <p class="text-xs text-neutral-500">スライド構成を最適化中...</p>
+      </div>
+
+      <div id="result-slide" class="hidden mt-5 result-card-stagger"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50">
+  <div class="bg-black/80 backdrop-blur-xl border-t border-white/5">
+    <div class="max-w-lg mx-auto flex">
+      <button onclick="switchTab('thumbnail')" id="nav-thumbnail" class="bottom-nav-item active flex-1 flex flex-col items-center gap-1 py-3 pt-4 text-xs font-medium">
+        <span class="text-xl leading-none">🖼️</span>
+        <span>サムネ</span>
+      </button>
+      <button onclick="switchTab('voice')" id="nav-voice" class="bottom-nav-item flex-1 flex flex-col items-center gap-1 py-3 pt-4 text-xs font-medium text-neutral-500">
+        <span class="text-xl leading-none">🎙️</span>
+        <span>声クローン</span>
+      </button>
+      <button onclick="switchTab('slide')" id="nav-slide" class="bottom-nav-item flex-1 flex flex-col items-center gap-1 py-3 pt-4 text-xs font-medium text-neutral-500">
+        <span class="text-xl leading-none">📊</span>
+        <span>スライド</span>
+      </button>
+    </div>
+    <div class="h-[env(safe-area-inset-bottom)] bg-black/80"></div>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+// --- Tab Navigation ---
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-item').forEach(n => {
+    n.classList.remove('active');
+    n.classList.add('text-neutral-500');
+  });
+
+  document.getElementById('panel-' + tab).classList.add('active');
+  const navBtn = document.getElementById('nav-' + tab);
+  navBtn.classList.add('active');
+  navBtn.classList.remove('text-neutral-500');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// --- Toast ---
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// --- Shared Helper ---
+function simulateLoading(toolName, callback) {
+  const btn = document.getElementById('btn-' + toolName);
+  const loading = document.getElementById('loading-' + toolName);
+  const result = document.getElementById('result-' + toolName);
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="opacity-50">生成中...</span>';
+  result.classList.add('hidden');
+  result.innerHTML = '';
+  loading.classList.remove('hidden');
+
+  setTimeout(() => {
+    loading.classList.add('hidden');
+    btn.disabled = false;
+    btn.innerHTML = 'AIで生成する';
+    callback();
+    result.classList.remove('hidden');
+  }, 2000);
+}
+
+// =======================================================
+// TOOL 1: Thumbnail AI
+// =======================================================
+function generateThumbnail() {
+  const input = document.getElementById('thumbnail-input').value.trim();
+  if (!input) {
+    showToast('タイトルを入力してください');
+    return;
+  }
+
+  const titleShort = input.length > 20 ? input.substring(0, 20) + '...' : input;
+
+  simulateLoading('thumbnail', () => {
+    const patterns = [
+      {
+        name: 'パターンA: インパクト型',
+        desc: '画面中央に驚いた表情の人物、左上に赤い爆発吹き出しで「衝撃」の文字。背景は金色のグラデーション。タイトルテキストは太字白フチで右下に配置。',
+        ctr: 12.4,
+        color: 'from-red-500/20 to-orange-500/10',
+        border: 'border-red-500/20'
+      },
+      {
+        name: 'パターンB: ビフォーアフター型',
+        desc: '画面を左右分割。左側は暗いトーンで「Before」、右側は明るいトーンで「After」。中央に矢印アイコン。数字を大きく表示して成果を強調。',
+        ctr: 10.8,
+        color: 'from-blue-500/20 to-cyan-500/10',
+        border: 'border-blue-500/20'
+      },
+      {
+        name: 'パターンC: ミニマル型',
+        desc: '黒背景にネオンピンクのアクセント。中央にシンプルなアイコンとキャッチコピー1行。余白を活かした洗練されたデザイン。ターゲット: テック系視聴者。',
+        ctr: 9.2,
+        color: 'from-pink-500/20 to-purple-500/10',
+        border: 'border-pink-500/20'
+      }
+    ];
+
+    const result = document.getElementById('result-thumbnail');
+    let html = '';
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span class="text-xs font-semibold text-emerald-400">AI分析完了</span>
+      </div>
+      <p class="text-xs text-neutral-400">「${titleShort}」に最適化された3つのサムネイルパターンを生成しました。</p>
+    </div>`;
+
+    patterns.forEach((p, i) => {
+      const barWidth = Math.round(p.ctr / 15 * 100);
+      html += `<div class="glass-card rounded-2xl p-4 mb-3 bg-gradient-to-br ${p.color} ${p.border}">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-bold text-white">${p.name}</h3>
+          ${i === 0 ? '<span class="text-[10px] font-bold bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full">推奨</span>' : ''}
+        </div>
+        <p class="text-xs text-neutral-400 leading-relaxed mb-3">${p.desc}</p>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] text-neutral-500 font-medium">予測CTR</span>
+          <span class="text-sm font-bold text-white">${p.ctr}%</span>
+        </div>
+        <div class="ctr-bar">
+          <div class="ctr-bar-fill" style="width: ${barWidth}%"></div>
+        </div>
+      </div>`;
+    });
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <h3 class="text-xs font-bold text-rose-400 mb-2">💡 AI推奨ポイント</h3>
+      <ul class="space-y-1.5">
+        <li class="text-xs text-neutral-400 flex items-start gap-2"><span class="text-rose-400 mt-0.5">•</span>パターンAのCTRが最も高い予測値です。インパクト型は初動再生数に強い傾向があります。</li>
+        <li class="text-xs text-neutral-400 flex items-start gap-2"><span class="text-rose-400 mt-0.5">•</span>顔出しサムネイルはCTRが平均1.8倍向上するデータがあります。</li>
+        <li class="text-xs text-neutral-400 flex items-start gap-2"><span class="text-rose-400 mt-0.5">•</span>テキスト量は15文字以内が推奨。モバイル視聴者の視認性が大幅に改善します。</li>
+      </ul>
+    </div>`;
+
+    html += `<div class="flex gap-2 mb-6">
+      <button onclick="showToast('クリップボードにコピーしました')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        コピー
+      </button>
+      <button onclick="showToast('PNGでダウンロードを開始しました')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        ダウンロード
+      </button>
+      <button onclick="generateThumbnail()" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        リトライ
+      </button>
+    </div>`;
+
+    result.innerHTML = html;
+  });
+}
+
+// =======================================================
+// TOOL 2: Voice Clone AI
+// =======================================================
+function generateVoice() {
+  const input = document.getElementById('voice-input').value.trim();
+  if (!input) {
+    showToast('ナレーション原稿を入力してください');
+    return;
+  }
+
+  const charCount = input.length;
+  const estimatedSeconds = Math.max(3, Math.round(charCount * 0.12));
+  const minutes = Math.floor(estimatedSeconds / 60);
+  const seconds = estimatedSeconds % 60;
+  const durationStr = minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
+
+  simulateLoading('voice', () => {
+    const result = document.getElementById('result-voice');
+    let html = '';
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span class="text-xs font-semibold text-emerald-400">声クローン生成完了</span>
+      </div>
+      <p class="text-xs text-neutral-400">${charCount}文字のナレーションを生成しました（推定再生時間: ${durationStr}）</p>
+    </div>`;
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <h3 class="text-sm font-bold text-white mb-4">品質スコア</h3>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="text-center">
+          <div class="relative mx-auto mb-2 accuracy-ring">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="url(#grad1)" stroke-width="3" stroke-dasharray="96.5, 100" stroke-linecap="round"/>
+              <defs><linearGradient id="grad1"><stop offset="0%" stop-color="#e11d48"/><stop offset="100%" stop-color="#fb7185"/></linearGradient></defs>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-lg font-extrabold text-white">96.5<span class="text-[10px] text-neutral-400">%</span></span>
+            </div>
+          </div>
+          <p class="text-[10px] text-neutral-500 font-medium">クローン精度</p>
+        </div>
+        <div class="text-center">
+          <div class="relative mx-auto mb-2 accuracy-ring">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="url(#grad2)" stroke-width="3" stroke-dasharray="93.2, 100" stroke-linecap="round"/>
+              <defs><linearGradient id="grad2"><stop offset="0%" stop-color="#e11d48"/><stop offset="100%" stop-color="#fb7185"/></linearGradient></defs>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-lg font-extrabold text-white">93.2<span class="text-[10px] text-neutral-400">%</span></span>
+            </div>
+          </div>
+          <p class="text-[10px] text-neutral-500 font-medium">自然さ</p>
+        </div>
+        <div class="text-center">
+          <div class="relative mx-auto mb-2 accuracy-ring">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="url(#grad3)" stroke-width="3" stroke-dasharray="88.7, 100" stroke-linecap="round"/>
+              <defs><linearGradient id="grad3"><stop offset="0%" stop-color="#e11d48"/><stop offset="100%" stop-color="#fb7185"/></linearGradient></defs>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-lg font-extrabold text-white">88.7<span class="text-[10px] text-neutral-400">%</span></span>
+            </div>
+          </div>
+          <p class="text-[10px] text-neutral-500 font-medium">感情再現度</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between text-xs text-neutral-400 bg-black/30 rounded-lg px-3 py-2">
+        <span>生成時間</span>
+        <span class="font-bold text-white">1.8秒</span>
+      </div>
+    </div>`;
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <h3 class="text-sm font-bold text-white mb-3">感情パラメータ調整</h3>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-[11px] text-neutral-400">テンション</span><span class="text-[11px] font-bold text-white">75%</span></div>
+          <div class="ctr-bar"><div class="ctr-bar-fill" style="width:75%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-[11px] text-neutral-400">話速</span><span class="text-[11px] font-bold text-white">1.1x</span></div>
+          <div class="ctr-bar"><div class="ctr-bar-fill" style="width:55%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-[11px] text-neutral-400">ピッチ</span><span class="text-[11px] font-bold text-white">+2</span></div>
+          <div class="ctr-bar"><div class="ctr-bar-fill" style="width:60%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-[11px] text-neutral-400">感情表現</span><span class="text-[11px] font-bold text-white">ナチュラル</span></div>
+          <div class="flex gap-1.5 mt-1">
+            <span class="text-[10px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-medium border border-rose-500/20">ナチュラル</span>
+            <span class="text-[10px] bg-white/5 text-neutral-500 px-2 py-0.5 rounded-full font-medium border border-white/5">元気</span>
+            <span class="text-[10px] bg-white/5 text-neutral-500 px-2 py-0.5 rounded-full font-medium border border-white/5">落ち着き</span>
+            <span class="text-[10px] bg-white/5 text-neutral-500 px-2 py-0.5 rounded-full font-medium border border-white/5">真剣</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <h3 class="text-sm font-bold text-white mb-3">ダウンロード形式</h3>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="showToast('WAV形式でダウンロードを開始しました')" class="btn-secondary rounded-xl py-2.5 text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          WAV（高品質）
+        </button>
+        <button onclick="showToast('MP3形式でダウンロードを開始しました')" class="btn-secondary rounded-xl py-2.5 text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          MP3（軽量）
+        </button>
+        <button onclick="showToast('AAC形式でダウンロードを開始しました')" class="btn-secondary rounded-xl py-2.5 text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          AAC
+        </button>
+        <button onclick="showToast('OGG形式でダウンロードを開始しました')" class="btn-secondary rounded-xl py-2.5 text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          OGG
+        </button>
+      </div>
+    </div>`;
+
+    html += `<div class="flex gap-2 mb-6">
+      <button onclick="showToast('スクリプトをコピーしました')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        コピー
+      </button>
+      <button onclick="showToast('WAVでダウンロードを開始しました')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        ダウンロード
+      </button>
+      <button onclick="generateVoice()" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        リトライ
+      </button>
+    </div>`;
+
+    result.innerHTML = html;
+  });
+}
+
+// =======================================================
+// TOOL 3: Pitch Deck / Slide AI
+// =======================================================
+function generateSlide() {
+  const input = document.getElementById('slide-input').value.trim();
+  if (!input) {
+    showToast('事業概要を入力してください');
+    return;
+  }
+
+  const titleShort = input.length > 15 ? input.substring(0, 15) + '...' : input;
+
+  simulateLoading('slide', () => {
+    const slides = [
+      {
+        num: 1,
+        title: '表紙',
+        desc: 'プロダクト名・キャッチコピー・ロゴ配置。背景はブランドカラーのグラデーション。',
+        elements: 'ロゴ, タイトル, サブタイトル, 日付'
+      },
+      {
+        num: 2,
+        title: '課題提起',
+        desc: '市場の課題を3つのデータポイントで可視化。インフォグラフィック形式で深刻さを伝達。',
+        elements: 'アイコン×3, 統計データ, 課題文'
+      },
+      {
+        num: 3,
+        title: 'ソリューション',
+        desc: 'プロダクトの概要と仕組みをフローチャートで表現。ユーザー体験を中心に据えた説明。',
+        elements: 'フロー図, スクリーンショット, 機能一覧'
+      },
+      {
+        num: 4,
+        title: '市場規模・競合分析',
+        desc: 'TAM/SAM/SOMの三層構造図と、競合マトリクスで差別化ポイントを明確化。',
+        elements: 'TAMチャート, 競合比較表, ポジショニングマップ'
+      },
+      {
+        num: 5,
+        title: 'ビジネスモデル・トラクション',
+        desc: '収益構造のフロー図と主要KPIの推移グラフ。ユーザー数・MRR等の成長曲線。',
+        elements: '収益フロー, KPIカード×4, 成長グラフ'
+      },
+      {
+        num: 6,
+        title: 'チーム・資金調達',
+        desc: 'チームメンバーの写真・経歴、調達目標額、資金使途の円グラフ、マイルストーン。',
+        elements: 'チーム紹介×3, 調達額, 使途グラフ, ロードマップ'
+      }
+    ];
+
+    const result = document.getElementById('result-slide');
+    let html = '';
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span class="text-xs font-semibold text-emerald-400">スライド構成完了</span>
+      </div>
+      <p class="text-xs text-neutral-400">「${titleShort}」に最適化された6枚構成のピッチデッキを生成しました。</p>
+    </div>`;
+
+    slides.forEach((s) => {
+      html += `<div class="glass-card rounded-2xl p-4 mb-3">
+        <div class="flex items-start gap-3">
+          <div class="slide-badge flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center">
+            <span class="text-sm font-extrabold bg-gradient-to-br from-rose-400 to-pink-300 bg-clip-text text-transparent">${s.num}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-bold text-white mb-1">Slide ${s.num}: ${s.title}</h4>
+            <p class="text-xs text-neutral-400 leading-relaxed mb-2">${s.desc}</p>
+            <div class="flex flex-wrap gap-1.5">
+              ${s.elements.split(', ').map(e =>
+                `<span class="text-[10px] bg-white/5 text-neutral-500 px-2 py-0.5 rounded-full border border-white/5">${e}</span>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    html += `<div class="glass-card rounded-2xl p-4 mb-3">
+      <h3 class="text-sm font-bold text-white mb-3">エクスポート形式</h3>
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="showToast('PPTX形式でエクスポートを開始しました')" class="btn-secondary rounded-xl py-3 text-center">
+          <div class="text-lg mb-0.5">📄</div>
+          <div class="text-[10px] font-semibold text-neutral-300">PPTX</div>
+          <div class="text-[9px] text-neutral-500">PowerPoint</div>
+        </button>
+        <button onclick="showToast('PDF形式でエクスポートを開始しました')" class="btn-secondary rounded-xl py-3 text-center">
+          <div class="text-lg mb-0.5">📕</div>
+          <div class="text-[10px] font-semibold text-neutral-300">PDF</div>
+          <div class="text-[9px] text-neutral-500">プレゼン用</div>
+        </button>
+        <button onclick="showToast('Google Slidesにエクスポートを開始しました')" class="btn-secondary rounded-xl py-3 text-center">
+          <div class="text-lg mb-0.5">🌐</div>
+          <div class="text-[10px] font-semibold text-neutral-300">Google</div>
+          <div class="text-[9px] text-neutral-500">Slides連携</div>
+        </button>
+      </div>
+    </div>`;
+
+    html += `<div class="flex gap-2 mb-6">
+      <button onclick="showToast('スライド構成をコピーしました')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        コピー
+      </button>
+      <button onclick="showToast('PPTXでダウンロードを開始しました')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        ダウンロード
+      </button>
+      <button onclick="generateSlide()" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        リトライ
+      </button>
+    </div>`;
+
+    result.innerHTML = html;
+  });
+}
+</script>
+
+</body>
+</html>

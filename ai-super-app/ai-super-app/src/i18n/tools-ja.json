@@ -1,0 +1,376 @@
+{
+  "tools": {
+    "daily": {
+      "wardrobe": "コーデ提案", "wardrobe_desc": "クローゼット写真からコーデを提案", "wardrobe_input": "クローゼットの写真をアップロード", "wardrobe_output": "今日のおすすめコーデ",
+      "calorie": "カロリー解析", "calorie_desc": "食事写真からカロリーと栄養を分析", "calorie_input": "食事の写真をアップロード", "calorie_output": "カロリー・栄養分析",
+      "recipe": "レシピ提案", "recipe_desc": "冷蔵庫の中身からレシピを提案", "recipe_input": "冷蔵庫の写真をアップロード", "recipe_output": "おすすめレシピ"
+    },
+    "creator": {
+      "thumbnail": "サムネ生成", "thumbnail_desc": "動画タイトルからサムネイルを生成", "thumbnail_input": "動画タイトルを入力", "thumbnail_output": "サムネイル案",
+      "voice": "声クローン", "voice_desc": "テキストをナレーション向けに最適化", "voice_input": "原稿テキストを入力", "voice_output": "音声スクリプト",
+      "pitch": "スライド生成", "pitch_desc": "テーマからスライド構成を自動生成", "pitch_input": "プレゼンのテーマを入力", "pitch_output": "スライド構成"
+    },
+    "sidehustle": {
+      "listing": "出品文生成", "listing_desc": "商品写真から魅力的な出品文を作成", "listing_input": "商品の写真をアップロード", "listing_output": "出品文案",
+      "invoice": "請求書作成", "invoice_desc": "請求情報から請求書フォーマットを生成", "invoice_input": "請求情報を入力", "invoice_output": "請求書プレビュー",
+      "contract": "契約書チェック", "contract_desc": "契約書のリスク条項をチェック", "contract_input": "契約書ファイルをアップロード", "contract_output": "チェック結果"
+    },
+    "parent": {
+      "babyname": "命名", "babyname_desc": "姓との相性・画数を考慮して名前を提案", "babyname_input": "命名の条件を入力", "babyname_output": "おすすめの名前",
+      "plant": "植物診断", "plant_desc": "植物の写真から状態と育て方を診断", "plant_input": "植物の写真をアップロード", "plant_output": "診断結果",
+      "receipt": "家計簿", "receipt_desc": "レシート写真から支出を自動分析", "receipt_input": "レシートの写真をアップロード", "receipt_output": "記帳結果"
+    },
+    "student": {
+      "study": "問題集生成", "study_desc": "教科書写真から練習問題を自動作成", "study_input": "教科書の写真をアップロード", "study_output": "練習問題",
+      "tone": "トーン変換", "tone_desc": "文章のトーンを変換（敬語⇔カジュアル等）", "tone_input": "変換したい文章を入力", "tone_output": "変換結果",
+      "resume": "履歴書最適化", "resume_desc": "履歴書を分析し改善ポイントを提案", "resume_input": "履歴書ファイルをアップロード", "resume_output": "最適化提案"
+    },
+    "design": {
+      "logo": "ロゴ生成", "logo_desc": "ブランド情報からロゴデザインを生成", "logo_input": "ブランド情報を入力", "logo_output": "ロゴ案",
+      "color": "配色パレット", "color_desc": "画像から調和のとれた配色を抽出", "color_input": "参考画像をアップロード", "color_output": "配色提案",
+      "mockup": "モックアップ生成", "mockup_desc": "プロダクトのモックアップ画像を生成", "mockup_input": "プロダクト情報を入力", "mockup_output": "モックアップ"
+    },
+    "realestate": {
+      "floor": "3D内装", "floor_desc": "部屋写真から家具配置と内装を提案", "floor_input": "部屋の写真をアップロード", "floor_output": "内装プラン",
+      "compare": "物件比較", "compare_desc": "複数物件の特徴を表形式で比較", "compare_input": "候補物件を入力", "compare_output": "比較レポート",
+      "checklist": "内見チェックリスト", "checklist_desc": "内見時のチェックポイントをリスト化", "checklist_input": "内見条件を入力", "checklist_output": "チェックリスト"
+    },
+    "sns": {
+      "caption": "キャプション生成", "caption_desc": "投稿テーマからバズるキャプションを生成", "caption_input": "投稿テーマを入力", "caption_output": "キャプション案",
+      "hashtag": "ハッシュタグ分析", "hashtag_desc": "キーワードから最適なハッシュタグを提案", "hashtag_input": "コンテンツキーワードを入力", "hashtag_output": "おすすめタグ",
+      "bg": "商品写真加工", "bg_desc": "商品写真の背景や構図を改善提案", "bg_input": "商品の写真をアップロード", "bg_output": "加工アドバイス"
+    },
+    "money": {
+      "budget": "予算管理", "budget_desc": "収支情報から最適な予算配分を提案", "budget_input": "収支情報を入力", "budget_output": "予算プラン",
+      "deal": "節約術", "deal_desc": "支出パターンから節約ポイントを分析", "deal_input": "支出情報を入力", "deal_output": "節約プラン",
+      "saving": "貯金プラン", "saving_desc": "目標金額に向けた貯蓄プランを作成", "saving_input": "貯金目標を入力", "saving_output": "貯蓄プラン"
+    },
+    "pet": {
+      "petphoto": "ペット写真", "petphoto_desc": "ペット写真の撮影テクニックをアドバイス", "petphoto_input": "ペットの写真をアップロード", "petphoto_output": "撮影アドバイス",
+      "petfood": "ごはん相談", "petfood_desc": "ペットの情報から食事プランを提案", "petfood_input": "ペット情報を入力", "petfood_output": "食事アドバイス",
+      "training": "しつけ相談", "training_desc": "行動の悩みに合ったトレーニングを提案", "training_input": "しつけの悩みを入力", "training_output": "トレーニング方法"
+    },
+    "travel": {
+      "plan": "旅行プラン", "plan_desc": "条件に合わせた旅行プランを自動作成", "plan_input": "旅行条件を入力", "plan_output": "旅行プラン",
+      "pack": "持ち物リスト", "pack_desc": "目的地と日数に合った持ち物リスト", "pack_input": "目的地情報を入力", "pack_output": "持ち物リスト",
+      "phrase": "旅行会話", "phrase_desc": "旅行先で使える現地語フレーズ集", "phrase_input": "場面を入力", "phrase_output": "使えるフレーズ"
+    },
+    "writer": {
+      "blog": "ブログ執筆", "blog_desc": "テーマからブログ記事の構成を作成", "blog_input": "記事テーマを入力", "blog_output": "記事構成",
+      "mail": "メール起草", "mail_desc": "要点から適切なメール文面を作成", "mail_input": "メールの要点を入力", "mail_output": "メール案",
+      "proofread": "校正", "proofread_desc": "文章の誤字脱字・表現をチェック", "proofread_input": "校正したい文章を入力", "proofread_output": "校正結果"
+    },
+    "diy": {
+      "plan": "DIY計画", "plan_desc": "写真から材料と手順をプランニング", "plan_input": "現場の写真をアップロード", "plan_output": "制作プラン",
+      "cost": "コスト見積", "cost_desc": "DIYプロジェクトの材料費を見積もり", "cost_input": "プロジェクト情報を入力", "cost_output": "コスト内訳",
+      "fix": "修理ガイド", "fix_desc": "破損写真から修理手順をガイド", "fix_input": "壊れた箇所の写真をアップロード", "fix_output": "修理手順"
+    },
+    "music": {
+      "chord": "コード進行", "chord_desc": "ジャンルに合ったコード進行を提案", "chord_input": "音楽ジャンルを入力", "chord_output": "コード案",
+      "lyric": "歌詞生成", "lyric_desc": "テーマに合わせた歌詞を自動生成", "lyric_input": "歌詞テーマを入力", "lyric_output": "歌詞案",
+      "mix": "ミックスアドバイス", "mix_desc": "楽曲のミキシング改善点をアドバイス", "mix_input": "楽曲情報を入力", "mix_output": "ミックス提案"
+    },
+    "game": {
+      "idea": "ゲーム企画", "idea_desc": "ジャンルからゲームコンセプトを提案", "idea_input": "ゲームジャンルを入力", "idea_output": "企画案",
+      "story": "ストーリー設定", "story_desc": "世界観からストーリーラインを構築", "story_input": "世界観設定を入力", "story_output": "ストーリー概要",
+      "balance": "バランス調整", "balance_desc": "ゲームパラメータのバランスを分析", "balance_input": "パラメータ情報を入力", "balance_output": "バランス提案"
+    },
+    "cook": {
+      "arrange": "料理アレンジ", "arrange_desc": "料理写真からアレンジ方法を提案", "arrange_input": "料理の写真をアップロード", "arrange_output": "アレンジ提案",
+      "menu": "献立作成", "menu_desc": "条件に合わせた一週間の献立を作成", "menu_input": "食事の条件を入力", "menu_output": "1週間の献立",
+      "pairing": "ペアリング提案", "pairing_desc": "メイン料理に合う副菜や飲み物を提案", "pairing_input": "メイン料理を入力", "pairing_output": "ペアリング案"
+    },
+    "photo": {
+      "enhance": "写真補正", "enhance_desc": "写真の明るさ・色味の改善を提案", "enhance_input": "写真をアップロード", "enhance_output": "補正アドバイス",
+      "comp": "構図アドバイス", "comp_desc": "写真の構図改善ポイントを分析", "comp_input": "写真をアップロード", "comp_output": "構図分析",
+      "edit": "レタッチガイド", "edit_desc": "写真のレタッチ手順をステップ解説", "edit_input": "写真をアップロード", "edit_output": "編集手順"
+    },
+    "career": {
+      "skill": "スキル診断", "skill_desc": "現在のスキルセットを診断・分析", "skill_input": "スキル情報を入力", "skill_output": "スキル分析",
+      "interview": "面接対策", "interview_desc": "企業・職種に合わせた面接対策を作成", "interview_input": "面接情報を入力", "interview_output": "面接対策プラン",
+      "plan": "キャリアプラン", "plan_desc": "目標に向けたキャリアロードマップを作成", "plan_input": "キャリア情報を入力", "plan_output": "キャリアロードマップ"
+    },
+    "learn": {
+      "explain": "わかりやすく解説", "explain_desc": "難しい概念をやさしくかみ砕いて解説", "explain_input": "学びたい内容を入力", "explain_output": "解説",
+      "quiz": "確認テスト", "quiz_desc": "学習範囲から確認テストを自動生成", "quiz_input": "学習範囲を入力", "quiz_output": "テスト問題",
+      "roadmap": "学習ロードマップ", "roadmap_desc": "目標に向けた学習計画をステップ化", "roadmap_input": "学習目標を入力", "roadmap_output": "学習計画"
+    },
+    "wedding": {
+      "plan": "ウェディング企画", "plan_desc": "条件に合わせたウェディングプランを作成", "plan_input": "ウェディング条件を入力", "plan_output": "企画プラン",
+      "speech": "スピーチ起草", "speech_desc": "場面に合わせたスピーチ原稿を起草", "speech_input": "スピーチ情報を入力", "speech_output": "スピーチ案",
+      "budget": "予算管理", "budget_desc": "ウェディング予算の配分を最適化", "budget_input": "予算情報を入力", "budget_output": "予算配分"
+    },
+    "moving": {
+      "checklist": "引越しチェックリスト", "checklist_desc": "引越し前後のやることをリスト化", "checklist_input": "引越し条件を入力", "checklist_output": "やることリスト",
+      "cost": "費用見積", "cost_desc": "引越しにかかる費用を見積もり", "cost_input": "引越し情報を入力", "cost_output": "費用内訳",
+      "layout": "レイアウト提案", "layout_desc": "部屋写真から家具レイアウトを提案", "layout_input": "部屋の写真をアップロード", "layout_output": "レイアウト案"
+    },
+    "kid": {
+      "story": "お話生成", "story_desc": "条件に合わせたオリジナル童話を生成", "story_input": "お話の条件を入力", "story_output": "オリジナルお話",
+      "quiz": "学習クイズ", "quiz_desc": "年齢に合った楽しい学習クイズを作成", "quiz_input": "学習範囲を入力", "quiz_output": "クイズ問題",
+      "craft": "工作アイデア", "craft_desc": "材料から作れる工作アイデアを提案", "craft_input": "材料情報を入力", "craft_output": "工作プラン"
+    },
+    "senior": {
+      "exercise": "シニア体操", "exercise_desc": "体力に合わせた安全な運動メニューを提案", "exercise_input": "体力情報を入力", "exercise_output": "運動メニュー",
+      "digital": "デジタル教室", "digital_desc": "スマホ・PCの操作をわかりやすく解説", "digital_input": "操作の疑問を入力", "digital_output": "操作ガイド",
+      "memory": "思い出整理", "memory_desc": "古い写真からエピソードを文章化", "memory_input": "古い写真をアップロード", "memory_output": "思い出ストーリー"
+    },
+    "date": {
+      "plan": "デートプラン", "plan_desc": "条件に合わせたデートコースを提案", "plan_input": "デート条件を入力", "plan_output": "デートプラン",
+      "gift": "プレゼント提案", "gift_desc": "相手の好みに合ったギフトを提案", "gift_input": "相手の情報を入力", "gift_output": "プレゼント候補",
+      "message": "メッセージ起草", "message_desc": "シーンに合った心のこもったメッセージ", "message_input": "メッセージの場面を入力", "message_output": "メッセージ案"
+    },
+    "car": {
+      "diagnose": "故障診断", "diagnose_desc": "車の症状から考えられる原因を分析", "diagnose_input": "車の症状を入力", "diagnose_output": "診断結果",
+      "cost": "維持費試算", "cost_desc": "車両情報から年間維持費を試算", "cost_input": "車両情報を入力", "cost_output": "年間維持費",
+      "compare": "車種比較", "compare_desc": "候補車種のスペック・価格を比較", "compare_input": "候補車種を入力", "compare_output": "比較分析"
+    },
+    "time": {
+      "schedule": "スケジュール最適化", "schedule_desc": "予定を最適な順番と時間割に整理", "schedule_input": "予定を入力", "schedule_output": "最適スケジュール",
+      "morning": "朝活プラン", "morning_desc": "朝時間を有効活用するルーティンを作成", "morning_input": "朝の時間を入力", "morning_output": "モーニングルーティン",
+      "habit": "習慣トラッカー", "habit_desc": "新しい習慣を定着させるプランを作成", "habit_input": "習慣情報を入力", "habit_output": "習慣化プラン"
+    },
+    "eco": {
+      "footprint": "カーボンフットプリント", "footprint_desc": "生活習慣からCO2排出量を推定", "footprint_input": "生活情報を入力", "footprint_output": "CO2排出レポート",
+      "swap": "エコ代替品", "swap_desc": "日用品のエコフレンドリーな代替品を提案", "swap_input": "日用品の写真をアップロード", "swap_output": "代替品提案",
+      "save": "省エネ提案", "save_desc": "エネルギー使用を削減するコツを提案", "save_input": "エネルギー使用情報を入力", "save_output": "省エネプラン"
+    },
+    "marketing": {
+      "copy": "コピーライティング", "copy_desc": "商品の魅力を引き出すコピーを作成", "copy_input": "商品情報を入力", "copy_output": "コピー案",
+      "seo": "SEO対策", "seo_desc": "キーワードからSEO戦略を立案", "seo_input": "キーワードを入力", "seo_output": "SEO戦略",
+      "ad": "広告プラン", "ad_desc": "ターゲットに合わせた広告戦略を作成", "ad_input": "広告情報を入力", "ad_output": "広告プラン"
+    },
+    "garden": {
+      "identify": "植物識別", "identify_desc": "写真から植物の種類と特徴を識別", "identify_input": "植物の写真をアップロード", "identify_output": "識別結果",
+      "calendar": "栽培カレンダー", "calendar_desc": "地域・季節に合った栽培スケジュール", "calendar_input": "栽培条件を入力", "calendar_output": "栽培スケジュール",
+      "trouble": "トラブル診断", "trouble_desc": "植物の写真から問題と対処法を診断", "trouble_input": "問題の写真をアップロード", "trouble_output": "対処法"
+    },
+    "biz": {
+      "swot": "SWOT分析", "swot_desc": "事業の強み・弱み・機会・脅威を分析", "swot_input": "事業情報を入力", "swot_output": "分析レポート",
+      "pitch": "事業計画", "pitch_desc": "プロジェクト概要から事業計画書を作成", "pitch_input": "プロジェクト概要を入力", "pitch_output": "事業計画書",
+      "email": "ビジネスメール", "email_desc": "要点からプロフェッショナルなメールを作成", "email_input": "メールの要点を入力", "email_output": "メール案"
+    },
+    "lang": {
+      "conv": "会話練習", "conv_desc": "外国語でAIと自由に会話練習", "conv_input": "外国語で話しかけてください", "conv_output": "会話フィードバック",
+      "vocab": "単語帳生成", "vocab_desc": "条件に合った単語リストを自動生成", "vocab_input": "学習条件を入力", "vocab_output": "単語リスト",
+      "trans": "翻訳+解説", "trans_desc": "翻訳に加えてニュアンスや文法を解説", "trans_input": "翻訳したい文を入力", "trans_output": "翻訳結果"
+    },
+    "archive": {
+      "closet": "クローゼット整理", "closet_desc": "クローゼット写真から整理プランを提案", "closet_input": "クローゼットの写真をアップロード", "closet_output": "整理プラン",
+      "desk": "デスク整理", "desk_desc": "デスク写真から作業環境の改善を提案", "desk_input": "デスクの写真をアップロード", "desk_output": "改善プラン",
+      "digital": "スマホ整理", "digital_desc": "スマホのデータ・アプリ整理を提案", "digital_input": "スマホの状態を入力", "digital_output": "デジタル整理プラン"
+    },
+    "event": {
+      "plan": "イベント企画", "plan_desc": "イベントの企画・段取りをプランニング", "plan_input": "イベント概要を入力", "plan_output": "企画プラン",
+      "invite": "招待状作成", "invite_desc": "イベントに合わせた招待状文面を作成", "invite_input": "イベント情報を入力", "invite_output": "招待状テキスト",
+      "gift": "プレゼント提案", "gift_desc": "相手の好みに合ったギフトを提案", "gift_input": "相手の情報を入力", "gift_output": "プレゼント候補"
+    },
+    "access": {
+      "web": "Webアクセス診断", "web_desc": "Webサイトのアクセシビリティを診断", "web_input": "WebサイトのURLを入力", "web_output": "アクセシビリティ診断",
+      "doc": "やさしい日本語変換", "doc_desc": "難しい文章をやさしい日本語に変換", "doc_input": "変換したい文章を入力", "doc_output": "やさしい日本語",
+      "sign": "サイン・案内板作成", "sign_desc": "わかりやすい案内板デザインを提案", "sign_input": "案内板の情報を入力", "sign_output": "案内板デザイン"
+    },
+    "news": {
+      "summary": "ニュース要約", "summary_desc": "ニュース記事を簡潔に要約", "summary_input": "ニュース記事のURLまたは本文を貼り付け", "summary_output": "要約結果",
+      "brief": "朝のブリーフィング", "brief_desc": "関心分野の最新ニュースをブリーフィング", "brief_input": "関心分野を入力", "brief_output": "今日のブリーフィング",
+      "fact": "ファクトチェック", "fact_desc": "情報の正確性を多角的にチェック", "fact_input": "確認したい情報を入力", "fact_output": "ファクトチェック結果"
+    },
+    "fitness": {
+      "workout": "ワークアウト", "workout_desc": "目的に合ったトレーニングメニューを作成", "workout_input": "トレーニング条件を入力", "workout_output": "ワークアウトメニュー",
+      "stretch": "ストレッチ", "stretch_desc": "目的に合ったストレッチメニューを提案", "stretch_input": "ストレッチ条件を入力", "stretch_output": "ストレッチメニュー"
+    },
+    "sleep": {
+      "improve": "睡眠改善", "improve_desc": "睡眠の質を向上させるアドバイス", "improve_input": "睡眠の悩みを入力", "improve_output": "改善アドバイス",
+      "routine": "就寝ルーティン", "routine_desc": "快眠のためのナイトルーティンを提案", "routine_input": "就寝の習慣を入力", "routine_output": "ルーティン提案",
+      "bedroom": "寝室環境改善", "bedroom_desc": "寝室環境の最適化ポイントを提案", "bedroom_input": "寝室の情報を入力", "bedroom_output": "環境改善プラン"
+    },
+    "beauty": {
+      "skincare": "スキンケア", "skincare_desc": "肌質に合ったスキンケアルーティンを提案", "skincare_input": "肌の状態を入力", "skincare_output": "スキンケアプラン",
+      "makeup": "メイクアドバイス", "makeup_desc": "シーンに合ったメイクテクニックを提案", "makeup_input": "メイク条件を入力", "makeup_output": "メイクアドバイス",
+      "hair": "ヘアスタイル提案", "hair_desc": "顔型や好みに合った髪型を提案", "hair_input": "ヘアスタイル条件を入力", "hair_output": "ヘアスタイル案"
+    },
+    "reading": {
+      "recommend": "本のおすすめ", "recommend_desc": "好みに合った本をレコメンド", "recommend_input": "読書の好みを入力", "recommend_output": "おすすめ本リスト",
+      "summary": "要約ノート", "summary_desc": "書籍の要点をわかりやすく要約", "summary_input": "書籍情報を入力", "summary_output": "要約ノート",
+      "note": "読書メモ", "note_desc": "読書の感想や要点をメモ形式で整理", "note_input": "読んだ本の感想を入力", "note_output": "読書メモ"
+    },
+    "movie": {
+      "recommend": "映画おすすめ", "recommend_desc": "好みに合った映画をレコメンド", "recommend_input": "映画の好みを入力", "recommend_output": "おすすめ映画リスト",
+      "review": "映画レビュー", "review_desc": "映画のレビューを構成的に作成", "review_input": "映画の感想を入力", "review_output": "レビュー文"
+    },
+    "camping": {
+      "gear": "ギア選び", "gear_desc": "条件に合ったキャンプ道具を提案", "gear_input": "キャンプ条件を入力", "gear_output": "おすすめギア",
+      "meal": "キャンプ飯", "meal_desc": "キャンプで作れるレシピを提案", "meal_input": "食材・調理条件を入力", "meal_output": "キャンプレシピ",
+      "spot": "スポット検索", "spot_desc": "条件に合ったキャンプ場を提案", "spot_input": "キャンプ条件を入力", "spot_output": "おすすめスポット"
+    },
+    "handmade": {
+      "pattern": "型紙・パターン", "pattern_desc": "作りたい作品の型紙を生成", "pattern_input": "作品の情報を入力", "pattern_output": "型紙・パターン案",
+      "material": "材料リスト", "material_desc": "作品に必要な材料リストを作成", "material_input": "作品の情報を入力", "material_output": "材料リスト",
+      "pricing": "価格設定", "pricing_desc": "ハンドメイド作品の適正価格を算出", "pricing_input": "作品・材料費情報を入力", "pricing_output": "価格提案"
+    },
+    "presentation": {
+      "design": "スライドデザイン", "design_desc": "プレゼン資料のデザインを提案", "design_input": "プレゼン内容を入力", "design_output": "デザイン提案",
+      "speaking": "話し方アドバイス", "speaking_desc": "プレゼンの話し方を改善するコツ", "speaking_input": "プレゼン情報を入力", "speaking_output": "話し方アドバイス",
+      "qa": "Q&A対策", "qa_desc": "想定質問と回答案を事前に準備", "qa_input": "プレゼン内容を入力", "qa_output": "想定Q&A集"
+    },
+    "mental": {
+      "meditate": "瞑想ガイド", "meditate_desc": "目的に合った瞑想プランを提案", "meditate_input": "瞑想の目的を入力", "meditate_output": "瞑想ガイド",
+      "stress": "ストレスケア", "stress_desc": "ストレスの原因と対処法を提案", "stress_input": "ストレスの状況を入力", "stress_output": "ストレスケアプラン",
+      "journal": "ジャーナリング", "journal_desc": "心を整理する日記テンプレートを生成", "journal_input": "今の気持ちを入力", "journal_output": "ジャーナルテンプレート"
+    },
+    "cleaning": {
+      "plan": "掃除プラン", "plan_desc": "効率的な掃除スケジュールを作成", "plan_input": "掃除したい場所を入力", "plan_output": "掃除スケジュール",
+      "stain": "シミ抜きガイド", "stain_desc": "シミの種類に合った落とし方を提案", "stain_input": "シミの状況を入力", "stain_output": "シミ抜き手順",
+      "storage": "収納アドバイス", "storage_desc": "スペースを活かす収納術を提案", "storage_input": "収納の悩みを入力", "storage_output": "収納プラン"
+    },
+    "baby": {
+      "food": "離乳食ガイド", "food_desc": "月齢に合った離乳食レシピを提案", "food_input": "赤ちゃんの月齢を入力", "food_output": "離乳食レシピ",
+      "growth": "成長記録", "growth_desc": "赤ちゃんの成長を記録・分析", "growth_input": "成長データを入力", "growth_output": "成長レポート",
+      "cry": "泣き声対応", "cry_desc": "赤ちゃんの泣き方から対処法を提案", "cry_input": "泣き方の状況を入力", "cry_output": "対処アドバイス"
+    },
+    "tax": {
+      "filing": "確定申告サポート", "filing_desc": "確定申告の手順をわかりやすく案内", "filing_input": "申告情報を入力", "filing_output": "申告ガイド",
+      "expense": "経費管理", "expense_desc": "経費の分類と記帳をサポート", "expense_input": "経費情報を入力", "expense_output": "経費レポート",
+      "deduction": "控除チェック", "deduction_desc": "適用可能な控除項目をチェック", "deduction_input": "収入・支出情報を入力", "deduction_output": "控除一覧"
+    },
+    "freelance": {
+      "portfolio": "ポートフォリオ作成", "portfolio_desc": "魅力的なポートフォリオ構成を提案", "portfolio_input": "実績情報を入力", "portfolio_output": "ポートフォリオ案",
+      "rate": "単価設定", "rate_desc": "スキルと市場に合った単価を提案", "rate_input": "スキル・経験情報を入力", "rate_output": "単価提案",
+      "client": "クライアント対応", "client_desc": "クライアント対応の文面を作成", "client_input": "対応内容を入力", "client_output": "メッセージ案"
+    },
+    "meeting": {
+      "minutes": "議事録作成", "minutes_desc": "会議内容から議事録を自動作成", "minutes_input": "会議メモを入力", "minutes_output": "議事録",
+      "agenda": "アジェンダ作成", "agenda_desc": "効果的な会議アジェンダを作成", "agenda_input": "会議の目的を入力", "agenda_output": "アジェンダ",
+      "facilitate": "ファシリテーション", "facilitate_desc": "会議の進行をサポートする台本を作成", "facilitate_input": "会議情報を入力", "facilitate_output": "進行台本"
+    },
+    "datavis": {
+      "chart": "グラフ作成", "chart_desc": "データに最適なグラフ形式を提案", "chart_input": "データ情報を入力", "chart_output": "グラフ提案",
+      "dashboard": "ダッシュボード設計", "dashboard_desc": "KPIに合ったダッシュボード構成を提案", "dashboard_input": "KPI情報を入力", "dashboard_output": "ダッシュボード設計",
+      "report": "レポート作成", "report_desc": "データからわかりやすいレポートを作成", "report_input": "データ情報を入力", "report_output": "分析レポート"
+    },
+    "startup": {
+      "mvp": "MVP設計", "mvp_desc": "最小限の機能でMVPを設計", "mvp_input": "プロダクト情報を入力", "mvp_output": "MVP設計案",
+      "pitch": "ピッチ資料", "pitch_desc": "投資家向けピッチ資料を作成", "pitch_input": "事業情報を入力", "pitch_output": "ピッチ資料案",
+      "growth": "グロース戦略", "growth_desc": "事業成長のための戦略を立案", "growth_input": "事業情報を入力", "growth_output": "グロース戦略"
+    },
+    "podcast": {
+      "plan": "企画立案", "plan_desc": "ポッドキャストの企画構成を作成", "plan_input": "番組テーマを入力", "plan_output": "企画構成案",
+      "script": "台本作成", "script_desc": "エピソードの台本を自動作成", "script_input": "エピソード情報を入力", "script_output": "台本",
+      "edit": "編集ガイド", "edit_desc": "音声編集のポイントをアドバイス", "edit_input": "音声情報を入力", "edit_output": "編集アドバイス"
+    },
+    "sports": {
+      "training": "練習メニュー", "training_desc": "目標に合った練習メニューを作成", "training_input": "練習条件を入力", "training_output": "練習メニュー",
+      "tactics": "戦術分析", "tactics_desc": "試合の戦術プランを立案", "tactics_input": "チーム情報を入力", "tactics_output": "戦術プラン",
+      "analysis": "パフォーマンス分析", "analysis_desc": "競技データからパフォーマンスを分析", "analysis_input": "競技データを入力", "analysis_output": "分析レポート"
+    },
+    "abroad": {
+      "prepare": "留学準備", "prepare_desc": "留学に必要な準備をリスト化", "prepare_input": "留学条件を入力", "prepare_output": "準備チェックリスト",
+      "essay": "エッセイ添削", "essay_desc": "留学用エッセイの構成と添削", "essay_input": "エッセイ原稿を入力", "essay_output": "添削結果",
+      "culture": "文化ガイド", "culture_desc": "渡航先の文化やマナーを解説", "culture_input": "渡航先を入力", "culture_output": "文化ガイド"
+    },
+    "interior": {
+      "makeover": "模様替え提案", "makeover_desc": "部屋の雰囲気をガラッと変える提案", "makeover_input": "部屋の情報を入力", "makeover_output": "模様替えプラン",
+      "lighting": "照明プラン", "lighting_desc": "空間に合った照明プランを提案", "lighting_input": "部屋の情報を入力", "lighting_output": "照明プラン",
+      "curtain": "カーテン選び", "curtain_desc": "部屋に合ったカーテンを提案", "curtain_input": "部屋の情報を入力", "curtain_output": "カーテン提案"
+    },
+    "party": {
+      "plan": "パーティー企画", "plan_desc": "テーマに合ったパーティーを企画", "plan_input": "パーティー条件を入力", "plan_output": "パーティープラン",
+      "games": "ゲーム提案", "games_desc": "人数や場面に合ったゲームを提案", "games_input": "参加者情報を入力", "games_output": "おすすめゲーム",
+      "deco": "飾り付けアイデア", "deco_desc": "テーマに合った飾り付けを提案", "deco_input": "パーティー情報を入力", "deco_output": "飾り付けプラン"
+    },
+    "ceremony": {
+      "manner": "マナーガイド", "manner_desc": "冠婚葬祭のマナーをわかりやすく解説", "manner_input": "場面を入力", "manner_output": "マナーガイド",
+      "envelope": "ご祝儀・香典", "envelope_desc": "包む金額や表書きの書き方を案内", "envelope_input": "場面情報を入力", "envelope_output": "金封ガイド",
+      "return": "お返し選び", "return_desc": "シーンに合ったお返しを提案", "return_input": "いただいた品の情報を入力", "return_output": "お返し提案"
+    },
+    "recycle": {
+      "remake": "リメイクアイデア", "remake_desc": "不用品をおしゃれにリメイク", "remake_input": "不用品の情報を入力", "remake_output": "リメイクアイデア",
+      "reuse": "再利用ガイド", "reuse_desc": "モノの再利用アイデアを提案", "reuse_input": "再利用したいモノを入力", "reuse_output": "再利用アイデア",
+      "appraise": "買取査定", "appraise_desc": "不用品のおおよその買取価格を査定", "appraise_input": "品物の情報を入力", "appraise_output": "査定結果"
+    },
+    "nail": {
+      "design": "ネイルデザイン", "design_desc": "好みに合ったネイルデザインを提案", "design_input": "デザインの好みを入力", "design_output": "デザイン案",
+      "selfnail": "セルフネイル", "selfnail_desc": "自宅でできるネイルの手順を解説", "selfnail_input": "ネイル条件を入力", "selfnail_output": "セルフネイル手順",
+      "care": "ネイルケア", "care_desc": "爪の健康を保つケア方法を提案", "care_input": "爪の状態を入力", "care_output": "ケアアドバイス"
+    },
+    "yoga": {
+      "pose": "ポーズガイド", "pose_desc": "目的に合ったヨガポーズを解説", "pose_input": "ヨガの目的を入力", "pose_output": "ポーズガイド",
+      "sequence": "シーケンス作成", "sequence_desc": "レベルに合ったヨガの流れを作成", "sequence_input": "ヨガ条件を入力", "sequence_output": "ヨガシーケンス",
+      "breathe": "呼吸法ガイド", "breathe_desc": "目的に合った呼吸法を提案", "breathe_input": "呼吸法の目的を入力", "breathe_output": "呼吸法ガイド"
+    },
+    "bicycle": {
+      "maintain": "メンテナンス", "maintain_desc": "自転車の整備手順をガイド", "maintain_input": "自転車の状態を入力", "maintain_output": "メンテナンス手順",
+      "route": "ルート提案", "route_desc": "目的に合ったサイクリングルートを提案", "route_input": "ルート条件を入力", "route_output": "おすすめルート",
+      "choose": "自転車選び", "choose_desc": "用途に合った自転車を提案", "choose_input": "使用条件を入力", "choose_output": "おすすめ自転車"
+    },
+    "running": {
+      "plan": "ランニングプラン", "plan_desc": "目標に合ったランニング計画を作成", "plan_input": "ランニング目標を入力", "plan_output": "ランニングプラン",
+      "form": "フォーム改善", "form_desc": "効率的な走り方のコツを提案", "form_input": "現在のフォームを入力", "form_output": "フォームアドバイス",
+      "shoes": "シューズ選び", "shoes_desc": "走り方に合ったシューズを提案", "shoes_input": "ランニング条件を入力", "shoes_output": "おすすめシューズ"
+    },
+    "manga": {
+      "story": "ストーリー構成", "story_desc": "漫画のストーリー展開を構成", "story_input": "ストーリーの設定を入力", "story_output": "ストーリー構成案",
+      "character": "キャラクター設計", "character_desc": "魅力的なキャラクターを設計", "character_input": "キャラクター条件を入力", "character_output": "キャラクター設定",
+      "panel": "コマ割り提案", "panel_desc": "シーンに合ったコマ割りを提案", "panel_input": "シーンの内容を入力", "panel_output": "コマ割り案"
+    },
+    "video": {
+      "edit": "動画編集ガイド", "edit_desc": "動画の編集手順をステップ解説", "edit_input": "動画の情報を入力", "edit_output": "編集手順",
+      "effect": "エフェクト提案", "effect_desc": "動画に合ったエフェクトを提案", "effect_input": "動画の内容を入力", "effect_output": "エフェクト提案",
+      "storyboard": "絵コンテ作成", "storyboard_desc": "企画から絵コンテを作成", "storyboard_input": "動画の企画を入力", "storyboard_output": "絵コンテ"
+    },
+    "speech": {
+      "draft": "スピーチ原稿", "draft_desc": "場面に合ったスピーチ原稿を起草", "draft_input": "スピーチ条件を入力", "draft_output": "スピーチ原稿",
+      "practice": "発表練習", "practice_desc": "発表の練習ポイントをアドバイス", "practice_input": "発表内容を入力", "practice_output": "練習アドバイス",
+      "anxiety": "あがり症対策", "anxiety_desc": "人前で緊張しないコツを提案", "anxiety_input": "発表の状況を入力", "anxiety_output": "緊張対策プラン"
+    },
+    "nutrition": {
+      "mealplan": "食事プラン", "mealplan_desc": "目標に合った食事プランを作成", "mealplan_input": "食事目標を入力", "mealplan_output": "食事プラン",
+      "supplement": "サプリメント提案", "supplement_desc": "不足栄養素に合ったサプリを提案", "supplement_input": "食生活情報を入力", "supplement_output": "サプリ提案",
+      "ingredient": "食材ガイド", "ingredient_desc": "食材の栄養と効果的な食べ方を解説", "ingredient_input": "食材名を入力", "ingredient_output": "食材ガイド"
+    },
+    "giftwrap": {
+      "wrap": "ラッピング", "wrap_desc": "おしゃれなラッピング方法を提案", "wrap_input": "プレゼント情報を入力", "wrap_output": "ラッピング手順",
+      "card": "メッセージカード", "card_desc": "シーンに合ったメッセージカードを作成", "card_input": "メッセージの場面を入力", "card_output": "カードデザイン案"
+    },
+    "aquarium": {
+      "setup": "水槽セットアップ", "setup_desc": "初心者向け水槽の立ち上げガイド", "setup_input": "水槽条件を入力", "setup_output": "セットアップ手順",
+      "water": "水質管理", "water_desc": "水槽の水質管理方法をアドバイス", "water_input": "水質情報を入力", "water_output": "水質管理ガイド",
+      "fish": "お魚選び", "fish_desc": "条件に合った魚種を提案", "fish_input": "飼育条件を入力", "fish_output": "おすすめの魚"
+    },
+    "debug": {
+      "error": "エラー解析", "error_desc": "エラーメッセージの原因と対処法を解説", "error_input": "エラーメッセージを入力", "error_output": "エラー解析結果",
+      "review": "コードレビュー", "review_desc": "コードの問題点と改善案を提示", "review_input": "コードを入力", "review_output": "レビュー結果",
+      "perf": "パフォーマンス改善", "perf_desc": "コードの性能改善ポイントを分析", "perf_input": "コードを入力", "perf_output": "改善提案"
+    },
+    "exam": {
+      "strategy": "試験戦略", "strategy_desc": "試験に合った勉強戦略を立案", "strategy_input": "試験情報を入力", "strategy_output": "学習戦略",
+      "memorize": "暗記サポート", "memorize_desc": "効率的な暗記テクニックを提案", "memorize_input": "暗記したい内容を入力", "memorize_output": "暗記プラン",
+      "timetable": "学習時間割", "timetable_desc": "試験日から逆算した学習計画を作成", "timetable_input": "試験日・範囲を入力", "timetable_output": "学習時間割"
+    },
+    "email_pro": {
+      "template": "メールテンプレート", "template_desc": "場面に合ったメール定型文を生成", "template_input": "メールの場面を入力", "template_output": "テンプレート",
+      "followup": "フォローアップ", "followup_desc": "適切なフォローアップメールを作成", "followup_input": "前回のやり取りを入力", "followup_output": "フォローアップ文",
+      "apology": "お詫びメール", "apology_desc": "誠意の伝わるお詫び文面を作成", "apology_input": "お詫びの状況を入力", "apology_output": "お詫びメール案"
+    },
+    "mindmap": {
+      "organize": "思考整理", "organize_desc": "情報をマインドマップ形式で整理", "organize_input": "整理したい情報を入力", "organize_output": "マインドマップ",
+      "brainstorm": "ブレスト", "brainstorm_desc": "テーマからアイデアを発散的に生成", "brainstorm_input": "ブレストのテーマを入力", "brainstorm_output": "アイデアマップ",
+      "project": "プロジェクト整理", "project_desc": "プロジェクトの全体像を可視化", "project_input": "プロジェクト情報を入力", "project_output": "プロジェクトマップ"
+    },
+    "boardgame": {
+      "rules": "ルール解説", "rules_desc": "ボードゲームのルールをわかりやすく解説", "rules_input": "ゲーム名を入力", "rules_output": "ルール解説",
+      "strategy": "攻略ガイド", "strategy_desc": "勝つためのコツや戦略を提案", "strategy_input": "ゲーム情報を入力", "strategy_output": "攻略ガイド",
+      "recommend": "ボドゲおすすめ", "recommend_desc": "人数や好みに合ったゲームを提案", "recommend_input": "プレイ条件を入力", "recommend_output": "おすすめゲーム"
+    },
+    "tea": {
+      "brew": "淹れ方ガイド", "brew_desc": "茶葉に合った美味しい淹れ方を解説", "brew_input": "茶葉の種類を入力", "brew_output": "淹れ方ガイド",
+      "leaf": "茶葉選び", "leaf_desc": "好みに合った茶葉を提案", "leaf_input": "好みの条件を入力", "leaf_output": "おすすめ茶葉",
+      "pairing": "ペアリング提案", "pairing_desc": "お茶に合うお菓子や食事を提案", "pairing_input": "お茶の種類を入力", "pairing_output": "ペアリング案"
+    },
+    "astro": {
+      "observe": "天体観測ガイド", "observe_desc": "今夜見える天体と観測方法を案内", "observe_input": "観測条件を入力", "observe_output": "観測ガイド",
+      "event": "天文イベント", "event_desc": "今後の天文イベントをカレンダー化", "event_input": "観測地を入力", "event_output": "イベントカレンダー",
+      "photograph": "天体撮影ガイド", "photograph_desc": "天体写真の撮影テクニックを解説", "photograph_input": "撮影機材を入力", "photograph_output": "撮影ガイド"
+    }
+  }
+}

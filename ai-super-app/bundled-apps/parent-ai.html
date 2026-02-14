@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParentAI - 家族のためのAIアシスタント</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        warm: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
+        }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+  * { font-family: 'Noto Sans JP', sans-serif; }
+  body { padding-bottom: 80px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+  .fade-in-up-delay-1 { animation: fadeInUp 0.5s 0.1s ease-out forwards; opacity: 0; }
+  .fade-in-up-delay-2 { animation: fadeInUp 0.5s 0.2s ease-out forwards; opacity: 0; }
+  .fade-in-up-delay-3 { animation: fadeInUp 0.5s 0.3s ease-out forwards; opacity: 0; }
+  .fade-in-up-delay-4 { animation: fadeInUp 0.5s 0.4s ease-out forwards; opacity: 0; }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .spin-slow { animation: spin-slow 1.5s linear infinite; }
+  @keyframes pulse-dot {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+  .dot-1 { animation: pulse-dot 1.4s 0s infinite ease-in-out; }
+  .dot-2 { animation: pulse-dot 1.4s 0.2s infinite ease-in-out; }
+  .dot-3 { animation: pulse-dot 1.4s 0.4s infinite ease-in-out; }
+  .upload-zone { transition: all 0.2s ease; }
+  .upload-zone:hover { border-color: #F59E0B; background: #FFFBEB; }
+  .upload-zone.dragover { border-color: #F59E0B; background: #FEF3C7; transform: scale(1.01); }
+  .star-filled { color: #F59E0B; }
+  .star-empty { color: #D1D5DB; }
+</style>
+</head>
+<body class="bg-warm-50 min-h-screen">
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 text-white shadow-lg sticky top-0 z-40">
+  <div class="max-w-lg mx-auto px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/25 rounded-xl flex items-center justify-center text-xl backdrop-blur-sm">
+        <span>&#x1F3E0;</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight">ParentAI</h1>
+        <p class="text-[11px] text-white/85 -mt-0.5">家族のためのAIアシスタント</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-lg mx-auto px-4 py-4">
+
+  <!-- Tab 1: 命名 BabyNameAI -->
+  <div id="tab-naming" class="tab-content active">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">&#x1F476;</span>
+        <h2 class="text-lg font-bold text-warm-800">BabyNameAI</h2>
+      </div>
+      <p class="text-sm text-warm-600">お好みを入力するだけで、AIが最適な名前候補を100件ご提案します。</p>
+    </div>
+
+    <div id="naming-form" class="space-y-3">
+      <div>
+        <label class="block text-sm font-medium text-warm-700 mb-1">姓（名字）</label>
+        <input id="naming-sei" type="text" value="田中" placeholder="例：田中" class="w-full px-3 py-2.5 rounded-xl border border-warm-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none text-sm bg-white">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-warm-700 mb-1">性別</label>
+        <div class="flex gap-2">
+          <button onclick="selectGender(this,'男の子')" class="gender-btn flex-1 py-2.5 rounded-xl border-2 border-warm-200 text-sm font-medium text-warm-600 bg-white transition-all">&#x1F466; 男の子</button>
+          <button onclick="selectGender(this,'女の子')" class="gender-btn flex-1 py-2.5 rounded-xl border-2 border-amber-400 text-sm font-medium text-amber-700 bg-amber-50 transition-all">&#x1F467; 女の子</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-warm-700 mb-1">好みの響き</label>
+        <div class="flex flex-wrap gap-2" id="tone-options">
+          <button onclick="toggleChip(this)" class="chip px-3 py-1.5 rounded-full border border-warm-200 text-xs font-medium text-warm-600 bg-white transition-all">柔らかい</button>
+          <button onclick="toggleChip(this)" class="chip px-3 py-1.5 rounded-full border border-amber-400 text-xs font-medium text-amber-700 bg-amber-50 transition-all selected">力強い</button>
+          <button onclick="toggleChip(this)" class="chip px-3 py-1.5 rounded-full border border-warm-200 text-xs font-medium text-warm-600 bg-white transition-all">古風</button>
+          <button onclick="toggleChip(this)" class="chip px-3 py-1.5 rounded-full border border-warm-200 text-xs font-medium text-warm-600 bg-white transition-all">モダン</button>
+          <button onclick="toggleChip(this)" class="chip px-3 py-1.5 rounded-full border border-warm-200 text-xs font-medium text-warm-600 bg-white transition-all">自然系</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-warm-700 mb-1">使いたい漢字（任意）</label>
+        <input id="naming-kanji" type="text" value="陽、空、美" placeholder="例：陽、空、美" class="w-full px-3 py-2.5 rounded-xl border border-warm-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none text-sm bg-white">
+      </div>
+      <button onclick="analyzeNaming()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-sm">
+        &#x2728; AIで名前を提案する
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="naming-loading" class="hidden py-12 text-center">
+      <div class="inline-flex items-center gap-1.5 bg-white px-5 py-3 rounded-full shadow-md">
+        <div class="w-2.5 h-2.5 bg-amber-400 rounded-full dot-1"></div>
+        <div class="w-2.5 h-2.5 bg-orange-400 rounded-full dot-2"></div>
+        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full dot-3"></div>
+        <span class="ml-2 text-sm text-warm-600 font-medium">AIが最適な名前を探しています...</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="naming-results" class="hidden space-y-3 mt-2">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="text-sm font-bold text-warm-800">&#x1F31F; AI厳選おすすめ4名</h3>
+        <span class="text-xs text-warm-500">全100候補中</span>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-1">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-warm-500 mb-0.5">第1候補</p>
+            <p class="text-2xl font-bold text-warm-900" id="name-result-1">田中 陽葵</p>
+            <p class="text-xs text-warm-500 mt-0.5" id="name-reading-1">たなか ひまり</p>
+          </div>
+          <div class="text-right">
+            <div class="flex gap-0.5 text-sm justify-end">
+              <span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span>
+            </div>
+            <p class="text-[10px] text-warm-500 mt-0.5">姓名判断: 大吉</p>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-warm-50 flex gap-4 text-xs text-warm-600">
+          <span>画数: 28画</span>
+          <span>意味: 太陽のように輝く</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-2">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-warm-500 mb-0.5">第2候補</p>
+            <p class="text-2xl font-bold text-warm-900" id="name-result-2">田中 空美</p>
+            <p class="text-xs text-warm-500 mt-0.5" id="name-reading-2">たなか そらみ</p>
+          </div>
+          <div class="text-right">
+            <div class="flex gap-0.5 text-sm justify-end">
+              <span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-empty">&#9733;</span>
+            </div>
+            <p class="text-[10px] text-warm-500 mt-0.5">姓名判断: 吉</p>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-warm-50 flex gap-4 text-xs text-warm-600">
+          <span>画数: 23画</span>
+          <span>意味: 空のように美しい心</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-warm-500 mb-0.5">第3候補</p>
+            <p class="text-2xl font-bold text-warm-900" id="name-result-3">田中 美陽</p>
+            <p class="text-xs text-warm-500 mt-0.5" id="name-reading-3">たなか みはる</p>
+          </div>
+          <div class="text-right">
+            <div class="flex gap-0.5 text-sm justify-end">
+              <span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span>
+            </div>
+            <p class="text-[10px] text-warm-500 mt-0.5">姓名判断: 大吉</p>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-warm-50 flex gap-4 text-xs text-warm-600">
+          <span>画数: 21画</span>
+          <span>意味: 美しく陽気な人生</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-warm-500 mb-0.5">第4候補</p>
+            <p class="text-2xl font-bold text-warm-900" id="name-result-4">田中 陽菜</p>
+            <p class="text-xs text-warm-500 mt-0.5" id="name-reading-4">たなか はるな</p>
+          </div>
+          <div class="text-right">
+            <div class="flex gap-0.5 text-sm justify-end">
+              <span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-filled">&#9733;</span><span class="star-empty">&#9733;</span>
+            </div>
+            <p class="text-[10px] text-warm-500 mt-0.5">姓名判断: 吉</p>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-warm-50 flex gap-4 text-xs text-warm-600">
+          <span>画数: 24画</span>
+          <span>意味: 陽だまりの菜の花</span>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-center fade-in-up-delay-4">
+        <p class="text-sm font-medium text-amber-800">&#x1F4C4; 全100候補をPDFでダウンロード可能</p>
+        <p class="text-xs text-amber-600 mt-1">画数・姓名判断・意味を完全収録</p>
+        <button class="mt-3 px-6 py-2 bg-amber-500 text-white text-sm font-bold rounded-xl shadow hover:bg-amber-600 transition-all">PDFをダウンロード</button>
+      </div>
+
+      <button onclick="resetNaming()" class="w-full py-2.5 border border-warm-200 text-warm-600 text-sm font-medium rounded-xl hover:bg-warm-100 transition-all">もう一度探す</button>
+    </div>
+  </div>
+
+  <!-- Tab 2: レシピ RecipeAI -->
+  <div id="tab-recipe" class="tab-content">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">&#x1F373;</span>
+        <h2 class="text-lg font-bold text-warm-800">RecipeAI</h2>
+      </div>
+      <p class="text-sm text-warm-600">冷蔵庫の中身を撮影するだけ。AIがレシピを提案します。</p>
+    </div>
+
+    <div id="recipe-form">
+      <div class="upload-zone border-2 border-dashed border-warm-300 rounded-2xl p-8 text-center cursor-pointer bg-white" onclick="document.getElementById('recipe-upload').click()" id="recipe-drop-zone">
+        <input type="file" id="recipe-upload" accept="image/*" class="hidden" onchange="handleRecipeUpload(this)">
+        <div id="recipe-upload-placeholder">
+          <div class="w-16 h-16 bg-warm-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <span class="text-3xl">&#x1F4F7;</span>
+          </div>
+          <p class="text-sm font-medium text-warm-700">冷蔵庫の写真をアップロード</p>
+          <p class="text-xs text-warm-400 mt-1">タップして選択 または ドラッグ&ドロップ</p>
+        </div>
+        <div id="recipe-upload-preview" class="hidden">
+          <div class="w-20 h-20 bg-warm-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <span class="text-4xl">&#x2705;</span>
+          </div>
+          <p class="text-sm font-medium text-green-700">写真がアップロードされました</p>
+          <p class="text-xs text-warm-500 mt-1" id="recipe-filename"></p>
+        </div>
+      </div>
+      <button onclick="analyzeRecipe()" class="w-full mt-3 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-sm">
+        &#x1F50D; AIで食材を分析する
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="recipe-loading" class="hidden py-12 text-center">
+      <div class="inline-flex items-center gap-1.5 bg-white px-5 py-3 rounded-full shadow-md">
+        <div class="w-2.5 h-2.5 bg-amber-400 rounded-full dot-1"></div>
+        <div class="w-2.5 h-2.5 bg-orange-400 rounded-full dot-2"></div>
+        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full dot-3"></div>
+        <span class="ml-2 text-sm text-warm-600 font-medium">食材を認識しています...</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="recipe-results" class="hidden space-y-3 mt-2">
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up">
+        <p class="text-xs font-medium text-warm-500 mb-2">&#x1F50E; 検出された食材</p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">&#x1F95A; 卵</span>
+          <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">&#x1FAD8; 豆腐</span>
+          <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">&#x1F9C5; ネギ</span>
+          <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">&#x1F969; 豚肉</span>
+          <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">&#x1F966; キャベツ</span>
+          <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">&#x1F372; 味噌</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden fade-in-up-delay-1">
+        <div class="p-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-amber-500 font-bold">レシピ 1</p>
+              <h4 class="text-base font-bold text-warm-900 mt-0.5">豚キャベツの味噌炒め</h4>
+            </div>
+            <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">15分</span>
+          </div>
+          <p class="text-xs text-warm-600 mt-2">豚肉とキャベツを味噌ダレで香ばしく炒めた、ご飯がすすむおかず。ネギをたっぷり乗せて。</p>
+          <div class="mt-2 pt-2 border-t border-warm-50 flex gap-3 text-[11px] text-warm-500">
+            <span>&#x1F4AA; タンパク質 25g</span>
+            <span>&#x1F525; 380kcal</span>
+            <span>&#x1F952; 食物繊維 4g</span>
+          </div>
+        </div>
+        <button class="w-full py-2 bg-warm-50 text-warm-600 text-xs font-medium hover:bg-warm-100 transition-all border-t border-warm-100">詳しい作り方を見る &#x27A1;</button>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden fade-in-up-delay-2">
+        <div class="p-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-amber-500 font-bold">レシピ 2</p>
+              <h4 class="text-base font-bold text-warm-900 mt-0.5">ふわふわ卵の豆腐チャンプルー</h4>
+            </div>
+            <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">10分</span>
+          </div>
+          <p class="text-xs text-warm-600 mt-2">豆腐と卵をメインに、キャベツとネギで彩り豊かに。子どもも大好きな優しい味付け。</p>
+          <div class="mt-2 pt-2 border-t border-warm-50 flex gap-3 text-[11px] text-warm-500">
+            <span>&#x1F4AA; タンパク質 18g</span>
+            <span>&#x1F525; 250kcal</span>
+            <span>&#x1F9C0; カルシウム豊富</span>
+          </div>
+        </div>
+        <button class="w-full py-2 bg-warm-50 text-warm-600 text-xs font-medium hover:bg-warm-100 transition-all border-t border-warm-100">詳しい作り方を見る &#x27A1;</button>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden fade-in-up-delay-3">
+        <div class="p-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-amber-500 font-bold">レシピ 3</p>
+              <h4 class="text-base font-bold text-warm-900 mt-0.5">具だくさん味噌汁</h4>
+            </div>
+            <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">12分</span>
+          </div>
+          <p class="text-xs text-warm-600 mt-2">豆腐・キャベツ・ネギ・卵を全部入れた栄養満点の味噌汁。一品で野菜もたんぱく質も摂れます。</p>
+          <div class="mt-2 pt-2 border-t border-warm-50 flex gap-3 text-[11px] text-warm-500">
+            <span>&#x1F4AA; タンパク質 12g</span>
+            <span>&#x1F525; 150kcal</span>
+            <span>&#x1F9C2; 減塩対応可</span>
+          </div>
+        </div>
+        <button class="w-full py-2 bg-warm-50 text-warm-600 text-xs font-medium hover:bg-warm-100 transition-all border-t border-warm-100">詳しい作り方を見る &#x27A1;</button>
+      </div>
+
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 fade-in-up-delay-4">
+        <p class="text-xs font-bold text-amber-800 mb-1">&#x1F6D2; 買い足し提案</p>
+        <p class="text-xs text-amber-700">にんにく・生姜があれば、さらに3品追加で作れます。醤油と料理酒も残量を確認してみてください。</p>
+      </div>
+
+      <button onclick="resetRecipe()" class="w-full py-2.5 border border-warm-200 text-warm-600 text-sm font-medium rounded-xl hover:bg-warm-100 transition-all">もう一度撮影する</button>
+    </div>
+  </div>
+
+  <!-- Tab 3: 植物診断 PlantDocAI -->
+  <div id="tab-plant" class="tab-content">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">&#x1F33F;</span>
+        <h2 class="text-lg font-bold text-warm-800">PlantDocAI</h2>
+      </div>
+      <p class="text-sm text-warm-600">植物の写真を撮るだけで、病気の診断とケア方法をAIがお伝えします。</p>
+    </div>
+
+    <div id="plant-form">
+      <div class="upload-zone border-2 border-dashed border-warm-300 rounded-2xl p-8 text-center cursor-pointer bg-white" onclick="document.getElementById('plant-upload').click()" id="plant-drop-zone">
+        <input type="file" id="plant-upload" accept="image/*" class="hidden" onchange="handlePlantUpload(this)">
+        <div id="plant-upload-placeholder">
+          <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <span class="text-3xl">&#x1F33B;</span>
+          </div>
+          <p class="text-sm font-medium text-warm-700">植物の写真をアップロード</p>
+          <p class="text-xs text-warm-400 mt-1">葉や茎の気になる部分が見えるように撮影</p>
+        </div>
+        <div id="plant-upload-preview" class="hidden">
+          <div class="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <span class="text-4xl">&#x2705;</span>
+          </div>
+          <p class="text-sm font-medium text-green-700">写真がアップロードされました</p>
+          <p class="text-xs text-warm-500 mt-1" id="plant-filename"></p>
+        </div>
+      </div>
+      <button onclick="analyzePlant()" class="w-full mt-3 py-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-sm">
+        &#x1F33F; AIで植物を診断する
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="plant-loading" class="hidden py-12 text-center">
+      <div class="inline-flex items-center gap-1.5 bg-white px-5 py-3 rounded-full shadow-md">
+        <div class="w-2.5 h-2.5 bg-green-400 rounded-full dot-1"></div>
+        <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full dot-2"></div>
+        <div class="w-2.5 h-2.5 bg-teal-400 rounded-full dot-3"></div>
+        <span class="ml-2 text-sm text-warm-600 font-medium">植物を診断しています...</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="plant-results" class="hidden space-y-3 mt-2">
+      <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-4 fade-in-up">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">&#x1F331;</div>
+          <div>
+            <p class="text-xs text-green-600 font-medium">識別結果</p>
+            <h4 class="text-lg font-bold text-warm-900">モンステラ</h4>
+            <p class="text-xs text-warm-500">Monstera deliciosa</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-4 fade-in-up-delay-1">
+        <div class="flex items-start gap-2">
+          <span class="text-lg mt-0.5">&#x26A0;&#xFE0F;</span>
+          <div>
+            <p class="text-xs text-red-500 font-bold mb-1">検出された症状</p>
+            <h4 class="text-sm font-bold text-warm-900">葉先の褐変（Root Rot の可能性）</h4>
+            <p class="text-xs text-warm-600 mt-1">根腐れにより水分・栄養の吸収が低下し、葉先から茶色く変色しています。早めの対処が必要です。</p>
+          </div>
+        </div>
+        <div class="mt-2 flex items-center gap-1.5">
+          <span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium">重症度: 中</span>
+          <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">回復可能</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-2">
+        <p class="text-xs font-bold text-warm-700 mb-2">&#x1F48A; 治療プラン</p>
+        <div class="space-y-2">
+          <div class="flex gap-2">
+            <span class="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0 mt-0.5">1</span>
+            <p class="text-xs text-warm-600">鉢から取り出し、黒くなった根をハサミで切除する</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0 mt-0.5">2</span>
+            <p class="text-xs text-warm-600">新しい水はけの良い土に植え替える（観葉植物用土推奨）</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0 mt-0.5">3</span>
+            <p class="text-xs text-warm-600">植え替え後1週間は水やりを控え、明るい日陰で養生</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-3">
+        <p class="text-xs font-bold text-warm-700 mb-2">&#x1F3E1; 最適な育成環境</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-warm-50 rounded-xl p-2.5 text-center">
+            <p class="text-lg">&#x2600;&#xFE0F;</p>
+            <p class="text-[10px] text-warm-500">日当たり</p>
+            <p class="text-xs font-bold text-warm-800">明るい日陰</p>
+          </div>
+          <div class="bg-warm-50 rounded-xl p-2.5 text-center">
+            <p class="text-lg">&#x1F321;&#xFE0F;</p>
+            <p class="text-[10px] text-warm-500">適温</p>
+            <p class="text-xs font-bold text-warm-800">20-30&#176;C</p>
+          </div>
+          <div class="bg-warm-50 rounded-xl p-2.5 text-center">
+            <p class="text-lg">&#x1F4A7;</p>
+            <p class="text-[10px] text-warm-500">湿度</p>
+            <p class="text-xs font-bold text-warm-800">60%以上</p>
+          </div>
+          <div class="bg-warm-50 rounded-xl p-2.5 text-center">
+            <p class="text-lg">&#x1F4A8;</p>
+            <p class="text-[10px] text-warm-500">風通し</p>
+            <p class="text-xs font-bold text-warm-800">良好に保つ</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 fade-in-up-delay-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">&#x1F4C5;</span>
+          <div>
+            <p class="text-xs font-bold text-green-800">次回の水やり目安</p>
+            <p class="text-sm font-bold text-green-700">2月17日（月）</p>
+            <p class="text-[11px] text-green-600 mt-0.5">土の表面が乾いたら指で2cm確認してから水やり</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 fade-in-up-delay-4">
+        <button class="flex-1 py-2.5 bg-green-500 text-white text-sm font-bold rounded-xl hover:bg-green-600 transition-all">&#x1F514; リマインダー設定</button>
+        <button class="flex-1 py-2.5 border border-warm-200 text-warm-600 text-sm font-medium rounded-xl hover:bg-warm-100 transition-all" onclick="resetPlant()">もう一度診断</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 4: 家計簿 ReceiptAI -->
+  <div id="tab-receipt" class="tab-content">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">&#x1F9FE;</span>
+        <h2 class="text-lg font-bold text-warm-800">ReceiptAI</h2>
+      </div>
+      <p class="text-sm text-warm-600">レシートを撮影するだけで、自動で家計簿に記録。カテゴリも自動分類。</p>
+    </div>
+
+    <div id="receipt-form">
+      <div class="upload-zone border-2 border-dashed border-warm-300 rounded-2xl p-8 text-center cursor-pointer bg-white" onclick="document.getElementById('receipt-upload').click()" id="receipt-drop-zone">
+        <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="handleReceiptUpload(this)">
+        <div id="receipt-upload-placeholder">
+          <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <span class="text-3xl">&#x1F4F8;</span>
+          </div>
+          <p class="text-sm font-medium text-warm-700">レシートの写真をアップロード</p>
+          <p class="text-xs text-warm-400 mt-1">レシート全体が映るように撮影してください</p>
+        </div>
+        <div id="receipt-upload-preview" class="hidden">
+          <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <span class="text-4xl">&#x2705;</span>
+          </div>
+          <p class="text-sm font-medium text-green-700">写真がアップロードされました</p>
+          <p class="text-xs text-warm-500 mt-1" id="receipt-filename"></p>
+        </div>
+      </div>
+      <button onclick="analyzeReceipt()" class="w-full mt-3 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-sm">
+        &#x1F9FE; AIでレシートを読み取る
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="receipt-loading" class="hidden py-12 text-center">
+      <div class="inline-flex items-center gap-1.5 bg-white px-5 py-3 rounded-full shadow-md">
+        <div class="w-2.5 h-2.5 bg-amber-400 rounded-full dot-1"></div>
+        <div class="w-2.5 h-2.5 bg-orange-400 rounded-full dot-2"></div>
+        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full dot-3"></div>
+        <span class="ml-2 text-sm text-warm-600 font-medium">レシートを読み取っています...</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="receipt-results" class="hidden space-y-3 mt-2">
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-warm-500">店舗名</p>
+            <h4 class="text-base font-bold text-warm-900">イオン 幕張新都心店</h4>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-warm-500">購入日</p>
+            <p class="text-sm font-bold text-warm-800">2026/02/10</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden fade-in-up-delay-1">
+        <div class="p-4">
+          <p class="text-xs font-bold text-warm-700 mb-3">&#x1F4CB; 購入品目</p>
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-sm">&#x1F966;</span>
+                <div>
+                  <p class="text-sm font-medium text-warm-900">有機キャベツ</p>
+                  <p class="text-[10px] text-warm-400">食料品 &gt; 野菜・果物</p>
+                </div>
+              </div>
+              <p class="text-sm font-bold text-warm-800">&#xA5;198</p>
+            </div>
+            <div class="border-t border-warm-50"></div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center text-sm">&#x1F969;</span>
+                <div>
+                  <p class="text-sm font-medium text-warm-900">国産豚ロース 300g</p>
+                  <p class="text-[10px] text-warm-400">食料品 &gt; 肉・魚</p>
+                </div>
+              </div>
+              <p class="text-sm font-bold text-warm-800">&#xA5;580</p>
+            </div>
+            <div class="border-t border-warm-50"></div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-sm">&#x1F9F4;</span>
+                <div>
+                  <p class="text-sm font-medium text-warm-900">食器用洗剤 詰替え</p>
+                  <p class="text-[10px] text-warm-400">日用品 &gt; キッチン用品</p>
+                </div>
+              </div>
+              <p class="text-sm font-bold text-warm-800">&#xA5;248</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-warm-50 px-4 py-3 flex justify-between items-center border-t border-warm-100">
+          <p class="text-sm font-medium text-warm-600">合計（税込）</p>
+          <p class="text-xl font-bold text-warm-900">&#xA5;1,026</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-warm-100 p-4 fade-in-up-delay-2">
+        <p class="text-xs font-bold text-warm-700 mb-3">&#x1F4CA; カテゴリ別内訳</p>
+        <div class="space-y-2">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-warm-600">食料品</span>
+              <span class="font-bold text-warm-800">&#xA5;778</span>
+            </div>
+            <div class="h-2 bg-warm-100 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full" style="width:76%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-warm-600">日用品</span>
+              <span class="font-bold text-warm-800">&#xA5;248</span>
+            </div>
+            <div class="h-2 bg-warm-100 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full" style="width:24%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 fade-in-up-delay-3">
+        <p class="text-xs font-bold text-amber-800 mb-2">&#x1F4C8; 今月の累計</p>
+        <div class="flex items-end gap-2">
+          <p class="text-2xl font-bold text-amber-700">&#xA5;47,826</p>
+          <p class="text-xs text-amber-600 mb-1">/ 予算 &#xA5;80,000</p>
+        </div>
+        <div class="mt-2 h-3 bg-white rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all" style="width:60%"></div>
+        </div>
+        <div class="flex justify-between mt-1">
+          <p class="text-[10px] text-amber-600">残り &#xA5;32,174</p>
+          <p class="text-[10px] text-amber-600">60% 消化</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 fade-in-up-delay-4">
+        <button class="flex-1 py-2.5 bg-amber-500 text-white text-sm font-bold rounded-xl hover:bg-amber-600 transition-all">&#x1F4BE; 家計簿に保存</button>
+        <button class="flex-1 py-2.5 border border-warm-200 text-warm-600 text-sm font-medium rounded-xl hover:bg-warm-100 transition-all" onclick="resetReceipt()">もう一枚読み取る</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-warm-200 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+  <div class="max-w-lg mx-auto flex">
+    <button onclick="switchTab('naming')" id="nav-naming" class="nav-btn flex-1 py-2 pt-2.5 flex flex-col items-center gap-0.5 transition-all text-amber-600">
+      <span class="text-lg leading-none">&#x1F476;</span>
+      <span class="text-[10px] font-bold">命名</span>
+      <span class="w-1 h-1 bg-amber-500 rounded-full"></span>
+    </button>
+    <button onclick="switchTab('recipe')" id="nav-recipe" class="nav-btn flex-1 py-2 pt-2.5 flex flex-col items-center gap-0.5 transition-all text-warm-400">
+      <span class="text-lg leading-none">&#x1F373;</span>
+      <span class="text-[10px] font-medium">レシピ</span>
+      <span class="w-1 h-1 bg-transparent rounded-full"></span>
+    </button>
+    <button onclick="switchTab('plant')" id="nav-plant" class="nav-btn flex-1 py-2 pt-2.5 flex flex-col items-center gap-0.5 transition-all text-warm-400">
+      <span class="text-lg leading-none">&#x1F33F;</span>
+      <span class="text-[10px] font-medium">植物</span>
+      <span class="w-1 h-1 bg-transparent rounded-full"></span>
+    </button>
+    <button onclick="switchTab('receipt')" id="nav-receipt" class="nav-btn flex-1 py-2 pt-2.5 flex flex-col items-center gap-0.5 transition-all text-warm-400">
+      <span class="text-lg leading-none">&#x1F9FE;</span>
+      <span class="text-[10px] font-medium">家計簿</span>
+      <span class="w-1 h-1 bg-transparent rounded-full"></span>
+    </button>
+  </div>
+  <!-- Safe area for notch devices -->
+  <div class="h-[env(safe-area-inset-bottom)]"></div>
+</nav>
+
+<script>
+// --- Tab Switching ---
+let currentTab = 'naming';
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.remove('text-amber-600');
+    btn.classList.add('text-warm-400');
+    const dot = btn.querySelector('span:last-child');
+    dot.classList.remove('bg-amber-500');
+    dot.classList.add('bg-transparent');
+    btn.querySelector('span:nth-child(2)').classList.remove('font-bold');
+    btn.querySelector('span:nth-child(2)').classList.add('font-medium');
+  });
+
+  const activeBtn = document.getElementById('nav-' + tab);
+  activeBtn.classList.remove('text-warm-400');
+  activeBtn.classList.add('text-amber-600');
+  const activeDot = activeBtn.querySelector('span:last-child');
+  activeDot.classList.remove('bg-transparent');
+  activeDot.classList.add('bg-amber-500');
+  activeBtn.querySelector('span:nth-child(2)').classList.remove('font-medium');
+  activeBtn.querySelector('span:nth-child(2)').classList.add('font-bold');
+
+  currentTab = tab;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// --- Gender Selection ---
+let selectedGender = '女の子';
+function selectGender(btn, gender) {
+  selectedGender = gender;
+  document.querySelectorAll('.gender-btn').forEach(b => {
+    b.classList.remove('border-amber-400', 'text-amber-700', 'bg-amber-50');
+    b.classList.add('border-warm-200', 'text-warm-600', 'bg-white');
+  });
+  btn.classList.remove('border-warm-200', 'text-warm-600', 'bg-white');
+  btn.classList.add('border-amber-400', 'text-amber-700', 'bg-amber-50');
+}
+
+// --- Chip Toggle ---
+function toggleChip(el) {
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected', 'border-amber-400', 'text-amber-700', 'bg-amber-50');
+    el.classList.add('border-warm-200', 'text-warm-600', 'bg-white');
+  } else {
+    el.classList.add('selected', 'border-amber-400', 'text-amber-700', 'bg-amber-50');
+    el.classList.remove('border-warm-200', 'text-warm-600', 'bg-white');
+  }
+}
+
+// --- Naming Tool ---
+const boyNames = [
+  { name: '陽翔', reading: 'はると', strokes: 26, fortune: '大吉', stars: 5, meaning: '陽の光のように高く翔ける' },
+  { name: '空大', reading: 'くうた', strokes: 21, fortune: '吉', stars: 4, meaning: '大きな空のような広い心' },
+  { name: '陽斗', reading: 'はると', strokes: 24, fortune: '大吉', stars: 5, meaning: '陽の光と北斗の星' },
+  { name: '美空', reading: 'みそら', strokes: 23, fortune: '吉', stars: 4, meaning: '美しい空のように澄んだ人' },
+];
+const girlNames = [
+  { name: '陽葵', reading: 'ひまり', strokes: 28, fortune: '大吉', stars: 5, meaning: '太陽のように輝く' },
+  { name: '空美', reading: 'そらみ', strokes: 23, fortune: '吉', stars: 4, meaning: '空のように美しい心' },
+  { name: '美陽', reading: 'みはる', strokes: 21, fortune: '大吉', stars: 5, meaning: '美しく陽気な人生' },
+  { name: '陽菜', reading: 'はるな', strokes: 24, fortune: '吉', stars: 4, meaning: '陽だまりの菜の花' },
+];
+
+function analyzeNaming() {
+  const sei = document.getElementById('naming-sei').value || '田中';
+  const names = selectedGender === '男の子' ? boyNames : girlNames;
+
+  document.getElementById('naming-form').classList.add('hidden');
+  document.getElementById('naming-loading').classList.remove('hidden');
+
+  setTimeout(() => {
+    // Update result cards dynamically
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('name-result-' + (i+1)).textContent = sei + ' ' + names[i].name;
+      document.getElementById('name-reading-' + (i+1)).textContent = seiToReading(sei) + ' ' + names[i].reading;
+    }
+
+    document.getElementById('naming-loading').classList.add('hidden');
+    document.getElementById('naming-results').classList.remove('hidden');
+  }, 2000);
+}
+
+function seiToReading(sei) {
+  const map = { '田中': 'たなか', '佐藤': 'さとう', '鈴木': 'すずき', '高橋': 'たかはし', '渡辺': 'わたなべ', '山田': 'やまだ' };
+  return map[sei] || sei;
+}
+
+function resetNaming() {
+  document.getElementById('naming-results').classList.add('hidden');
+  document.getElementById('naming-form').classList.remove('hidden');
+}
+
+// --- Recipe Tool ---
+function handleRecipeUpload(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('recipe-upload-placeholder').classList.add('hidden');
+    document.getElementById('recipe-upload-preview').classList.remove('hidden');
+    document.getElementById('recipe-filename').textContent = input.files[0].name;
+  }
+}
+
+function analyzeRecipe() {
+  document.getElementById('recipe-form').classList.add('hidden');
+  document.getElementById('recipe-loading').classList.remove('hidden');
+
+  setTimeout(() => {
+    document.getElementById('recipe-loading').classList.add('hidden');
+    document.getElementById('recipe-results').classList.remove('hidden');
+  }, 2000);
+}
+
+function resetRecipe() {
+  document.getElementById('recipe-results').classList.add('hidden');
+  document.getElementById('recipe-form').classList.remove('hidden');
+  document.getElementById('recipe-upload').value = '';
+  document.getElementById('recipe-upload-placeholder').classList.remove('hidden');
+  document.getElementById('recipe-upload-preview').classList.add('hidden');
+}
+
+// --- Plant Tool ---
+function handlePlantUpload(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('plant-upload-placeholder').classList.add('hidden');
+    document.getElementById('plant-upload-preview').classList.remove('hidden');
+    document.getElementById('plant-filename').textContent = input.files[0].name;
+  }
+}
+
+function analyzePlant() {
+  document.getElementById('plant-form').classList.add('hidden');
+  document.getElementById('plant-loading').classList.remove('hidden');
+
+  setTimeout(() => {
+    document.getElementById('plant-loading').classList.add('hidden');
+    document.getElementById('plant-results').classList.remove('hidden');
+  }, 2000);
+}
+
+function resetPlant() {
+  document.getElementById('plant-results').classList.add('hidden');
+  document.getElementById('plant-form').classList.remove('hidden');
+  document.getElementById('plant-upload').value = '';
+  document.getElementById('plant-upload-placeholder').classList.remove('hidden');
+  document.getElementById('plant-upload-preview').classList.add('hidden');
+}
+
+// --- Receipt Tool ---
+function handleReceiptUpload(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('receipt-upload-placeholder').classList.add('hidden');
+    document.getElementById('receipt-upload-preview').classList.remove('hidden');
+    document.getElementById('receipt-filename').textContent = input.files[0].name;
+  }
+}
+
+function analyzeReceipt() {
+  document.getElementById('receipt-form').classList.add('hidden');
+  document.getElementById('receipt-loading').classList.remove('hidden');
+
+  setTimeout(() => {
+    document.getElementById('receipt-loading').classList.add('hidden');
+    document.getElementById('receipt-results').classList.remove('hidden');
+  }, 2000);
+}
+
+function resetReceipt() {
+  document.getElementById('receipt-results').classList.add('hidden');
+  document.getElementById('receipt-form').classList.remove('hidden');
+  document.getElementById('receipt-upload').value = '';
+  document.getElementById('receipt-upload-placeholder').classList.remove('hidden');
+  document.getElementById('receipt-upload-preview').classList.add('hidden');
+}
+
+// --- Drag & Drop ---
+['recipe', 'plant', 'receipt'].forEach(tool => {
+  const zone = document.getElementById(tool + '-drop-zone');
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => { zone.classList.remove('dragover'); });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const input = document.getElementById(tool + '-upload');
+    if (e.dataTransfer.files.length > 0) {
+      input.files = e.dataTransfer.files;
+      input.dispatchEvent(new Event('change'));
+    }
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudentAI — 学びから就活まで、AIがサポート</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap');
+  * { font-family: 'Noto Sans JP', sans-serif; }
+  body { padding-bottom: 5rem; }
+
+  .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .slide-up { animation: slideUp 0.4s ease forwards; opacity: 0; transform: translateY(20px); }
+  @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+  .pulse-dot { animation: pulseDot 1.4s ease-in-out infinite; }
+  @keyframes pulseDot {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+  .pulse-dot:nth-child(2) { animation-delay: 0.2s; }
+  .pulse-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .upload-zone {
+    border: 2px dashed #c7d2fe;
+    transition: all 0.3s ease;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: #6366f1;
+    background: #eef2ff;
+  }
+  .upload-zone.has-file {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    border-style: solid;
+  }
+
+  .result-card {
+    animation: slideUp 0.4s ease forwards;
+    opacity: 0;
+  }
+  .result-card:nth-child(1) { animation-delay: 0.1s; }
+  .result-card:nth-child(2) { animation-delay: 0.2s; }
+  .result-card:nth-child(3) { animation-delay: 0.3s; }
+  .result-card:nth-child(4) { animation-delay: 0.4s; }
+  .result-card:nth-child(5) { animation-delay: 0.5s; }
+
+  .nav-item { transition: all 0.2s ease; }
+  .nav-item.active { color: #6366f1; }
+  .nav-item.active .nav-icon { transform: scale(1.15); }
+
+  .processing-bar {
+    background: linear-gradient(90deg, #6366f1, #3b82f6, #6366f1);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease infinite;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .tone-chip { transition: all 0.2s ease; cursor: pointer; }
+  .tone-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.2); }
+  .tone-chip.selected { background: #6366f1; color: white; box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+
+  input[type="file"] { display: none; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .card { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header -->
+<header class="gradient-bg text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-lg mx-auto px-4 py-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+        <span class="text-xl">🎓</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight">StudentAI</h1>
+        <p class="text-xs text-blue-100 font-light">学びから就活まで、AIがサポート</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-lg mx-auto px-4 py-5">
+
+  <!-- Tab 1: 問題集生成 (StudyAI) -->
+  <div id="tab-study" class="tab-panel active">
+    <div class="mb-5">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">📚 問題集生成</h2>
+      <p class="text-sm text-gray-500">教科書やノートの写真から自動で問題集を作成します</p>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-3">教科書・ノートの画像をアップロード</label>
+      <div id="study-upload-zone" class="upload-zone rounded-xl p-8 text-center cursor-pointer" onclick="document.getElementById('study-file-input').click()">
+        <div id="study-upload-content">
+          <div class="text-4xl mb-3">📷</div>
+          <p class="text-sm font-medium text-gray-600">タップして画像を選択</p>
+          <p class="text-xs text-gray-400 mt-1">またはここにドラッグ＆ドロップ</p>
+          <p class="text-xs text-gray-400 mt-2">対応形式: JPG, PNG, HEIC</p>
+        </div>
+        <div id="study-upload-done" class="hidden">
+          <div class="text-4xl mb-3">✅</div>
+          <p class="text-sm font-medium text-green-700" id="study-file-name"></p>
+          <p class="text-xs text-green-600 mt-1">アップロード完了</p>
+        </div>
+      </div>
+      <input type="file" id="study-file-input" accept="image/*" onchange="handleStudyFile(this)">
+    </div>
+
+    <button id="study-btn" class="btn-primary w-full text-white font-semibold py-3.5 rounded-xl text-sm disabled:opacity-50" disabled onclick="processStudy()">
+      AIで処理する
+    </button>
+
+    <!-- Processing -->
+    <div id="study-processing" class="hidden mt-5">
+      <div class="card p-5 text-center">
+        <div class="flex justify-center gap-2 mb-3">
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+        </div>
+        <p class="text-sm font-medium text-gray-700">画像を解析中...</p>
+        <div class="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full processing-bar rounded-full" style="width: 100%"></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">OCR認識 → 内容分析 → 問題生成</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="study-results" class="hidden mt-5 space-y-4">
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-7 h-7 bg-indigo-100 rounded-lg flex items-center justify-center text-sm">🔍</span>
+          <span class="text-sm font-semibold text-gray-700">認識された内容</span>
+        </div>
+        <div class="bg-indigo-50 rounded-lg p-3">
+          <p class="text-sm font-bold text-indigo-800">日本史 — 明治維新の章</p>
+          <p class="text-xs text-indigo-600 mt-1">ページ数: 4ページ分を検出 | 信頼度: 96%</p>
+        </div>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-sm">📝</span>
+          <span class="text-sm font-semibold text-gray-700">サンプル問題（3問）</span>
+        </div>
+        <div class="space-y-3">
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs font-semibold text-indigo-600 mb-1">Q1. 一問一答</p>
+            <p class="text-sm text-gray-800 font-medium">大政奉還を行った人物は誰か？</p>
+            <div class="mt-2 flex items-center gap-2">
+              <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">A. 徳川慶喜</span>
+            </div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs font-semibold text-indigo-600 mb-1">Q2. 一問一答</p>
+            <p class="text-sm text-gray-800 font-medium">廃藩置県が実施された年はいつか？</p>
+            <div class="mt-2 flex items-center gap-2">
+              <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">A. 1871年（明治4年）</span>
+            </div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs font-semibold text-indigo-600 mb-1">Q3. 一問一答</p>
+            <p class="text-sm text-gray-800 font-medium">西南戦争を主導した人物は誰か？</p>
+            <div class="mt-2 flex items-center gap-2">
+              <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">A. 西郷隆盛</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center text-sm">📊</span>
+          <span class="text-sm font-semibold text-gray-700">生成結果サマリー</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-blue-50 rounded-lg p-3 text-center">
+            <p class="text-2xl font-bold text-blue-700">25問</p>
+            <p class="text-xs text-blue-600 mt-0.5">合計生成数</p>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-3 text-center">
+            <p class="text-2xl font-bold text-purple-700">2種</p>
+            <p class="text-xs text-purple-600 mt-0.5">出題形式</p>
+          </div>
+        </div>
+        <div class="mt-3 space-y-2">
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">一問一答形式</span>
+            <span class="font-semibold text-gray-800">15問</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">選択式（4択）</span>
+            <span class="font-semibold text-gray-800">10問</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card flex gap-3">
+        <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors" onclick="alert('Ankiデッキファイル(.apkg)をダウンロードしました！')">
+          📥 Ankiにエクスポート
+        </button>
+        <button class="flex-1 bg-white border-2 border-indigo-200 hover:border-indigo-400 text-indigo-700 font-semibold py-3 rounded-xl text-sm transition-colors" onclick="alert('PDF形式で問題集をダウンロードしました！')">
+          📄 PDFで保存
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: トーン変換 (GrammarTuneAI) -->
+  <div id="tab-tone" class="tab-panel">
+    <div class="mb-5">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">✏️ トーン変換</h2>
+      <p class="text-sm text-gray-500">入力テキストを様々なトーンに変換します</p>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-3">変換したいテキストを入力</label>
+      <textarea id="tone-input" class="w-full border border-gray-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 resize-none transition-all" rows="4" placeholder="例: 会議の日程を変更していただけないでしょうか。"></textarea>
+      <div class="flex justify-end mt-2">
+        <span class="text-xs text-gray-400"><span id="tone-char-count">0</span>文字</span>
+      </div>
+    </div>
+
+    <button id="tone-btn" class="btn-primary w-full text-white font-semibold py-3.5 rounded-xl text-sm" onclick="processTone()">
+      AIで処理する
+    </button>
+
+    <!-- Processing -->
+    <div id="tone-processing" class="hidden mt-5">
+      <div class="card p-5 text-center">
+        <div class="flex justify-center gap-2 mb-3">
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+        </div>
+        <p class="text-sm font-medium text-gray-700">トーンを分析・変換中...</p>
+        <div class="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full processing-bar rounded-full" style="width: 100%"></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">文脈理解 → トーン解析 → 5パターン生成</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="tone-results" class="hidden mt-5 space-y-3">
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center text-xs">🎩</span>
+          <span class="text-xs font-bold text-blue-700 uppercase tracking-wide">フォーマル</span>
+        </div>
+        <p class="text-sm text-gray-800 leading-relaxed" id="tone-formal">会議日程の変更につきまして、ご検討いただけますと幸いに存じます。ご多忙のところ恐縮ではございますが、何卒よろしくお願い申し上げます。</p>
+        <button class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 font-medium" onclick="copyText('tone-formal')">📋 コピー</button>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center text-xs">😊</span>
+          <span class="text-xs font-bold text-green-700 uppercase tracking-wide">カジュアル</span>
+        </div>
+        <p class="text-sm text-gray-800 leading-relaxed" id="tone-casual">会議の日程なんだけど、変更できたりしないかな？都合が合わなくて...！</p>
+        <button class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 font-medium" onclick="copyText('tone-casual')">📋 コピー</button>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-6 h-6 bg-pink-100 rounded-md flex items-center justify-center text-xs">💬</span>
+          <span class="text-xs font-bold text-pink-700 uppercase tracking-wide">フレンドリー</span>
+        </div>
+        <p class="text-sm text-gray-800 leading-relaxed" id="tone-friendly">会議の日程の件でお願いがあるのですが、もし可能でしたら日程を調整していただけると嬉しいです！お手数おかけしますが、よろしくお願いします😊</p>
+        <button class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 font-medium" onclick="copyText('tone-friendly')">📋 コピー</button>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-6 h-6 bg-amber-100 rounded-md flex items-center justify-center text-xs">📖</span>
+          <span class="text-xs font-bold text-amber-700 uppercase tracking-wide">学術的</span>
+        </div>
+        <p class="text-sm text-gray-800 leading-relaxed" id="tone-academic">当該会議の開催日程について再調整の可否をご確認いただきたく存じます。参加者の日程的制約を鑑み、代替日程のご提案を賜れれば幸甚です。</p>
+        <button class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 font-medium" onclick="copyText('tone-academic')">📋 コピー</button>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center text-xs">🌐</span>
+          <span class="text-xs font-bold text-purple-700 uppercase tracking-wide">英語</span>
+        </div>
+        <p class="text-sm text-gray-800 leading-relaxed" id="tone-english">Would it be possible to reschedule the meeting? I'd appreciate your flexibility in adjusting the date to accommodate everyone's availability.</p>
+        <button class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 font-medium" onclick="copyText('tone-english')">📋 コピー</button>
+      </div>
+
+      <div class="result-card">
+        <button class="w-full bg-white border-2 border-indigo-200 hover:border-indigo-400 text-indigo-700 font-semibold py-3 rounded-xl text-sm transition-colors" onclick="alert('全5パターンをクリップボードにコピーしました！')">
+          📋 全パターンをコピー
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 履歴書最適化 (ResumeAI) -->
+  <div id="tab-resume" class="tab-panel">
+    <div class="mb-5">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">📄 履歴書最適化</h2>
+      <p class="text-sm text-gray-500">履歴書をAIで分析し、業界に最適化します</p>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-3">履歴書をアップロード</label>
+      <div id="resume-upload-zone" class="upload-zone rounded-xl p-8 text-center cursor-pointer" onclick="document.getElementById('resume-file-input').click()">
+        <div id="resume-upload-content">
+          <div class="text-4xl mb-3">📎</div>
+          <p class="text-sm font-medium text-gray-600">タップしてファイルを選択</p>
+          <p class="text-xs text-gray-400 mt-1">またはここにドラッグ＆ドロップ</p>
+          <p class="text-xs text-gray-400 mt-2">対応形式: PDF, DOC, DOCX</p>
+        </div>
+        <div id="resume-upload-done" class="hidden">
+          <div class="text-4xl mb-3">✅</div>
+          <p class="text-sm font-medium text-green-700" id="resume-file-name"></p>
+          <p class="text-xs text-green-600 mt-1">アップロード完了</p>
+        </div>
+      </div>
+      <input type="file" id="resume-file-input" accept=".pdf,.doc,.docx" onchange="handleResumeFile(this)">
+    </div>
+
+    <div class="card p-5 mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-3">ターゲット業界を選択</label>
+      <div class="grid grid-cols-2 gap-2" id="industry-chips">
+        <div class="tone-chip text-center text-sm py-2.5 px-3 rounded-xl border border-gray-200 bg-white text-gray-600" onclick="selectIndustry(this, 'IT・テクノロジー')">💻 IT・テクノロジー</div>
+        <div class="tone-chip text-center text-sm py-2.5 px-3 rounded-xl border border-gray-200 bg-white text-gray-600" onclick="selectIndustry(this, 'コンサル')">📊 コンサル</div>
+        <div class="tone-chip text-center text-sm py-2.5 px-3 rounded-xl border border-gray-200 bg-white text-gray-600" onclick="selectIndustry(this, '金融')">🏦 金融</div>
+        <div class="tone-chip text-center text-sm py-2.5 px-3 rounded-xl border border-gray-200 bg-white text-gray-600" onclick="selectIndustry(this, 'メーカー')">🏭 メーカー</div>
+      </div>
+    </div>
+
+    <button id="resume-btn" class="btn-primary w-full text-white font-semibold py-3.5 rounded-xl text-sm disabled:opacity-50" disabled onclick="processResume()">
+      AIで処理する
+    </button>
+
+    <!-- Processing -->
+    <div id="resume-processing" class="hidden mt-5">
+      <div class="card p-5 text-center">
+        <div class="flex justify-center gap-2 mb-3">
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+          <div class="w-3 h-3 bg-indigo-500 rounded-full pulse-dot"></div>
+        </div>
+        <p class="text-sm font-medium text-gray-700">履歴書を最適化中...</p>
+        <div class="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full processing-bar rounded-full" style="width: 100%"></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">内容解析 → 業界分析 → 最適化提案生成</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resume-results" class="hidden mt-5 space-y-4">
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-7 h-7 bg-indigo-100 rounded-lg flex items-center justify-center text-sm">✨</span>
+          <span class="text-sm font-semibold text-gray-700">最適化された自己PR</span>
+        </div>
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4">
+          <p class="text-sm text-gray-800 leading-relaxed">
+            <span class="text-red-400 line-through text-xs block mb-2">変更前：大学でプログラミングを学び、いくつかのプロジェクトに参加しました。</span>
+            <span class="font-medium">変更後：</span>情報工学専攻として<span class="bg-yellow-200/60 px-0.5 rounded">3年間</span>のソフトウェア開発経験を有し、<span class="bg-yellow-200/60 px-0.5 rounded">5つのチーム開発プロジェクト</span>でフルスタック開発を主導。React/TypeScriptを用いた<span class="bg-yellow-200/60 px-0.5 rounded">月間アクティブユーザー2,000人</span>のWebアプリケーション構築実績あり。
+          </p>
+        </div>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-sm">💪</span>
+          <span class="text-sm font-semibold text-gray-700">強化されたアクションワード</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-3 text-sm">
+            <span class="text-red-400 line-through whitespace-nowrap">しました</span>
+            <span class="text-gray-400">→</span>
+            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">推進・主導した</span>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="text-red-400 line-through whitespace-nowrap">頑張りました</span>
+            <span class="text-gray-400">→</span>
+            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">成果を創出した</span>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="text-red-400 line-through whitespace-nowrap">手伝いました</span>
+            <span class="text-gray-400">→</span>
+            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">貢献・寄与した</span>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="text-red-400 line-through whitespace-nowrap">勉強しました</span>
+            <span class="text-gray-400">→</span>
+            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">習得・研鑽を積んだ</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center text-sm">📈</span>
+          <span class="text-sm font-semibold text-gray-700">定量化された実績</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-start gap-2">
+            <span class="text-green-500 mt-0.5">✓</span>
+            <p class="text-sm text-gray-700">売上貢献額を<span class="font-semibold text-indigo-600">前年比120%</span>と具体的に数値化</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-500 mt-0.5">✓</span>
+            <p class="text-sm text-gray-700">チーム規模を<span class="font-semibold text-indigo-600">5名のチーム</span>と明記</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-500 mt-0.5">✓</span>
+            <p class="text-sm text-gray-700">期間を<span class="font-semibold text-indigo-600">3ヶ月間</span>と具体化</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center text-sm">🤖</span>
+          <span class="text-sm font-semibold text-gray-700">ATS最適化</span>
+        </div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" style="width: 92%"></div>
+          </div>
+          <span class="text-sm font-bold text-green-600">92%</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-3">ATS（応募者追跡システム）との互換性スコア</p>
+        <div class="bg-purple-50 rounded-lg p-3">
+          <p class="text-xs font-semibold text-purple-700 mb-2">追加された業界キーワード（12個）</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">アジャイル開発</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">CI/CD</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">クラウド</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">TypeScript</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">React</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">AWS</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">Git</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">REST API</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">Docker</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">マイクロサービス</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">スクラム</span>
+            <span class="text-xs bg-white text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">データ分析</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card flex gap-3">
+        <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors" onclick="alert('最適化された履歴書をDOCX形式でダウンロードしました！')">
+          📥 DOCXダウンロード
+        </button>
+        <button class="flex-1 bg-white border-2 border-indigo-200 hover:border-indigo-400 text-indigo-700 font-semibold py-3 rounded-xl text-sm transition-colors" onclick="alert('最適化された履歴書をPDF形式でダウンロードしました！')">
+          📄 PDFダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+  <div class="max-w-lg mx-auto flex">
+    <button class="nav-item active flex-1 flex flex-col items-center py-2.5 gap-0.5" onclick="switchTab('study', this)">
+      <span class="nav-icon text-xl transition-transform">📚</span>
+      <span class="text-[10px] font-semibold">問題集</span>
+    </button>
+    <button class="nav-item flex-1 flex flex-col items-center py-2.5 gap-0.5 text-gray-400" onclick="switchTab('tone', this)">
+      <span class="nav-icon text-xl transition-transform">✏️</span>
+      <span class="text-[10px] font-semibold">トーン変換</span>
+    </button>
+    <button class="nav-item flex-1 flex flex-col items-center py-2.5 gap-0.5 text-gray-400" onclick="switchTab('resume', this)">
+      <span class="nav-icon text-xl transition-transform">📄</span>
+      <span class="text-[10px] font-semibold">履歴書</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+// Tab switching
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); n.classList.add('text-gray-400'); });
+  document.getElementById('tab-' + tabId).classList.add('active');
+  el.classList.add('active');
+  el.classList.remove('text-gray-400');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Study AI
+let studyFileReady = false;
+function handleStudyFile(input) {
+  if (input.files.length > 0) {
+    const zone = document.getElementById('study-upload-zone');
+    const content = document.getElementById('study-upload-content');
+    const done = document.getElementById('study-upload-done');
+    const name = document.getElementById('study-file-name');
+    name.textContent = input.files[0].name;
+    content.classList.add('hidden');
+    done.classList.remove('hidden');
+    zone.classList.add('has-file');
+    document.getElementById('study-btn').disabled = false;
+    studyFileReady = true;
+  }
+}
+
+function processStudy() {
+  if (!studyFileReady) return;
+  const btn = document.getElementById('study-btn');
+  const proc = document.getElementById('study-processing');
+  const results = document.getElementById('study-results');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  results.classList.add('hidden');
+  proc.classList.remove('hidden');
+  setTimeout(() => {
+    proc.classList.add('hidden');
+    results.classList.remove('hidden');
+    btn.textContent = 'AIで処理する';
+    btn.disabled = false;
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 2000);
+}
+
+// Drag & drop for study
+const studyZone = document.getElementById('study-upload-zone');
+['dragenter', 'dragover'].forEach(e => studyZone.addEventListener(e, ev => { ev.preventDefault(); studyZone.classList.add('dragover'); }));
+['dragleave', 'drop'].forEach(e => studyZone.addEventListener(e, ev => { ev.preventDefault(); studyZone.classList.remove('dragover'); }));
+studyZone.addEventListener('drop', ev => {
+  const dt = ev.dataTransfer;
+  if (dt.files.length > 0) {
+    const fi = document.getElementById('study-file-input');
+    fi.files = dt.files;
+    handleStudyFile(fi);
+  }
+});
+
+// Tone AI
+const toneInput = document.getElementById('tone-input');
+toneInput.addEventListener('input', () => {
+  document.getElementById('tone-char-count').textContent = toneInput.value.length;
+});
+
+function processTone() {
+  const text = toneInput.value.trim();
+  if (!text) { alert('テキストを入力してください。'); return; }
+  const btn = document.getElementById('tone-btn');
+  const proc = document.getElementById('tone-processing');
+  const results = document.getElementById('tone-results');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  results.classList.add('hidden');
+  proc.classList.remove('hidden');
+  setTimeout(() => {
+    proc.classList.add('hidden');
+    results.classList.remove('hidden');
+    btn.textContent = 'AIで処理する';
+    btn.disabled = false;
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 2000);
+}
+
+// Resume AI
+let resumeFileReady = false;
+let selectedIndustry = null;
+
+function handleResumeFile(input) {
+  if (input.files.length > 0) {
+    const zone = document.getElementById('resume-upload-zone');
+    const content = document.getElementById('resume-upload-content');
+    const done = document.getElementById('resume-upload-done');
+    const name = document.getElementById('resume-file-name');
+    name.textContent = input.files[0].name;
+    content.classList.add('hidden');
+    done.classList.remove('hidden');
+    zone.classList.add('has-file');
+    resumeFileReady = true;
+    updateResumeBtn();
+  }
+}
+
+function selectIndustry(el, industry) {
+  document.querySelectorAll('#industry-chips .tone-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedIndustry = industry;
+  updateResumeBtn();
+}
+
+function updateResumeBtn() {
+  document.getElementById('resume-btn').disabled = !(resumeFileReady && selectedIndustry);
+}
+
+function processResume() {
+  if (!resumeFileReady || !selectedIndustry) return;
+  const btn = document.getElementById('resume-btn');
+  const proc = document.getElementById('resume-processing');
+  const results = document.getElementById('resume-results');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  results.classList.add('hidden');
+  proc.classList.remove('hidden');
+  setTimeout(() => {
+    proc.classList.add('hidden');
+    results.classList.remove('hidden');
+    btn.textContent = 'AIで処理する';
+    btn.disabled = false;
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 2000);
+}
+
+// Drag & drop for resume
+const resumeZone = document.getElementById('resume-upload-zone');
+['dragenter', 'dragover'].forEach(e => resumeZone.addEventListener(e, ev => { ev.preventDefault(); resumeZone.classList.add('dragover'); }));
+['dragleave', 'drop'].forEach(e => resumeZone.addEventListener(e, ev => { ev.preventDefault(); resumeZone.classList.remove('dragover'); }));
+resumeZone.addEventListener('drop', ev => {
+  const dt = ev.dataTransfer;
+  if (dt.files.length > 0) {
+    const fi = document.getElementById('resume-file-input');
+    fi.files = dt.files;
+    handleResumeFile(fi);
+  }
+});
+
+// Copy text helper
+function copyText(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✅ コピー済み';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+}
+</script>
+</body>
+</html>

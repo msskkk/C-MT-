@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Apps Showcase — 30個のAIアプリアイデア</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@keyframes fadein { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.fadein { animation: fadein .5s ease-out forwards; }
+@keyframes bounce1 { 0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)} }
+.dot1{animation:bounce1 .8s infinite}
+.dot2{animation:bounce1 .8s .15s infinite}
+.dot3{animation:bounce1 .8s .3s infinite}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+<!-- TOP PAGE -->
+<div id="top-page">
+<main class="max-w-7xl mx-auto px-4 py-12">
+  <div class="text-center mb-16">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">AI Apps Showcase</h1>
+    <p class="text-lg text-gray-500 max-w-2xl mx-auto mb-2">Pieter Levels氏に学ぶ、シンプルだけど使われるAIアプリ</p>
+    <p class="text-sm text-gray-400">全30アプリのプロトタイプ — クリックしてデモを体験</p>
+    <div class="mt-6 flex items-center justify-center gap-6 text-sm text-gray-500">
+      <span class="flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span>30 Apps</span>
+      <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-500 rounded-full inline-block"></span>Interactive Demo</span>
+      <span class="flex items-center gap-1"><span class="w-2 h-2 bg-purple-500 rounded-full inline-block"></span>Mock AI Results</span>
+    </div>
+  </div>
+  <div id="grid-container"></div>
+</main>
+</div>
+
+<!-- APP DETAIL PAGE (hidden by default) -->
+<div id="app-page" class="hidden">
+<main class="max-w-3xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-8">
+    <a href="#" onclick="showTop();return false" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">← 一覧に戻る</a>
+    <div class="flex gap-2" id="app-nav"></div>
+  </div>
+  <div id="app-header"></div>
+  <div id="app-demo" class="mt-8"></div>
+  <div id="app-footer" class="mt-12 flex justify-between"></div>
+</main>
+</div>
+
+<script>
+const apps = [
+  {id:1,slug:"resume-ai",name:"ResumeAI",tagline:"履歴書/職務経歴書の即時最適化",description:"職務経歴書をアップ → 業界・職種に合わせてAIが文面を最適化・リライト",target:"転職活動中のビジネスパーソン",pricing:"1回生成 $5 / 月額 $19",emoji:"📄",color:"from-blue-500 to-blue-700",demoType:"file-upload",demo:{inputLabel:"職務経歴書をアップロード (PDF/Word)",outputLabel:"最適化された職務経歴書",results:["✅ 職務要約を成果ベースに書き換えました","✅ アクションワードを強化: 「担当」→「主導」「推進」","✅ 定量的な成果を追加: 売上20%向上、チーム8名のマネジメント","✅ ATS(採用管理システム)最適化済み","✅ 業界キーワードを12個追加"]}},
+  {id:2,slug:"pet-ai",name:"PetAI",tagline:"ペット写真をプロ撮影風に変換",description:"スマホで撮ったペット写真 → スタジオ撮影風/油絵風/アニメ風に変換",target:"ペットオーナー",pricing:"1パック(30枚) $9.99",emoji:"🐾",color:"from-orange-400 to-pink-500",demoType:"image-upload",demo:{inputLabel:"ペットの写真をアップロード",outputLabel:"生成された写真",results:["🎨 スタジオ撮影風 — 黒背景+ソフトライティング","🖼️ 油絵風 — ルネサンス肖像画スタイル","✨ アニメ風 — ジブリ調イラスト","📸 雑誌表紙風 — VOGUE PETSスタイル"]}},
+  {id:3,slug:"menu-ai",name:"MenuAI",tagline:"料理写真からカロリー・栄養素を即時解析",description:"食事の写真を撮る → カロリー、PFC、栄養素を自動推定",target:"ダイエット中の人、筋トレ勢",pricing:"月額 $9.99",emoji:"🍽️",color:"from-green-400 to-emerald-600",demoType:"image-upload",demo:{inputLabel:"料理の写真をアップロード",outputLabel:"栄養分析結果",results:["🔥 推定カロリー: 685 kcal","🥩 タンパク質: 32g | 💪 脂質: 24g | 🍚 炭水化物: 78g","📊 PFCバランス: P18% / F32% / C50%","⚠️ 塩分がやや高め (推定 4.2g)","💡 提案: サラダを追加でビタミンC補給がおすすめ"]}},
+  {id:4,slug:"wardrobe-ai",name:"WardrobeAI",tagline:"手持ち服のコーデ自動提案",description:"クローゼットの服を撮影 → 天気・TPOに合わせたコーデを自動生成",target:"毎朝服に迷う全人類",pricing:"月額 $12",emoji:"👔",color:"from-purple-500 to-indigo-600",demoType:"image-upload",demo:{inputLabel:"クローゼットの写真をアップロード",outputLabel:"今日のおすすめコーデ",results:["☀️ 天気: 晴れ 18℃ → 軽めのアウター推奨","👕 トップス: 白Tシャツ + ネイビーカーディガン","👖 ボトムス: ベージュチノパン","👟 シューズ: 白スニーカー","💡 カジュアルだけど清潔感あり。デートにも◎"]}},
+  {id:5,slug:"thumbnail-ai",name:"ThumbnailAI",tagline:"YouTube/ブログのサムネイル自動生成",description:"タイトルや動画URLを入力 → CTRが高そうなサムネを複数パターン生成",target:"YouTuber、ブロガー、SNS運用者",pricing:"月額 $19 / 枚数課金",emoji:"🖼️",color:"from-red-500 to-rose-600",demoType:"text-input",demo:{inputLabel:"動画のタイトルを入力",placeholder:"例: 【衝撃】AIで月収100万円稼ぐ方法を試してみた",outputLabel:"生成されたサムネイル候補",results:["🎨 パターンA: 驚き顔+大きな金額テキスト+赤背景","🎨 パターンB: ビフォーアフター分割+矢印エフェクト","🎨 パターンC: ミニマルデザイン+インパクトフォント","📊 予測CTR: パターンA 8.2% / B 7.5% / C 6.1%","💡 推奨: パターンAが最もクリック率が高い傾向"]}},
+  {id:6,slug:"floorplan-ai",name:"FloorPlanAI",tagline:"間取り図から3D内装イメージを生成",description:"不動産の間取り図をアップ → 家具配置済みの3Dイメージに変換",target:"引っ越し検討者、不動産業者",pricing:"1回 $4.99 / B2B月額 $99",emoji:"🏠",color:"from-cyan-500 to-teal-600",demoType:"image-upload",demo:{inputLabel:"間取り図をアップロード",outputLabel:"3D内装イメージ",results:["🛋️ リビング: 北欧モダンスタイルで配置","🍳 キッチン: L字型カウンター+アイランド提案","🛏️ 寝室: ダブルベッド+サイドテーブル配置","📐 推定面積: リビング12畳 / 寝室6畳 / キッチン4畳","💡 動線を考慮した最適レイアウトを3パターン生成"]}},
+  {id:7,slug:"babyname-ai",name:"BabyNameAI",tagline:"AI命名サービス",description:"両親の名前・姓・好みの響き・画数などを入力 → 候補を100個生成+意味・運勢解説",target:"出産予定のカップル",pricing:"1回 $9.99",emoji:"👶",color:"from-pink-400 to-rose-500",demoType:"form-input",demo:{inputLabel:"命名条件を入力",fields:[{n:"姓",p:"例: 田中"},{n:"好みの響き",p:"例: 柔らかい、力強い"},{n:"漢字の希望",p:"例: 陽、空、美"},{n:"性別",p:"男の子 / 女の子"}],outputLabel:"おすすめの名前候補",results:["🌟 陽翔(はると) — 画数32画(大吉) 太陽のように明るく翔ける","🌟 蒼空(そら) — 画数21画(吉) 広い空のようなスケール感","🌟 結月(ゆづき) — 画数16画(大吉) 人の縁を結ぶ月の光","🌟 凛(りん) — 画数15画(吉) 凛とした美しさ","📊 全100候補をPDFでダウンロード可能"]}},
+  {id:8,slug:"plantdoc-ai",name:"PlantDocAI",tagline:"植物の写真で病気診断&育て方アドバイス",description:"枯れかけの植物を撮影 → 病気の特定+対処法+水やり頻度を提案",target:"観葉植物ユーザー、家庭菜園",pricing:"月額 $4.99",emoji:"🌿",color:"from-green-500 to-lime-600",demoType:"image-upload",demo:{inputLabel:"植物の写真をアップロード",outputLabel:"診断結果",results:["🔍 植物: モンステラ・デリシオサ","⚠️ 症状: 葉先の褐変 — 根腐れの初期症状","💊 対処法: 水やりを週1回に減らし、排水性の良い土に植え替え","💡 適切な環境: 明るい間接光、湿度60%以上","📅 次の水やり: 3日後(土が乾いてから)"]}},
+  {id:9,slug:"receipt-ai",name:"ReceiptAI",tagline:"レシート撮影で自動家計簿",description:"レシートを撮る → 自動でカテゴリ分け・月次レポート生成",target:"家計管理したいけど面倒な人",pricing:"月額 $6.99",emoji:"🧾",color:"from-yellow-500 to-amber-600",demoType:"image-upload",demo:{inputLabel:"レシートの写真をアップロード",outputLabel:"読み取り結果",results:["🏪 店舗: セブンイレブン 渋谷店","📅 日時: 2025/01/15 12:34","🛒 おにぎり(鮭) ¥160 → 食費","🛒 緑茶500ml ¥150 → 飲料","🛒 電池単3 ¥330 → 日用品","💰 合計: ¥640 | 今月の食費累計: ¥32,450"]}},
+  {id:10,slug:"listing-ai",name:"ListingAI",tagline:"フリマ出品文を写真から自動生成",description:"売りたいモノを撮影 → 商品名・説明文・適正価格を自動生成",target:"メルカリ/eBayユーザー",pricing:"月額 $9.99 / 1出品 $1",emoji:"🏷️",color:"from-emerald-500 to-teal-600",demoType:"image-upload",demo:{inputLabel:"出品したい商品の写真をアップロード",outputLabel:"生成された出品文",results:["📦 商品名: 【美品】Nike Air Max 90 ホワイト 27cm","💰 推奨価格: ¥8,500〜¥9,800(相場: ¥7,000〜¥12,000)","📝 説明文: 2回のみ着用の美品です。箱・タグ付き。サイズ27cm...","🏷️ カテゴリ: メンズ > 靴 > スニーカー","💡 ヒント: 横からの写真を追加すると売れやすさUP"]}},
+  {id:11,slug:"skin-ai",name:"SkinAI",tagline:"肌写真でスキンケア診断",description:"顔の写真を撮る → 肌質診断+最適なスキンケアルーティン+製品提案",target:"スキンケアに悩む男女",pricing:"1回 $4.99 / 月額 $9.99",emoji:"✨",color:"from-rose-400 to-pink-600",demoType:"image-upload",demo:{inputLabel:"顔の写真をアップロード",outputLabel:"スキンケア診断結果",results:["🔍 肌質: 混合肌(Tゾーン脂性/Uゾーン乾燥)","⚠️ 気になる点: 毛穴の開き(鼻周り)、軽度の色素沈着","💊 朝: 泡洗顔→ビタミンC美容液→保湿→日焼け止め","🌙 夜: クレンジング→AHA洗顔→レチノール→クリーム","🛍️ おすすめ: CeraVe洗顔、The Ordinary ナイアシンアミド"]}},
+  {id:12,slug:"logo-ai",name:"LogoAI",tagline:"テキスト入力だけでロゴを即時生成",description:"ブランド名+業種+雰囲気を入力 → プロ品質のロゴ候補を10個生成",target:"スタートアップ、個人事業主",pricing:"1回 $29(高解像度DL込み)",emoji:"🎨",color:"from-violet-500 to-purple-700",demoType:"form-input",demo:{inputLabel:"ブランド情報を入力",fields:[{n:"ブランド名",p:"例: CafeNova"},{n:"業種",p:"例: カフェ、テック、アパレル"},{n:"雰囲気",p:"例: モダン、温かみ、高級感"}],outputLabel:"生成されたロゴ候補",results:["🎨 案1: ミニマル+サンセリフ — モダンで洗練されたデザイン","🎨 案2: アイコン+テキスト — コーヒーカップをモチーフに","🎨 案3: レタリング — 手書き感のあるロゴタイプ","📐 SVG/PNG/PDF全形式でダウンロード可能","🎯 カラーバリエーション(3色)も同時に生成"]}},
+  {id:13,slug:"email-ai",name:"EmailAI",tagline:"ビジネスメールの下書き自動生成",description:"「お詫び」「依頼」「催促」など目的を選ぶ → 相手・状況に合わせた文面を生成",target:"全ビジネスパーソン",pricing:"月額 $7.99",emoji:"📧",color:"from-sky-500 to-blue-600",demoType:"form-input",demo:{inputLabel:"メール情報を入力",fields:[{n:"目的",p:"例: お詫び、依頼、催促、お礼"},{n:"相手",p:"例: 取引先の部長、同僚、上司"},{n:"状況",p:"例: 納期が1週間遅れそう"}],outputLabel:"生成されたメール文面",results:["件名: 【お詫び】納品スケジュール変更のご連絡","","株式会社○○ 山田部長","いつもお世話になっております。","誠に申し訳ございませんが、ご依頼の案件につきまして...","💡 フォーマル度: ★★★★☆ | 文字数: 280文字"]}},
+  {id:14,slug:"handwriting-ai",name:"HandwritingAI",tagline:"手書き文字をデジタルフォント化",description:"自分の手書き文字を撮影 → オリジナルフォントファイルを自動生成",target:"デザイナー、クリエイター",pricing:"1フォント $19.99",emoji:"✍️",color:"from-amber-500 to-orange-600",demoType:"image-upload",demo:{inputLabel:"手書き文字のサンプルをアップロード",outputLabel:"フォント生成結果",results:["✅ 文字認識完了: ひらがな46字+カタカナ46字+英数字62字","🔤 フォント名: MyHandwriting-Regular","📐 字間・行間を自動調整済み","📦 .ttf / .otf / .woff2 形式でダウンロード可能","💡 追加: 漢字を100文字追加すると実用性UP"]}},
+  {id:15,slug:"mockup-ai",name:"MockupAI",tagline:"手描きスケッチからUIデザインを生成",description:"ノートに描いたワイヤーフレームを撮影 → 実際のUIデザインに変換",target:"起業家、PM、個人開発者",pricing:"月額 $29",emoji:"📱",color:"from-indigo-500 to-blue-700",demoType:"image-upload",demo:{inputLabel:"手描きワイヤーフレームをアップロード",outputLabel:"生成されたUIデザイン",results:["📱 モバイルUI: Material Design 3準拠で生成","🖥️ デスクトップ版も同時に生成","🎨 カラーテーマ: 3パターン(ライト/ダーク/ブランド)","📐 Figmaファイルとしてエクスポート可能","💡 コンポーネント数: 12個を自動検出"]}},
+  {id:16,slug:"dream-ai",name:"DreamAI",tagline:"夢日記を音声入力→分析&イラスト化",description:"起きてすぐ夢の内容を音声入力 → テキスト化+心理分析+イラスト生成",target:"自己理解・心理学に興味がある層",pricing:"月額 $6.99",emoji:"🌙",color:"from-indigo-600 to-purple-800",demoType:"text-input",demo:{inputLabel:"夢の内容を入力(音声入力も可)",placeholder:"例: 空を飛んでいたら突然海に落ちて、巨大な魚と一緒に泳いだ...",outputLabel:"夢分析結果",results:["🔮 テーマ: 自由への渇望と未知への不安","🧠 心理分析: 飛翔=現状からの解放願望、海=潜在意識の深層","🐟 シンボル: 巨大な魚=大きなチャンスの暗示","🎨 夢のシーンイラストを3枚生成しました","📊 今月の夢パターン: ポジティブ65% / 不安系35%"]}},
+  {id:17,slug:"tattoo-ai",name:"TattooAI",tagline:"タトゥーデザインのプレビュー&生成",description:"体の部位の写真+イメージワードを入力 → タトゥーを合成プレビュー",target:"タトゥーを入れたい層",pricing:"1デザイン $9.99 / 月額 $19.99",emoji:"🎭",color:"from-gray-700 to-gray-900",demoType:"image-upload",demo:{inputLabel:"体の部位の写真をアップロード",outputLabel:"タトゥープレビュー",results:["🎨 デザイン1: ミニマルライン — 幾何学模様","🎨 デザイン2: トラディショナル — 花と蛇","🎨 デザイン3: 水彩風 — 桜の枝","📐 サイズ: 約8cm x 5cm(腕の内側に最適)","💡 施術時間目安: 2〜3時間 | 費用目安: ¥30,000〜¥50,000"]}},
+  {id:18,slug:"voiceclone-ai",name:"VoiceCloneAI",tagline:"自分の声でナレーション生成",description:"5分間の音声サンプルを録音 → 任意のテキストを自分の声で読み上げ",target:"クリエイター、Podcast制作者",pricing:"月額 $19 / 文字数課金",emoji:"🎙️",color:"from-fuchsia-500 to-purple-600",demoType:"text-input",demo:{inputLabel:"読み上げたいテキストを入力",placeholder:"例: こんにちは、今日の動画では最新のAI技術について解説します...",outputLabel:"音声生成結果",results:["🎙️ 音声クローン精度: 94.7%","⏱️ 生成時間: 3.2秒","📊 自然さスコア: 4.6/5.0","🔊 MP3/WAV形式でダウンロード可能","💡 感情パラメータ: ニュートラル → 明るい/落ち着き に変更可能"]}},
+  {id:19,slug:"study-ai",name:"StudyAI",tagline:"教科書/ノート写真から問題集を自動生成",description:"教科書やノートを撮影 → 一問一答・選択問題を自動生成",target:"学生、資格試験受験者",pricing:"月額 $9.99",emoji:"📚",color:"from-blue-600 to-indigo-700",demoType:"image-upload",demo:{inputLabel:"教科書/ノートの写真をアップロード",outputLabel:"生成された問題集",results:["📖 認識内容: 日本史 — 明治維新の章","❓ Q1: 大政奉還を行った将軍は? → 徳川慶喜","❓ Q2: 廃藩置県は何年? → 1871年","❓ Q3: 西南戦争の中心人物は? → 西郷隆盛","📊 生成問題数: 25問(一問一答15問 + 選択式10問)","💡 Ankiデッキ形式でエクスポート可能"]}},
+  {id:20,slug:"contract-ai",name:"ContractAI",tagline:"契約書のリスク箇所を即時ハイライト",description:"契約書PDFをアップ → 不利な条項をハイライト+平易な解説を付与",target:"フリーランス、小規模事業者",pricing:"1回 $14.99 / 月額 $39",emoji:"⚖️",color:"from-slate-600 to-slate-800",demoType:"file-upload",demo:{inputLabel:"契約書をアップロード (PDF)",outputLabel:"リスク分析結果",results:["🔴 高リスク: 第8条 — 競業避止義務が退職後5年間は長すぎる","🔴 高リスク: 第12条 — 損害賠償の上限規定がない","🟡 中リスク: 第5条 — 知的財産権の帰属が曖昧","🟢 問題なし: 報酬条件、支払いサイクル、解約条件","💡 総合リスクスコア: 6.2/10 — 修正交渉を推奨"]}},
+  {id:21,slug:"colorpalette-ai",name:"ColorPaletteAI",tagline:"写真から配色パレットを抽出&提案",description:"好きな写真をアップ → 配色パレット+CSSコード+類似パレットを生成",target:"Webデザイナー、UIデザイナー",pricing:"月額 $7.99",emoji:"🎨",color:"from-yellow-400 to-red-500",demoType:"image-upload",demo:{inputLabel:"参考にしたい写真をアップロード",outputLabel:"配色パレット",results:["🎨 メインカラー: #2D5F8A (深いブルー)","🎨 サブカラー: #F4A261 (サンセットオレンジ)","🎨 アクセント: #E76F51 (テラコッタ)","🎨 背景: #FAF3E0 (クリーム)","📋 CSS変数としてコピー可能","💡 類似パレット3件+補色パレット1件も生成"]}},
+  {id:22,slug:"background-ai",name:"BackgroundAI",tagline:"商品写真の背景をプロ品質に置換",description:"スマホで撮った商品写真 → 白背景/ライフスタイル背景に自動変換",target:"EC出品者、ハンドメイド作家",pricing:"月額 $14.99(100枚/月)",emoji:"🖼️",color:"from-teal-500 to-cyan-600",demoType:"image-upload",demo:{inputLabel:"商品の写真をアップロード",outputLabel:"背景変換結果",results:["✅ 背景除去完了 (精度: 98.5%)","🤍 白背景バージョン — ECサイト向け","🏡 ライフスタイル背景 — テーブル上の自然光","🎄 季節背景 — クリスマス/春/夏/秋 4パターン","📐 リサイズ: 正方形(1:1) / 横長(16:9) 対応"]}},
+  {id:23,slug:"pitchdeck-ai",name:"PitchDeckAI",tagline:"スライド資料の自動生成",description:"ビジネスの概要をテキスト入力 → ピッチデッキを自動生成",target:"スタートアップ創業者、営業職",pricing:"1回 $19.99 / 月額 $29",emoji:"📊",color:"from-orange-500 to-red-600",demoType:"text-input",demo:{inputLabel:"ビジネスの概要を入力",placeholder:"例: AIを使って飲食店の食品ロスを50%削減するSaaSプラットフォーム...",outputLabel:"生成されたスライド構成",results:["📊 スライド1: タイトル — FoodSave AI","📊 スライド2: 課題 — 年間600万トンの食品ロス","📊 スライド3: ソリューション — AI需要予測+自動発注","📊 スライド4: 市場規模 — TAM ¥2.5兆","📊 スライド5-12: ビジネスモデル/チーム/財務計画...","📦 PowerPoint/PDF/Googleスライドでエクスポート可能"]}},
+  {id:24,slug:"move-ai",name:"MoveAI",tagline:"引越し荷物の写真から見積もり",description:"部屋の写真を撮影 → 荷物量の推定+引越し費用の概算+チェックリスト",target:"引越し予定者",pricing:"1回 $4.99",emoji:"📦",color:"from-amber-600 to-yellow-700",demoType:"image-upload",demo:{inputLabel:"部屋の写真をアップロード(複数可)",outputLabel:"引越し見積もり結果",results:["📦 推定荷物量: 2tトラック1台分","💰 費用目安: ¥45,000〜¥75,000(時期・距離による)","📋 段ボール推定: 約25箱","📅 おすすめ時期: 月中の平日が最安(最大40%OFF)","✅ 梱包チェックリスト(32項目)を生成"]}},
+  {id:25,slug:"age-ai",name:"AgeAI",tagline:"写真で未来/過去の自分の顔を生成",description:"自撮りをアップ → 10年後/20年後/子供時代の自分の顔を生成",target:"SNSでバズりたい一般ユーザー",pricing:"1回 $2.99",emoji:"⏳",color:"from-pink-500 to-violet-600",demoType:"image-upload",demo:{inputLabel:"自撮り写真をアップロード",outputLabel:"年齢変換結果",results:["👶 5歳バージョン — 幼少期の推定イメージ","🧑 現在(参照用)","👨 +10年 — 30代後半の推定イメージ","👴 +30年 — 50代後半の推定イメージ","📸 高解像度で保存可能 | SNSシェアボタン付き"]}},
+  {id:26,slug:"recipe-ai",name:"RecipeAI",tagline:"冷蔵庫の中身を撮影→レシピ提案",description:"冷蔵庫の写真を撮る → 今ある食材で作れるレシピを提案",target:"自炊する全人類",pricing:"月額 $5.99",emoji:"🍳",color:"from-red-400 to-orange-500",demoType:"image-upload",demo:{inputLabel:"冷蔵庫の写真をアップロード",outputLabel:"レシピ提案",results:["🔍 検出食材: 卵、豆腐、ネギ、豚肉、キャベツ、味噌","🍳 レシピ1: 豚キャベツの味噌炒め(15分)","🍳 レシピ2: ふわふわ卵の豆腐チャンプルー(10分)","🍳 レシピ3: 具だくさん味噌汁+卵かけごはん(8分)","📊 栄養バランス: レシピ2がPFCバランス最良","💡 買い足し提案: にんじん+しめじで+3レシピ追加可能"]}},
+  {id:27,slug:"grammartune-ai",name:"GrammarTuneAI",tagline:"文章のトーン変換ツール",description:"文章を入力+トーンを選択 → 同じ内容でトーンだけ変換",target:"ライター、SNS運用者、英語学習者",pricing:"月額 $8.99",emoji:"✏️",color:"from-lime-500 to-green-600",demoType:"text-input",demo:{inputLabel:"変換したい文章を入力",placeholder:"例: 会議の日程を変更していただけないでしょうか。",outputLabel:"トーン変換結果",results:["💼 フォーマル: 会議日程のご変更をお願いできますでしょうか。","😊 カジュアル: ミーティングの日にち変えてもらえる?","😄 フレンドリー: すみません、会議の日程ちょっとずらせたりしますか〜?","🎓 学術的: 会議の日程調整について、ご検討をお願い申し上げます。","🇬🇧 英語: Would it be possible to reschedule our meeting?"]}},
+  {id:28,slug:"mapmyrun-ai",name:"MapMyRunAI",tagline:"ランニングルートの自動生成",description:"現在地+距離+好みを入力 → 最適ルートを地図上に生成",target:"ランナー、ウォーキング愛好家",pricing:"月額 $4.99",emoji:"🏃",color:"from-green-600 to-emerald-700",demoType:"form-input",demo:{inputLabel:"ルート条件を入力",fields:[{n:"出発地",p:"例: 渋谷駅"},{n:"距離",p:"例: 5km"},{n:"好み",p:"例: 川沿い、坂道少なめ、公園多め"}],outputLabel:"生成されたルート",results:["🗺️ ルートA: 代々木公園周回コース(5.2km)","📊 標高差: +15m(ほぼフラット) | 信号: 3箇所","🌳 緑地率: 72% | 歩道幅: 平均3.5m","🗺️ ルートB: 神宮外苑→明治神宮コース(4.8km)","💡 おすすめ: ルートAは木陰が多く夏向き"]}},
+  {id:29,slug:"headshot-ai",name:"HeadshotAI",tagline:"ビジネス用プロフィール写真生成",description:"普段着の自撮り数枚 → スーツ姿のプロ風プロフィール写真に変換",target:"転職活動中の人、LinkedIn利用者",pricing:"1パック $29",emoji:"👤",color:"from-blue-700 to-slate-800",demoType:"image-upload",demo:{inputLabel:"自撮り写真をアップロード(3枚以上推奨)",outputLabel:"生成されたプロフィール写真",results:["👔 スーツ姿 — ネイビー/チャコール/ブラック 3色","👕 ビジネスカジュアル — ジャケット+シャツ","📸 背景: グレーグラデーション / オフィス / 白壁","✨ レタッチ: 肌補正+ライティング調整済み","📐 サイズ: LinkedIn/名刺/社員証 各フォーマット対応"]}},
+  {id:30,slug:"invoice-ai",name:"InvoiceAI",tagline:"請求書の自動生成&管理",description:"取引先名+金額+項目を入力 → プロフェッショナルな請求書PDF生成",target:"フリーランス、個人事業主",pricing:"月額 $9.99",emoji:"💴",color:"from-emerald-600 to-green-800",demoType:"form-input",demo:{inputLabel:"請求情報を入力",fields:[{n:"取引先",p:"例: 株式会社サンプル"},{n:"項目",p:"例: Webサイト制作"},{n:"金額",p:"例: 300000"},{n:"支払期限",p:"例: 2025/02/28"}],outputLabel:"生成された請求書",results:["📄 請求書番号: INV-2025-0042","💰 小計: ¥300,000 | 消費税(10%): ¥30,000 | 合計: ¥330,000","🏦 振込先情報を自動記載","📧 PDFをメールで直接送信可能","📊 今月の売上合計: ¥1,230,000 | 未入金: ¥330,000"]}}
+];
+
+const categories = [
+  {title:"写真 → AI変換",desc:"画像をアップロードしてAIで変換するサービス",ids:[2,3,4,6,8,9,10,11,14,15,17,19,21,22,24,25,26,29]},
+  {title:"テキスト → AI生成",desc:"テキストを入力してAIがコンテンツを生成するサービス",ids:[5,16,18,23,27]},
+  {title:"フォーム → AI提案",desc:"情報を入力してAIが最適な提案を返すサービス",ids:[7,12,13,28,30]},
+  {title:"ファイル → AI分析",desc:"ドキュメントをアップロードしてAIが分析するサービス",ids:[1,20]}
+];
+
+function showTop(){
+  document.getElementById('top-page').classList.remove('hidden');
+  document.getElementById('app-page').classList.add('hidden');
+  window.scrollTo(0,0);
+}
+
+function showApp(slug){
+  const app = apps.find(a=>a.slug===slug);
+  if(!app) return;
+  document.getElementById('top-page').classList.add('hidden');
+  document.getElementById('app-page').classList.remove('hidden');
+
+  const prev = apps.find(a=>a.id===app.id-1);
+  const next = apps.find(a=>a.id===app.id+1);
+
+  document.getElementById('app-nav').innerHTML = `
+    ${prev?`<a href="#" onclick="showApp('${prev.slug}');return false" class="text-xs text-gray-400 hover:text-gray-600 px-3 py-1 border rounded-full transition-colors">← ${prev.name}</a>`:''}
+    ${next?`<a href="#" onclick="showApp('${next.slug}');return false" class="text-xs text-gray-400 hover:text-gray-600 px-3 py-1 border rounded-full transition-colors">${next.name} →</a>`:''}
+  `;
+
+  document.getElementById('app-header').innerHTML = `
+    <div class="bg-gradient-to-br ${app.color} rounded-2xl p-8 text-white">
+      <div class="flex items-center gap-4 mb-4">
+        <span class="text-5xl">${app.emoji}</span>
+        <div><h1 class="text-3xl font-bold">${app.name}</h1><p class="text-white/80 text-sm mt-1">${app.tagline}</p></div>
+      </div>
+      <p class="text-white/90 text-sm leading-relaxed mb-4">${app.description}</p>
+      <div class="flex flex-wrap gap-3">
+        <span class="text-xs bg-white/20 px-3 py-1 rounded-full">${app.target}</span>
+        <span class="text-xs bg-white/20 px-3 py-1 rounded-full font-semibold">${app.pricing}</span>
+        <span class="text-xs bg-white/20 px-3 py-1 rounded-full">#${app.id} / 30</span>
+      </div>
+    </div>
+  `;
+
+  let inputHTML = '';
+  if(app.demoType==='image-upload'||app.demoType==='file-upload'){
+    const icon = app.demoType==='image-upload'?'📷':'📎';
+    const accept = app.demoType==='image-upload'?'image/*':'.pdf,.doc,.docx,.txt';
+    inputHTML = `
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-gray-400 transition-colors">
+        <div class="text-4xl mb-3">${icon}</div>
+        <p class="text-sm text-gray-500 mb-3">クリックまたはドラッグ&ドロップ</p>
+        <input type="file" class="hidden" id="file-input" accept="${accept}" onchange="document.getElementById('file-name').textContent='選択済み: '+this.files[0]?.name">
+        <label for="file-input" class="inline-block px-4 py-2 rounded-lg text-sm font-medium cursor-pointer bg-gradient-to-r ${app.color} text-white hover:opacity-90 transition-opacity">ファイルを選択</label>
+        <p id="file-name" class="text-sm text-green-600 mt-2"></p>
+      </div>`;
+  } else if(app.demoType==='text-input'){
+    inputHTML = `<textarea class="w-full border border-gray-300 rounded-xl p-4 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" rows="4" placeholder="${app.demo.placeholder||''}"></textarea>`;
+  } else {
+    inputHTML = app.demo.fields.map(f=>`
+      <div><label class="block text-sm font-medium text-gray-600 mb-1">${f.n}</label>
+      <input type="text" placeholder="${f.p}" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"></div>
+    `).join('');
+  }
+
+  document.getElementById('app-demo').innerHTML = `
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 class="font-semibold text-gray-800 mb-4">${app.demo.inputLabel}</h3>
+        <div class="space-y-3">${inputHTML}</div>
+        <button id="process-btn" onclick="processAI('${app.slug}')" class="mt-4 w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r ${app.color} hover:opacity-90 transition-opacity">
+          ${app.emoji} AIで処理する
+        </button>
+      </div>
+      <div id="results-area"></div>
+    </div>
+  `;
+
+  document.getElementById('app-footer').innerHTML = `
+    ${prev?`<a href="#" onclick="showApp('${prev.slug}');return false" class="text-sm text-gray-500 hover:text-gray-700">← #${prev.id} ${prev.name}</a>`:'<div></div>'}
+    ${next?`<a href="#" onclick="showApp('${next.slug}');return false" class="text-sm text-gray-500 hover:text-gray-700">#${next.id} ${next.name} →</a>`:`<a href="#" onclick="showTop();return false" class="text-sm text-gray-500 hover:text-gray-700">一覧に戻る →</a>`}
+  `;
+
+  window.scrollTo(0,0);
+}
+
+function processAI(slug){
+  const app = apps.find(a=>a.slug===slug);
+  const btn = document.getElementById('process-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="flex items-center justify-center gap-2"><span class="flex gap-1"><span class="w-2 h-2 bg-white rounded-full dot1 inline-block"></span><span class="w-2 h-2 bg-white rounded-full dot2 inline-block"></span><span class="w-2 h-2 bg-white rounded-full dot3 inline-block"></span></span> AIが処理中...</span>';
+
+  setTimeout(()=>{
+    btn.disabled = false;
+    btn.innerHTML = `${app.emoji} AIで処理する`;
+    const resultsHTML = app.demo.results.map((r,i)=>`<div class="text-sm text-gray-700 p-3 bg-gray-50 rounded-lg fadein" style="animation-delay:${i*100}ms">${r}</div>`).join('');
+    document.getElementById('results-area').innerHTML = `
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 fadein">
+        <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block"></span>${app.demo.outputLabel}
+        </h3>
+        <div class="space-y-3">${resultsHTML}</div>
+        <div class="mt-4 flex gap-2">
+          <button class="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">📋 コピー</button>
+          <button class="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">💾 ダウンロード</button>
+          <button onclick="processAI('${slug}')" class="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">🔄 再生成</button>
+        </div>
+      </div>`;
+  }, 2000);
+}
+
+// Render grid
+const container = document.getElementById('grid-container');
+categories.forEach(cat=>{
+  const catApps = cat.ids.map(id=>apps.find(a=>a.id===id)).filter(Boolean);
+  const cards = catApps.map(app=>`
+    <a href="#" onclick="showApp('${app.slug}');return false" class="block">
+      <div class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer">
+        <div class="absolute inset-0 bg-gradient-to-br ${app.color} opacity-0 group-hover:opacity-5 transition-opacity"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-3xl">${app.emoji}</span>
+            <div><h3 class="font-bold text-gray-900 text-lg">${app.name}</h3><span class="text-xs text-gray-400">#${app.id}</span></div>
+          </div>
+          <p class="text-sm text-gray-600 mb-3">${app.tagline}</p>
+          <p class="text-xs text-gray-400 mb-4 line-clamp-2">${app.description}</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${app.target}</span>
+            <span class="text-xs font-bold bg-gradient-to-r ${app.color} bg-clip-text text-transparent">${app.pricing}</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  `).join('');
+  container.innerHTML += `
+    <section class="mb-16">
+      <div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">${cat.title}</h2><p class="text-sm text-gray-500 mt-1">${cat.desc}</p></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">${cards}</div>
+    </section>`;
+});
+</script>
+</body>
+</html>

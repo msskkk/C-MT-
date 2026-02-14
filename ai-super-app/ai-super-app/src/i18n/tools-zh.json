@@ -1,0 +1,376 @@
+{
+  "tools": {
+    "daily": {
+      "wardrobe": "穿搭推荐", "wardrobe_desc": "根据衣柜照片推荐今日穿搭", "wardrobe_input": "上传衣柜照片", "wardrobe_output": "今日推荐穿搭",
+      "calorie": "卡路里分析", "calorie_desc": "根据餐食照片分析卡路里和营养", "calorie_input": "上传餐食照片", "calorie_output": "卡路里·营养分析",
+      "recipe": "食谱推荐", "recipe_desc": "根据冰箱食材推荐食谱", "recipe_input": "上传冰箱照片", "recipe_output": "推荐食谱"
+    },
+    "creator": {
+      "thumbnail": "缩略图生成", "thumbnail_desc": "根据视频标题生成吸睛缩略图", "thumbnail_input": "输入视频标题", "thumbnail_output": "缩略图方案",
+      "voice": "声音克隆", "voice_desc": "将文本优化为旁白配音格式", "voice_input": "输入原创文本", "voice_output": "声音脚本",
+      "pitch": "幻灯片生成", "pitch_desc": "根据主题自动生成幻灯片结构", "pitch_input": "输入演示主题", "pitch_output": "幻灯片结构"
+    },
+    "sidehustle": {
+      "listing": "商品描述生成", "listing_desc": "根据商品照片创建吸引人的描述", "listing_input": "上传商品照片", "listing_output": "商品描述文案",
+      "invoice": "发票生成", "invoice_desc": "根据信息生成发票格式", "invoice_input": "输入发票信息", "invoice_output": "发票预览",
+      "contract": "合同检查", "contract_desc": "检查合同中的风险条款", "contract_input": "上传合同文件", "contract_output": "合同审查结果"
+    },
+    "parent": {
+      "babyname": "取名", "babyname_desc": "综合考虑寓意和搭配推荐名字", "babyname_input": "输入取名条件", "babyname_output": "推荐名字",
+      "plant": "植物诊断", "plant_desc": "根据照片诊断植物状态和养护方法", "plant_input": "上传植物照片", "plant_output": "诊断结果",
+      "receipt": "家庭账本", "receipt_desc": "根据收据照片自动分析支出", "receipt_input": "上传收据照片", "receipt_output": "记账结果"
+    },
+    "student": {
+      "study": "题库生成", "study_desc": "根据教材照片自动生成练习题", "study_input": "上传教材照片", "study_output": "练习题",
+      "tone": "语气转换", "tone_desc": "转换文章语气（正式⇔口语等）", "tone_input": "输入要转换的文章", "tone_output": "转换结果",
+      "resume": "简历优化", "resume_desc": "分析简历并提出改进建议", "resume_input": "上传简历文件", "resume_output": "优化建议"
+    },
+    "design": {
+      "logo": "Logo生成", "logo_desc": "根据品牌信息生成Logo设计", "logo_input": "输入品牌信息", "logo_output": "Logo方案",
+      "color": "配色方案", "color_desc": "从图片中提取和谐配色方案", "color_input": "上传参考图片", "color_output": "配色建议",
+      "mockup": "模型生成", "mockup_desc": "生成产品模型图像", "mockup_input": "输入产品信息", "mockup_output": "模型设计"
+    },
+    "realestate": {
+      "floor": "3D室内设计", "floor_desc": "根据房间照片提供家具布置和装修方案", "floor_input": "上传房间照片", "floor_output": "设计方案",
+      "compare": "房源比较", "compare_desc": "将多个房源特征进行表格化比较", "compare_input": "输入候选房源", "compare_output": "比较报告",
+      "checklist": "看房清单", "checklist_desc": "整理看房时的检查要点", "checklist_input": "输入看房条件", "checklist_output": "检查清单"
+    },
+    "sns": {
+      "caption": "文案生成", "caption_desc": "根据主题创建吸引人的社交文案", "caption_input": "输入帖子主题", "caption_output": "文案方案",
+      "hashtag": "标签分析", "hashtag_desc": "根据关键词推荐最佳标签", "hashtag_input": "输入内容关键词", "hashtag_output": "推荐标签",
+      "bg": "商品图处理", "bg_desc": "提供商品照片背景和构图改善建议", "bg_input": "上传商品照片", "bg_output": "处理结果"
+    },
+    "money": {
+      "budget": "预算规划", "budget_desc": "根据收支信息提出最优预算分配", "budget_input": "输入财务信息", "budget_output": "预算计划",
+      "deal": "省钱妙招", "deal_desc": "分析消费模式发现节省机会", "deal_input": "输入支出信息", "deal_output": "省钱计划",
+      "saving": "储蓄计划", "saving_desc": "制定达成目标金额的储蓄计划", "saving_input": "输入储蓄目标", "saving_output": "储蓄方案"
+    },
+    "pet": {
+      "petphoto": "宠物照片", "petphoto_desc": "提供宠物摄影技巧建议", "petphoto_input": "上传宠物照片", "petphoto_output": "编辑后的照片",
+      "petfood": "宠物饮食", "petfood_desc": "提供个性化宠物饮食方案", "petfood_input": "输入宠物信息", "petfood_output": "饮食建议",
+      "training": "宠物训练", "training_desc": "针对行为问题提供训练方法", "training_input": "描述行为问题", "training_output": "训练方法"
+    },
+    "travel": {
+      "plan": "旅行计划", "plan_desc": "根据条件自动创建旅行行程", "plan_input": "输入旅行条件", "plan_output": "旅行方案",
+      "pack": "打包清单", "pack_desc": "根据目的地和天数定制打包清单", "pack_input": "输入目的地信息", "pack_output": "物品清单",
+      "phrase": "旅行会话", "phrase_desc": "学习旅行目的地的实用当地语言", "phrase_input": "输入场景", "phrase_output": "常用会话"
+    },
+    "writer": {
+      "blog": "博客写作", "blog_desc": "根据主题生成博客文章框架", "blog_input": "输入文章主题", "blog_output": "文章草稿",
+      "mail": "邮件起草", "mail_desc": "根据要点起草专业邮件", "mail_input": "输入邮件要点", "mail_output": "邮件草稿",
+      "proofread": "校对", "proofread_desc": "检查错别字、语法和表达", "proofread_input": "输入待校对文章", "proofread_output": "校对结果"
+    },
+    "diy": {
+      "plan": "DIY计划", "plan_desc": "根据照片规划材料和步骤", "plan_input": "上传现场照片", "plan_output": "制作计划",
+      "cost": "成本估算", "cost_desc": "估算DIY项目的材料成本", "cost_input": "输入项目信息", "cost_output": "成本明细",
+      "fix": "修理指南", "fix_desc": "根据损坏照片提供修理步骤", "fix_input": "上传损坏照片", "fix_output": "修理步骤"
+    },
+    "music": {
+      "chord": "和弦进行", "chord_desc": "根据风格推荐和弦进行", "chord_input": "输入音乐风格", "chord_output": "和弦方案",
+      "lyric": "歌词生成", "lyric_desc": "根据主题自动生成歌词", "lyric_input": "输入歌词主题", "lyric_output": "歌词草稿",
+      "mix": "混音建议", "mix_desc": "提供曲目混音改善建议", "mix_input": "输入曲目信息", "mix_output": "混音建议"
+    },
+    "game": {
+      "idea": "游戏创意", "idea_desc": "根据类型生成游戏概念方案", "idea_input": "输入游戏类型", "idea_output": "创意方案",
+      "story": "故事设定", "story_desc": "根据世界观构建故事线", "story_input": "输入世界观设定", "story_output": "故事大纲",
+      "balance": "平衡调整", "balance_desc": "分析游戏参数平衡性", "balance_input": "输入数值信息", "balance_output": "平衡建议"
+    },
+    "cook": {
+      "arrange": "菜品改良", "arrange_desc": "根据料理照片提供改良建议", "arrange_input": "上传料理照片", "arrange_output": "改良建议",
+      "menu": "菜单规划", "menu_desc": "根据条件制定一周菜单", "menu_input": "输入饮食条件", "menu_output": "一周菜单",
+      "pairing": "搭配推荐", "pairing_desc": "推荐搭配主菜的配菜和饮品", "pairing_input": "输入主菜信息", "pairing_output": "搭配方案"
+    },
+    "photo": {
+      "enhance": "照片增强", "enhance_desc": "提供亮度和色彩改善建议", "enhance_input": "上传照片", "enhance_output": "增强建议",
+      "comp": "构图建议", "comp_desc": "分析照片构图改善要点", "comp_input": "上传照片", "comp_output": "构图分析",
+      "edit": "修图指导", "edit_desc": "提供分步照片编辑指导", "edit_input": "上传照片", "edit_output": "修图步骤"
+    },
+    "career": {
+      "skill": "技能诊断", "skill_desc": "诊断分析当前技能组合", "skill_input": "输入技能信息", "skill_output": "技能分析",
+      "interview": "面试准备", "interview_desc": "针对企业和职位制定面试策略", "interview_input": "输入面试信息", "interview_output": "面试策略",
+      "plan": "职业规划", "plan_desc": "制定通往目标的职业路线图", "plan_input": "输入职业信息", "plan_output": "职业路线图"
+    },
+    "learn": {
+      "explain": "概念讲解", "explain_desc": "将复杂概念用通俗易懂的方式讲解", "explain_input": "输入想学的内容", "explain_output": "讲解内容",
+      "quiz": "测验生成", "quiz_desc": "根据学习范围自动生成测验题", "quiz_input": "输入学习范围", "quiz_output": "练习题",
+      "roadmap": "学习路线", "roadmap_desc": "将目标分解为阶段性学习计划", "roadmap_input": "输入学习目标", "roadmap_output": "学习计划"
+    },
+    "wedding": {
+      "plan": "婚礼策划", "plan_desc": "根据条件制定婚礼策划方案", "plan_input": "输入婚礼条件", "plan_output": "策划方案",
+      "speech": "致辞起草", "speech_desc": "根据场合起草婚礼致辞", "speech_input": "输入致辞信息", "speech_output": "致辞草稿",
+      "budget": "预算管理", "budget_desc": "优化婚礼预算分配", "budget_input": "输入预算信息", "budget_output": "预算分配"
+    },
+    "moving": {
+      "checklist": "搬家清单", "checklist_desc": "整理搬家前后的待办事项", "checklist_input": "输入搬家条件", "checklist_output": "待办清单",
+      "cost": "费用估算", "cost_desc": "估算搬家相关费用", "cost_input": "输入搬家信息", "cost_output": "费用明细",
+      "layout": "布局规划", "layout_desc": "根据房间照片提供家具布局方案", "layout_input": "上传房间照片", "layout_output": "布局方案"
+    },
+    "kid": {
+      "story": "故事生成", "story_desc": "根据条件生成原创儿童故事", "story_input": "输入故事条件", "story_output": "原创故事",
+      "quiz": "学习测验", "quiz_desc": "生成适龄的趣味学习测验", "quiz_input": "输入学习范围", "quiz_output": "练习题",
+      "craft": "手工创意", "craft_desc": "根据材料提供手工创意方案", "craft_input": "输入材料信息", "craft_output": "手工方案"
+    },
+    "senior": {
+      "exercise": "老年体操", "exercise_desc": "根据体力提供安全的运动菜单", "exercise_input": "输入体力信息", "exercise_output": "运动菜单",
+      "digital": "数码指南", "digital_desc": "用通俗易懂的方式讲解手机和电脑操作", "digital_input": "描述操作问题", "digital_output": "操作指南",
+      "memory": "回忆整理", "memory_desc": "根据老照片将往事整理成文", "memory_input": "上传老照片", "memory_output": "回忆故事"
+    },
+    "date": {
+      "plan": "约会策划", "plan_desc": "根据条件推荐约会路线", "plan_input": "输入约会条件", "plan_output": "约会方案",
+      "gift": "礼物推荐", "gift_desc": "根据对方喜好推荐合适的礼物", "gift_input": "输入对方信息", "gift_output": "礼物推荐",
+      "message": "消息起草", "message_desc": "根据场景起草真挚的消息", "message_input": "输入消息场景", "message_output": "消息草稿"
+    },
+    "car": {
+      "diagnose": "故障诊断", "diagnose_desc": "根据症状分析可能的故障原因", "diagnose_input": "描述车辆问题", "diagnose_output": "诊断结果",
+      "cost": "费用估算", "cost_desc": "根据车辆信息估算年度维护费用", "cost_input": "输入车辆信息", "cost_output": "年度费用",
+      "compare": "车型比较", "compare_desc": "比较候选车型的参数和价格", "compare_input": "输入候选车型", "compare_output": "对比分析"
+    },
+    "time": {
+      "schedule": "日程优化", "schedule_desc": "将待办事项整理为最优时间表", "schedule_input": "输入待办事项", "schedule_output": "最优日程",
+      "morning": "晨间计划", "morning_desc": "制定高效利用早晨时间的计划", "morning_input": "输入早晨时间", "morning_output": "晨间方案",
+      "habit": "习惯养成", "habit_desc": "制定养成新习惯的行动计划", "habit_input": "输入习惯信息", "habit_output": "习惯计划"
+    },
+    "eco": {
+      "footprint": "碳足迹", "footprint_desc": "根据生活习惯估算碳排放量", "footprint_input": "输入生活信息", "footprint_output": "碳足迹报告",
+      "swap": "环保替代", "swap_desc": "推荐日用品的环保替代方案", "swap_input": "上传日用品照片", "swap_output": "替代方案",
+      "save": "节能建议", "save_desc": "提供减少能源消耗的建议", "save_input": "输入能源使用信息", "save_output": "节能方案"
+    },
+    "marketing": {
+      "copy": "文案写作", "copy_desc": "撰写突出产品魅力的文案", "copy_input": "输入产品信息", "copy_output": "文案方案",
+      "seo": "SEO策略", "seo_desc": "根据关键词制定SEO策略", "seo_input": "输入关键词", "seo_output": "SEO计划",
+      "ad": "广告策划", "ad_desc": "针对目标受众制定广告策略", "ad_input": "输入广告信息", "ad_output": "广告方案"
+    },
+    "garden": {
+      "identify": "植物识别", "identify_desc": "根据照片识别植物种类和特征", "identify_input": "上传植物照片", "identify_output": "识别结果",
+      "calendar": "种植日历", "calendar_desc": "根据地区和季节制定种植计划", "calendar_input": "输入种植条件", "calendar_output": "种植计划",
+      "trouble": "问题诊断", "trouble_desc": "根据照片诊断植物问题并提供解决方案", "trouble_input": "上传问题照片", "trouble_output": "解决方案"
+    },
+    "biz": {
+      "swot": "SWOT分析", "swot_desc": "分析企业优势、劣势、机会和威胁", "swot_input": "输入业务信息", "swot_output": "分析报告",
+      "pitch": "商业计划", "pitch_desc": "根据项目概要撰写商业计划书", "pitch_input": "输入项目概要", "pitch_output": "商业计划书",
+      "email": "商务邮件", "email_desc": "根据要点撰写专业商务邮件", "email_input": "输入邮件要点", "email_output": "邮件草稿"
+    },
+    "lang": {
+      "conv": "会话练习", "conv_desc": "与AI用外语自由会话练习", "conv_input": "用外语开始对话", "conv_output": "会话反馈",
+      "vocab": "词汇本", "vocab_desc": "根据条件自动生成词汇列表", "vocab_input": "输入学习条件", "vocab_output": "词汇列表",
+      "trans": "翻译+解说", "trans_desc": "翻译并解说语感和语法要点", "trans_input": "输入要翻译的文本", "trans_output": "翻译结果"
+    },
+    "archive": {
+      "closet": "衣柜整理", "closet_desc": "根据衣柜照片提供整理方案", "closet_input": "上传衣柜照片", "closet_output": "整理方案",
+      "desk": "书桌整理", "desk_desc": "根据书桌照片提供改善建议", "desk_input": "上传书桌照片", "desk_output": "改善方案",
+      "digital": "手机整理", "digital_desc": "提供手机数据和应用整理方案", "digital_input": "输入手机状况", "digital_output": "数字整理方案"
+    },
+    "event": {
+      "plan": "活动策划", "plan_desc": "策划活动的流程和后勤安排", "plan_input": "输入活动信息", "plan_output": "策划方案",
+      "invite": "邀请函", "invite_desc": "为活动创建邀请函文案", "invite_input": "输入活动信息", "invite_output": "邀请函文案",
+      "gift": "礼物推荐", "gift_desc": "根据对方喜好推荐合适的礼物", "gift_input": "输入对方信息", "gift_output": "礼物推荐"
+    },
+    "access": {
+      "web": "Web无障碍诊断", "web_desc": "诊断网站的无障碍合规性", "web_input": "输入网站URL", "web_output": "诊断报告",
+      "doc": "简明日语转换", "doc_desc": "将复杂文章转换为简明日语", "doc_input": "输入要转换的文章", "doc_output": "简明版本",
+      "sign": "标识设计", "sign_desc": "设计清晰易懂的标识方案", "sign_input": "输入标识信息", "sign_output": "设计方案"
+    },
+    "news": {
+      "summary": "新闻摘要", "summary_desc": "简洁概括新闻文章要点", "summary_input": "粘贴新闻URL或全文", "summary_output": "摘要结果",
+      "brief": "每日简报", "brief_desc": "提供关注领域的最新新闻简报", "brief_input": "选择关注领域", "brief_output": "今日简报",
+      "fact": "事实核查", "fact_desc": "多角度验证信息的准确性", "fact_input": "输入要核查的信息", "fact_output": "核查结果"
+    },
+    "fitness": {
+      "workout": "健身计划", "workout_desc": "根据目标制定锻炼菜单", "workout_input": "输入锻炼条件", "workout_output": "锻炼菜单",
+      "stretch": "拉伸指南", "stretch_desc": "根据需求推荐拉伸动作", "stretch_input": "输入拉伸条件", "stretch_output": "拉伸菜单"
+    },
+    "sleep": {
+      "improve": "睡眠改善", "improve_desc": "分析睡眠习惯并提供改善方案", "improve_input": "输入睡眠信息", "improve_output": "改善建议",
+      "routine": "睡前流程", "routine_desc": "制定有助于深度睡眠的睡前流程", "routine_input": "输入生活模式", "routine_output": "睡前流程",
+      "bedroom": "卧室环境", "bedroom_desc": "提供改善卧室睡眠环境的建议", "bedroom_input": "输入卧室信息", "bedroom_output": "环境改善方案"
+    },
+    "beauty": {
+      "skincare": "护肤方案", "skincare_desc": "根据肤质推荐护肤流程", "skincare_input": "输入肤质信息", "skincare_output": "护肤方案",
+      "makeup": "化妆指南", "makeup_desc": "根据场合推荐化妆方法", "makeup_input": "输入化妆条件", "makeup_output": "化妆方案",
+      "hair": "发型推荐", "hair_desc": "根据脸型推荐适合的发型", "hair_input": "输入脸型信息", "hair_output": "推荐发型"
+    },
+    "reading": {
+      "recommend": "图书推荐", "recommend_desc": "根据喜好推荐书籍", "recommend_input": "输入阅读偏好", "recommend_output": "推荐书单",
+      "summary": "读书摘要", "summary_desc": "提炼书籍核心内容进行总结", "summary_input": "输入书籍信息", "summary_output": "摘要结果",
+      "note": "读书笔记", "note_desc": "系统化整理阅读笔记", "note_input": "输入阅读笔记", "note_output": "读书笔记"
+    },
+    "movie": {
+      "recommend": "电影推荐", "recommend_desc": "根据喜好推荐电影", "recommend_input": "输入电影偏好", "recommend_output": "推荐电影",
+      "review": "影评撰写", "review_desc": "协助撰写电影观后感", "review_input": "输入观影感受", "review_output": "影评草稿"
+    },
+    "camping": {
+      "gear": "露营装备推荐", "gear_desc": "根据露营风格推荐装备", "gear_input": "输入露营条件", "gear_output": "推荐装备",
+      "meal": "露营料理", "meal_desc": "推荐适合户外烹饪的菜品", "meal_input": "输入露营食材", "meal_output": "露营食谱",
+      "spot": "营地推荐", "spot_desc": "根据条件推荐合适的营地", "spot_input": "输入露营条件", "spot_output": "推荐营地"
+    },
+    "handmade": {
+      "pattern": "图案生成", "pattern_desc": "自动生成手工制作图案", "pattern_input": "输入作品条件", "pattern_output": "图案设计",
+      "material": "材料指南", "material_desc": "推荐作品所需的材料清单", "material_input": "输入作品信息", "material_output": "材料清单",
+      "pricing": "定价参考", "pricing_desc": "为手工作品计算合理定价", "pricing_input": "输入制作成本", "pricing_output": "定价建议"
+    },
+    "presentation": {
+      "design": "演示设计", "design_desc": "提供演示文稿的设计方案", "design_input": "输入演示内容", "design_output": "设计方案",
+      "speaking": "演讲练习", "speaking_desc": "提供演讲稿和表达技巧指导", "speaking_input": "输入演讲稿", "speaking_output": "演讲指导",
+      "qa": "答辩准备", "qa_desc": "准备可能的提问和标准回答", "qa_input": "输入演示主题", "qa_output": "Q&A准备"
+    },
+    "mental": {
+      "meditate": "冥想指南", "meditate_desc": "根据目的推荐冥想方案", "meditate_input": "输入冥想目的", "meditate_output": "冥想方案",
+      "stress": "压力管理", "stress_desc": "分析压力来源并提供缓解方法", "stress_input": "输入压力情况", "stress_output": "缓解方法",
+      "journal": "情绪日记", "journal_desc": "通过日记整理和疏导情绪", "journal_input": "输入今日情绪", "journal_output": "日记引导"
+    },
+    "cleaning": {
+      "plan": "清洁计划", "plan_desc": "制定系统化的空间清洁计划", "plan_input": "输入清洁条件", "plan_output": "清洁计划",
+      "stain": "去渍指南", "stain_desc": "根据污渍类型提供去除方法", "stain_input": "输入污渍信息", "stain_output": "去除方法",
+      "storage": "收纳整理", "storage_desc": "根据空间提供收纳方案", "storage_input": "输入空间信息", "storage_output": "收纳方案"
+    },
+    "baby": {
+      "food": "辅食指南", "food_desc": "根据月龄推荐辅食食谱", "food_input": "输入宝宝月龄", "food_output": "辅食食谱",
+      "growth": "成长记录", "growth_desc": "检测宝宝生长发育状况", "growth_input": "输入成长信息", "growth_output": "发育分析",
+      "cry": "哭闹分析", "cry_desc": "分析宝宝哭闹原因并提供应对方法", "cry_input": "输入哭闹情况", "cry_output": "应对方法"
+    },
+    "tax": {
+      "filing": "税务申报", "filing_desc": "分步指导税务申报流程", "filing_input": "输入申报信息", "filing_output": "申报指南",
+      "expense": "费用处理", "expense_desc": "指导费用项目的税务处理方法", "expense_input": "输入费用信息", "expense_output": "处理方法",
+      "deduction": "抵扣优化", "deduction_desc": "分析可适用的税收抵扣项目", "deduction_input": "输入收入信息", "deduction_output": "抵扣方案"
+    },
+    "freelance": {
+      "portfolio": "作品集制作", "portfolio_desc": "提供有吸引力的作品集构成方案", "portfolio_input": "输入工作经历", "portfolio_output": "作品集方案",
+      "rate": "报价参考", "rate_desc": "为自由职业者计算合理报价", "rate_input": "输入业务信息", "rate_output": "报价建议",
+      "client": "客户管理", "client_desc": "提供客户沟通策略建议", "client_input": "输入客户情况", "client_output": "管理策略"
+    },
+    "meeting": {
+      "minutes": "会议纪要", "minutes_desc": "系统化整理会议内容", "minutes_input": "输入会议内容", "minutes_output": "会议纪要",
+      "agenda": "议程制定", "agenda_desc": "制定高效的会议议程", "agenda_input": "输入会议目的", "agenda_output": "议程清单",
+      "facilitate": "会议引导", "facilitate_desc": "制定会议引导和推进方案", "facilitate_input": "输入会议信息", "facilitate_output": "引导方案"
+    },
+    "datavis": {
+      "chart": "图表生成", "chart_desc": "根据数据推荐最佳图表类型", "chart_input": "输入数据", "chart_output": "图表方案",
+      "dashboard": "仪表盘设计", "dashboard_desc": "根据KPI设计仪表盘布局", "dashboard_input": "输入KPI信息", "dashboard_output": "仪表盘方案",
+      "report": "数据报告", "report_desc": "将数据分析结果整理为报告", "report_input": "输入分析数据", "report_output": "分析报告"
+    },
+    "startup": {
+      "mvp": "MVP设计", "mvp_desc": "设计最小可行产品并制定验证策略", "mvp_input": "输入创意想法", "mvp_output": "MVP设计书",
+      "pitch": "融资路演", "pitch_desc": "制作面向投资人的路演材料", "pitch_input": "输入业务信息", "pitch_output": "路演材料",
+      "growth": "增长策略", "growth_desc": "制定创业公司增长策略", "growth_input": "输入业务现状", "growth_output": "增长策略"
+    },
+    "podcast": {
+      "plan": "播客策划", "plan_desc": "策划播客定位和节目内容", "plan_input": "输入播客主题", "plan_output": "策划方案",
+      "script": "脚本撰写", "script_desc": "撰写节目脚本和流程安排", "script_input": "输入节目主题", "script_output": "脚本草稿",
+      "edit": "剪辑指南", "edit_desc": "指导播客音频剪辑流程", "edit_input": "输入录音信息", "edit_output": "剪辑指南"
+    },
+    "sports": {
+      "training": "训练计划", "training_desc": "根据目标制定训练方案", "training_input": "输入训练条件", "training_output": "训练方案",
+      "tactics": "战术分析", "tactics_desc": "根据比赛情况提供战术建议", "tactics_input": "输入比赛信息", "tactics_output": "战术方案",
+      "analysis": "赛事分析", "analysis_desc": "分析比赛数据并提供反馈", "analysis_input": "输入比赛数据", "analysis_output": "分析结果"
+    },
+    "abroad": {
+      "prepare": "留学准备", "prepare_desc": "分步指导留学准备流程", "prepare_input": "输入留学条件", "prepare_output": "准备指南",
+      "essay": "文书写作", "essay_desc": "指导入学文书的构思和修改", "essay_input": "输入文书主题", "essay_output": "文书修改",
+      "culture": "文化指南", "culture_desc": "介绍当地文化和生活信息", "culture_input": "输入留学地区", "culture_output": "文化指南"
+    },
+    "interior": {
+      "makeover": "空间改造", "makeover_desc": "根据空间照片提供改造方案", "makeover_input": "上传空间照片", "makeover_output": "改造方案",
+      "lighting": "灯光设计", "lighting_desc": "根据空间提供灯光布置方案", "lighting_input": "输入空间信息", "lighting_output": "灯光方案",
+      "curtain": "窗帘推荐", "curtain_desc": "根据装修风格推荐窗帘方案", "curtain_input": "输入装修信息", "curtain_output": "推荐窗帘"
+    },
+    "party": {
+      "plan": "派对策划", "plan_desc": "根据主题策划派对方案", "plan_input": "输入派对条件", "plan_output": "策划方案",
+      "games": "派对游戏", "games_desc": "根据人数和场合推荐派对游戏", "games_input": "输入派对信息", "games_output": "推荐游戏",
+      "deco": "派对装饰", "deco_desc": "根据主题提供装饰创意方案", "deco_input": "输入派对主题", "deco_output": "装饰创意"
+    },
+    "ceremony": {
+      "manner": "礼仪指南", "manner_desc": "提供婚丧嫁娶的礼仪规范", "manner_input": "输入场合信息", "manner_output": "礼仪指南",
+      "envelope": "礼金指南", "envelope_desc": "根据场合和关系提供礼金参考", "envelope_input": "输入关系信息", "envelope_output": "金额参考",
+      "return": "回礼推荐", "return_desc": "根据预算推荐合适的回礼", "return_input": "输入预算信息", "return_output": "推荐回礼"
+    },
+    "recycle": {
+      "remake": "改造创意", "remake_desc": "将废旧物品改造为新用途", "remake_input": "输入废旧物品信息", "remake_output": "改造方案",
+      "reuse": "回收指南", "reuse_desc": "指导垃圾分类和回收方法", "reuse_input": "输入废弃物信息", "reuse_output": "回收方法",
+      "appraise": "二手估价", "appraise_desc": "分析二手物品的市场行情", "appraise_input": "输入物品信息", "appraise_output": "行情分析"
+    },
+    "nail": {
+      "design": "美甲设计", "design_desc": "推荐时尚潮流美甲设计", "design_input": "输入风格条件", "design_output": "设计方案",
+      "selfnail": "自助美甲指南", "selfnail_desc": "分步指导自助美甲操作流程", "selfnail_input": "输入美甲设计", "selfnail_output": "操作指南",
+      "care": "指甲护理", "care_desc": "提供指甲健康养护方法", "care_input": "输入指甲状况", "care_output": "护理方法"
+    },
+    "yoga": {
+      "pose": "瑜伽体式", "pose_desc": "根据目的推荐瑜伽体式", "pose_input": "输入瑜伽目的", "pose_output": "体式指南",
+      "sequence": "序列编排", "sequence_desc": "根据水平编排瑜伽序列", "sequence_input": "输入瑜伽水平", "sequence_output": "瑜伽序列",
+      "breathe": "呼吸法", "breathe_desc": "根据目的指导呼吸练习方法", "breathe_input": "输入呼吸目的", "breathe_output": "呼吸指南"
+    },
+    "bicycle": {
+      "maintain": "自行车保养", "maintain_desc": "指导自行车检查和保养方法", "maintain_input": "输入车辆状况", "maintain_output": "保养指南",
+      "route": "骑行路线", "route_desc": "根据条件推荐骑行路线", "route_input": "输入骑行条件", "route_output": "推荐路线",
+      "choose": "选车指南", "choose_desc": "根据用途推荐合适的自行车", "choose_input": "输入用途信息", "choose_output": "推荐车型"
+    },
+    "running": {
+      "plan": "跑步计划", "plan_desc": "根据目标制定跑步训练计划", "plan_input": "输入跑步目标", "plan_output": "训练计划",
+      "form": "姿势纠正", "form_desc": "指导正确跑步姿势和纠正要点", "form_input": "输入跑步困扰", "form_output": "姿势指南",
+      "shoes": "跑鞋推荐", "shoes_desc": "根据跑步风格推荐合适跑鞋", "shoes_input": "输入跑步信息", "shoes_output": "推荐跑鞋"
+    },
+    "manga": {
+      "story": "故事构思", "story_desc": "构建漫画故事情节和架构", "story_input": "输入故事设定", "story_output": "故事架构",
+      "character": "角色设定", "character_desc": "创建有魅力的角色设定和背景", "character_input": "输入角色条件", "character_output": "角色设定",
+      "panel": "分镜构图", "panel_desc": "提供页面分格和演出方案", "panel_input": "输入场景信息", "panel_output": "分镜方案"
+    },
+    "video": {
+      "edit": "视频剪辑", "edit_desc": "指导视频剪辑流程和技巧", "edit_input": "输入视频信息", "edit_output": "剪辑指南",
+      "effect": "特效指南", "effect_desc": "推荐适合场景的特效和转场", "effect_input": "输入场景信息", "effect_output": "特效方案",
+      "storyboard": "分镜脚本", "storyboard_desc": "制作视频拍摄的分镜脚本", "storyboard_input": "输入视频策划", "storyboard_output": "分镜脚本"
+    },
+    "speech": {
+      "draft": "演讲稿撰写", "draft_desc": "根据场合撰写演讲稿草稿", "draft_input": "输入演讲信息", "draft_output": "演讲稿草稿",
+      "practice": "演讲练习", "practice_desc": "提供演讲排练和反馈指导", "practice_input": "输入演讲稿", "practice_output": "练习指南",
+      "anxiety": "克服紧张", "anxiety_desc": "提供缓解演讲紧张的策略", "anxiety_input": "输入紧张情况", "anxiety_output": "克服策略"
+    },
+    "nutrition": {
+      "mealplan": "膳食管理", "mealplan_desc": "根据目标制定个性化膳食方案", "mealplan_input": "输入膳食条件", "mealplan_output": "个性化膳食",
+      "supplement": "营养补剂推荐", "supplement_desc": "根据健康状况推荐营养补剂", "supplement_input": "输入健康信息", "supplement_output": "推荐补剂",
+      "ingredient": "食材分析", "ingredient_desc": "分析食材的营养成分和功效", "ingredient_input": "输入食材名称", "ingredient_output": "营养分析"
+    },
+    "giftwrap": {
+      "wrap": "礼物包装", "wrap_desc": "根据礼物类型提供包装方法", "wrap_input": "输入礼物信息", "wrap_output": "包装指南",
+      "card": "贺卡寄语", "card_desc": "根据场合撰写贺卡寄语", "card_input": "输入贺卡场合", "card_output": "寄语草稿"
+    },
+    "aquarium": {
+      "setup": "鱼缸布置", "setup_desc": "提供鱼缸环境配置和造景方案", "setup_input": "输入鱼缸信息", "setup_output": "布置指南",
+      "water": "水质管理", "water_desc": "指导水质维护和管理方法", "water_input": "输入水质信息", "water_output": "管理方法",
+      "fish": "鱼种推荐", "fish_desc": "根据环境推荐鱼种和混养方案", "fish_input": "输入鱼缸环境", "fish_output": "推荐鱼种"
+    },
+    "debug": {
+      "error": "错误分析", "error_desc": "分析错误信息并提供解决方案", "error_input": "输入错误信息", "error_output": "解决方法",
+      "review": "代码审查", "review_desc": "分析代码问题和改进点", "review_input": "输入代码", "review_output": "审查结果",
+      "perf": "性能优化", "perf_desc": "分析代码性能瓶颈并提供优化建议", "perf_input": "输入代码信息", "perf_output": "优化方案"
+    },
+    "exam": {
+      "strategy": "考试策略", "strategy_desc": "根据考试类型制定备考策略", "strategy_input": "输入考试信息", "strategy_output": "备考策略",
+      "memorize": "记忆助手", "memorize_desc": "提供高效记忆方法和工具", "memorize_input": "输入记忆内容", "memorize_output": "记忆指南",
+      "timetable": "时间表制定", "timetable_desc": "制定考前学习时间表", "timetable_input": "输入考试日程", "timetable_output": "学习时间表"
+    },
+    "email_pro": {
+      "template": "邮件模板", "template_desc": "提供各场景商务邮件模板", "template_input": "输入邮件场景", "template_output": "邮件模板",
+      "followup": "跟进邮件", "followup_desc": "指导撰写恰当的跟进邮件", "followup_input": "输入前次邮件", "followup_output": "跟进邮件方案",
+      "apology": "致歉邮件", "apology_desc": "撰写真诚的致歉邮件", "apology_input": "输入致歉情况", "apology_output": "致歉邮件草稿"
+    },
+    "mindmap": {
+      "organize": "思维整理", "organize_desc": "将想法用思维导图系统化", "organize_input": "输入想法", "organize_output": "思维导图",
+      "brainstorm": "头脑风暴", "brainstorm_desc": "围绕主题发散和拓展创意", "brainstorm_input": "输入头脑风暴主题", "brainstorm_output": "创意导图",
+      "project": "项目导图", "project_desc": "将项目结构可视化整理", "project_input": "输入项目信息", "project_output": "项目导图"
+    },
+    "boardgame": {
+      "rules": "规则讲解", "rules_desc": "用通俗易懂的方式讲解桌游规则", "rules_input": "输入游戏名称", "rules_output": "规则指南",
+      "strategy": "策略指南", "strategy_desc": "提供桌游获胜策略建议", "strategy_input": "输入游戏情况", "strategy_output": "策略方案",
+      "recommend": "桌游推荐", "recommend_desc": "根据人数和偏好推荐桌游", "recommend_input": "输入游戏条件", "recommend_output": "推荐游戏"
+    },
+    "tea": {
+      "brew": "泡茶指南", "brew_desc": "根据茶叶种类提供最佳冲泡方法", "brew_input": "输入茶叶种类", "brew_output": "冲泡指南",
+      "leaf": "茶叶指南", "leaf_desc": "介绍茶叶种类和特点", "leaf_input": "输入口味偏好", "leaf_output": "推荐茶叶",
+      "pairing": "茶点搭配", "pairing_desc": "推荐与茶搭配的点心和美食", "pairing_input": "输入茶叶信息", "pairing_output": "搭配方案"
+    },
+    "astro": {
+      "observe": "天文观测", "observe_desc": "根据观测条件提供天文观测指南", "observe_input": "输入观测条件", "observe_output": "观测指南",
+      "event": "天文事件", "event_desc": "提供即将到来的天文事件信息", "event_input": "输入观测地区", "event_output": "事件信息",
+      "photograph": "天文摄影", "photograph_desc": "指导天文摄影技巧和相机设置", "photograph_input": "输入拍摄条件", "photograph_output": "拍摄指南"
+    }
+  }
+}

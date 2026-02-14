@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SideHustleAI - 副業・フリーランスのAI相棒</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+          950: '#022c22',
+        }
+      }
+    }
+  }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans JP', 'Inter', sans-serif;
+  background: #f0fdf4;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.gradient-header {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 30%, #059669 60%, #0d9488 100%);
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  transition: all 0.3s ease;
+}
+.gradient-btn:hover {
+  background: linear-gradient(135deg, #047857 0%, #0f766e 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.35);
+}
+.gradient-btn:active { transform: translateY(0); }
+
+.tab-content {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  display: none;
+}
+.tab-content.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.result-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.result-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.upload-zone {
+  border: 2px dashed #a7f3d0;
+  background: linear-gradient(135deg, rgba(236,253,245,0.8), rgba(209,250,229,0.5));
+  transition: all 0.3s ease;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: #34d399;
+  background: linear-gradient(135deg, rgba(209,250,229,0.9), rgba(167,243,208,0.5));
+  transform: scale(1.01);
+}
+.upload-zone.has-file {
+  border-color: #10b981;
+  border-style: solid;
+  background: linear-gradient(135deg, rgba(209,250,229,1), rgba(167,243,208,0.7));
+}
+
+.bottom-nav {
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.92);
+  border-top: 1px solid rgba(167,243,208,0.5);
+}
+
+.nav-item {
+  transition: all 0.25s ease;
+  position: relative;
+}
+.nav-item.active {
+  color: #059669;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #059669, #0d9488);
+  border-radius: 0 0 4px 4px;
+}
+
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid #d1fae5;
+  border-top-color: #059669;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+}
+.pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+.risk-bar-bg { background: #e5e7eb; border-radius: 9999px; overflow: hidden; }
+.risk-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 1s ease;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  border: 1px solid rgba(167,243,208,0.3);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
+}
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  transition: transform 0.4s ease;
+  z-index: 100;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.file-preview-img {
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+</style>
+</head>
+<body class="pb-24">
+
+<!-- Toast -->
+<div id="toast" class="toast">
+  <div class="bg-brand-800 text-white px-6 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2">
+    <svg class="w-5 h-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toast-msg"></span>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="gradient-header text-white pt-12 pb-6 px-5 relative overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-4 right-8 text-6xl">💰</div>
+    <div class="absolute bottom-2 left-6 text-4xl">📊</div>
+    <div class="absolute top-8 left-1/2 text-3xl">🚀</div>
+  </div>
+  <div class="relative z-10 max-w-lg mx-auto">
+    <h1 class="text-2xl font-extrabold tracking-tight">SideHustleAI</h1>
+    <p class="text-emerald-200 text-sm mt-1 font-medium">副業・フリーランスのAI相棒</p>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-lg mx-auto px-4 pt-5 pb-4">
+
+  <!-- Tab 1: ListingAI -->
+  <div id="tab-listing" class="tab-content active">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-2xl">🏷️</span>
+      <div>
+        <h2 class="text-lg font-bold text-brand-900">出品文生成</h2>
+        <p class="text-xs text-gray-500">商品写真からAIが出品文を自動作成</p>
+      </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-2">商品写真をアップロード</label>
+      <div id="listing-upload" class="upload-zone rounded-2xl p-8 text-center cursor-pointer" onclick="document.getElementById('listing-file').click()">
+        <div id="listing-upload-content">
+          <div class="text-4xl mb-3">📸</div>
+          <p class="text-sm font-semibold text-brand-700">タップして写真を選択</p>
+          <p class="text-xs text-gray-400 mt-1">JPG, PNG, HEIC対応</p>
+        </div>
+        <div id="listing-preview" class="hidden">
+          <img id="listing-preview-img" class="file-preview-img mx-auto mb-2" alt="プレビュー">
+          <p id="listing-file-name" class="text-xs text-brand-600 font-medium"></p>
+        </div>
+      </div>
+      <input type="file" id="listing-file" accept="image/*" class="hidden" onchange="handleListingFile(this)">
+
+      <div class="mt-4">
+        <label class="block text-sm font-semibold text-gray-700 mb-1">カテゴリ（任意）</label>
+        <select class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white">
+          <option value="">自動判定</option>
+          <option>メンズ靴</option>
+          <option>レディース服</option>
+          <option>家電・スマホ</option>
+          <option>ホビー・おもちゃ</option>
+          <option>本・雑誌</option>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="processListing()" class="gradient-btn w-full text-white font-bold py-4 rounded-2xl text-base shadow-lg">
+      ✨ AIで出品文を生成する
+    </button>
+
+    <!-- Loading -->
+    <div id="listing-loading" class="hidden mt-6 text-center">
+      <div class="spinner mx-auto mb-3"></div>
+      <p class="text-sm text-brand-700 font-medium">商品を分析しています...</p>
+      <p class="text-xs text-gray-400 mt-1">写真から特徴を読み取り中</p>
+    </div>
+
+    <!-- Results -->
+    <div id="listing-results" class="mt-5 space-y-4">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- Tab 2: InvoiceAI -->
+  <div id="tab-invoice" class="tab-content">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-2xl">💴</span>
+      <div>
+        <h2 class="text-lg font-bold text-brand-900">請求書作成</h2>
+        <p class="text-xs text-gray-500">情報入力でプロ仕様の請求書を即生成</p>
+      </div>
+    </div>
+
+    <div class="card p-5 mb-4 space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">取引先名</label>
+        <input id="inv-client" type="text" placeholder="株式会社サンプル" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">項目</label>
+        <input id="inv-item" type="text" placeholder="Webサイト制作" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">金額（税抜）</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">¥</span>
+            <input id="inv-amount" type="number" placeholder="300000" class="w-full border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">支払期限</label>
+          <input id="inv-deadline" type="text" placeholder="2025/02/28" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">備考（任意）</label>
+        <textarea placeholder="お振込手数料はご負担願います" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm h-20 resize-none"></textarea>
+      </div>
+    </div>
+
+    <button onclick="processInvoice()" class="gradient-btn w-full text-white font-bold py-4 rounded-2xl text-base shadow-lg">
+      ✨ AIで請求書を作成する
+    </button>
+
+    <!-- Loading -->
+    <div id="invoice-loading" class="hidden mt-6 text-center">
+      <div class="spinner mx-auto mb-3"></div>
+      <p class="text-sm text-brand-700 font-medium">請求書を生成しています...</p>
+      <p class="text-xs text-gray-400 mt-1">フォーマット最適化中</p>
+    </div>
+
+    <!-- Results -->
+    <div id="invoice-results" class="mt-5 space-y-4">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- Tab 3: ContractAI -->
+  <div id="tab-contract" class="tab-content">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-2xl">⚖️</span>
+      <div>
+        <h2 class="text-lg font-bold text-brand-900">契約書チェック</h2>
+        <p class="text-xs text-gray-500">契約書PDFをAIがリスク診断</p>
+      </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-2">契約書ファイルをアップロード</label>
+      <div id="contract-upload" class="upload-zone rounded-2xl p-8 text-center cursor-pointer" onclick="document.getElementById('contract-file').click()">
+        <div id="contract-upload-content">
+          <div class="text-4xl mb-3">📄</div>
+          <p class="text-sm font-semibold text-brand-700">タップしてファイルを選択</p>
+          <p class="text-xs text-gray-400 mt-1">PDF, DOC, DOCX対応</p>
+        </div>
+        <div id="contract-preview" class="hidden text-center">
+          <div class="text-4xl mb-2">📋</div>
+          <p id="contract-file-name" class="text-sm text-brand-700 font-semibold"></p>
+          <p id="contract-file-size" class="text-xs text-gray-400 mt-1"></p>
+        </div>
+      </div>
+      <input type="file" id="contract-file" accept=".pdf,.doc,.docx" class="hidden" onchange="handleContractFile(this)">
+
+      <div class="mt-4">
+        <label class="block text-sm font-semibold text-gray-700 mb-1">契約種類（任意）</label>
+        <select class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white">
+          <option value="">自動判定</option>
+          <option>業務委託契約</option>
+          <option>秘密保持契約（NDA）</option>
+          <option>売買契約</option>
+          <option>賃貸借契約</option>
+          <option>雇用契約</option>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="processContract()" class="gradient-btn w-full text-white font-bold py-4 rounded-2xl text-base shadow-lg">
+      ✨ AIでリスク診断する
+    </button>
+
+    <!-- Loading -->
+    <div id="contract-loading" class="hidden mt-6 text-center">
+      <div class="spinner mx-auto mb-3"></div>
+      <p class="text-sm text-brand-700 font-medium">契約書を分析しています...</p>
+      <p class="text-xs text-gray-400 mt-1">条項をひとつずつ確認中</p>
+    </div>
+
+    <!-- Results -->
+    <div id="contract-results" class="mt-5 space-y-4">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+  <div class="max-w-lg mx-auto flex">
+    <button onclick="switchTab('listing')" id="nav-listing" class="nav-item active flex-1 flex flex-col items-center py-3 gap-0.5">
+      <span class="text-xl">🏷️</span>
+      <span class="text-xs font-semibold">出品</span>
+    </button>
+    <button onclick="switchTab('invoice')" id="nav-invoice" class="nav-item flex-1 flex flex-col items-center py-3 gap-0.5 text-gray-400">
+      <span class="text-xl">💴</span>
+      <span class="text-xs font-semibold">請求書</span>
+    </button>
+    <button onclick="switchTab('contract')" id="nav-contract" class="nav-item flex-1 flex flex-col items-center py-3 gap-0.5 text-gray-400">
+      <span class="text-xl">⚖️</span>
+      <span class="text-xs font-semibold">契約書</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+/* ───── Tab Switching ───── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.remove('active');
+    el.classList.add('text-gray-400');
+  });
+
+  const target = document.getElementById('tab-' + tab);
+  const nav = document.getElementById('nav-' + tab);
+
+  // tiny delay for transition
+  requestAnimationFrame(() => {
+    target.classList.add('active');
+    nav.classList.add('active');
+    nav.classList.remove('text-gray-400');
+  });
+}
+
+/* ───── Toast ───── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ───── Utility ───── */
+function formatNum(n) {
+  return Number(n).toLocaleString('ja-JP');
+}
+
+function revealResults(container) {
+  const sections = container.querySelectorAll('.result-section');
+  sections.forEach((s, i) => {
+    setTimeout(() => s.classList.add('visible'), i * 180);
+  });
+}
+
+/* ═══════════════════════════════
+   1. ListingAI
+   ═══════════════════════════════ */
+let listingFileReady = false;
+
+function handleListingFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  listingFileReady = true;
+  const zone = document.getElementById('listing-upload');
+  zone.classList.add('has-file');
+  document.getElementById('listing-upload-content').classList.add('hidden');
+  const preview = document.getElementById('listing-preview');
+  preview.classList.remove('hidden');
+  document.getElementById('listing-file-name').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('listing-preview-img').src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function processListing() {
+  if (!listingFileReady) {
+    showToast('商品写真をアップロードしてください');
+    return;
+  }
+  const loader = document.getElementById('listing-loading');
+  const results = document.getElementById('listing-results');
+  results.innerHTML = '';
+  loader.classList.remove('hidden');
+
+  setTimeout(() => {
+    loader.classList.add('hidden');
+    results.innerHTML = `
+      <!-- Title -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-brand-100 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-lg">タイトル</span>
+          <span class="text-xs text-gray-400">自動生成</span>
+        </div>
+        <p class="text-base font-bold text-gray-900 leading-relaxed">【美品】Nike Air Max 90 ホワイト 27cm</p>
+        <button onclick="copyText('【美品】Nike Air Max 90 ホワイト 27cm');showToast('タイトルをコピーしました')" class="mt-3 text-xs text-brand-600 font-semibold flex items-center gap-1 hover:text-brand-800">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          コピー
+        </button>
+      </div>
+
+      <!-- Price -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-lg">推奨価格</span>
+          <span class="text-xs text-gray-400">市場分析</span>
+        </div>
+        <div class="flex items-end gap-2 mb-2">
+          <span class="text-3xl font-extrabold text-brand-700">¥8,500</span>
+          <span class="text-gray-400 text-lg font-bold">〜</span>
+          <span class="text-3xl font-extrabold text-brand-700">¥9,800</span>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-3 mt-3">
+          <div class="flex justify-between text-xs text-gray-500 mb-1">
+            <span>市場最安値</span><span>市場最高値</span>
+          </div>
+          <div class="risk-bar-bg h-2.5">
+            <div class="risk-bar-fill bg-gradient-to-r from-brand-400 to-teal-400" style="width:0%" id="price-bar"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500 mt-1">
+            <span>¥6,000</span><span>¥12,500</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">📊 直近30日間で同商品が <strong class="text-brand-700">23件</strong> 取引されています</p>
+      </div>
+
+      <!-- Description -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-lg">商品説明</span>
+        </div>
+        <div class="text-sm text-gray-700 leading-relaxed space-y-2" id="listing-desc">
+          <p>ご覧いただきありがとうございます。</p>
+          <p>Nike Air Max 90 ホワイトの27cmです。<br>2回のみ短時間着用の美品です。</p>
+          <p>【状態】<br>・アッパー：目立つ汚れなし<br>・ソール：ほぼ未使用レベル<br>・付属品：箱あり、替え紐なし</p>
+          <p>【サイズ】27cm（US9）<br>【カラー】ホワイト/ホワイト</p>
+          <p>即購入OKです。<br>24時間以内に発送いたします。</p>
+        </div>
+        <button onclick="copyText(document.getElementById('listing-desc').innerText);showToast('説明文をコピーしました')" class="mt-3 text-xs text-brand-600 font-semibold flex items-center gap-1 hover:text-brand-800">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          すべてコピー
+        </button>
+      </div>
+
+      <!-- Category & Tips -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-lg">カテゴリ提案</span>
+        </div>
+        <p class="text-sm font-semibold text-gray-800 mb-1">メンズ &gt; 靴 &gt; スニーカー</p>
+        <p class="text-xs text-gray-500">ブランド: Nike &nbsp;|&nbsp; サイズ: 27cm</p>
+      </div>
+
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-lg">📸 写真のコツ</span>
+        </div>
+        <ul class="text-sm text-gray-700 space-y-2">
+          <li class="flex items-start gap-2"><span class="text-brand-500 mt-0.5">✓</span> ソールの状態が分かるアングルを追加すると成約率が <strong class="text-brand-700">+18%</strong> 向上</li>
+          <li class="flex items-start gap-2"><span class="text-brand-500 mt-0.5">✓</span> 白背景 × 自然光で撮影するのがベスト</li>
+          <li class="flex items-start gap-2"><span class="text-brand-500 mt-0.5">✓</span> タグ・サイズ表記の写真を追加しましょう</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-section flex gap-3">
+        <button onclick="showToast('出品文を下書きに保存しました')" class="flex-1 bg-white border-2 border-brand-500 text-brand-700 font-bold py-3.5 rounded-2xl text-sm hover:bg-brand-50 transition">
+          下書き保存
+        </button>
+        <button onclick="showToast('メルカリに出品文を送信しました')" class="flex-1 gradient-btn text-white font-bold py-3.5 rounded-2xl text-sm shadow-lg">
+          そのまま出品
+        </button>
+      </div>
+    `;
+    revealResults(results);
+    // Animate price bar
+    setTimeout(() => {
+      const bar = document.getElementById('price-bar');
+      if (bar) bar.style.width = '62%';
+    }, 400);
+  }, 2000);
+}
+
+/* ═══════════════════════════════
+   2. InvoiceAI
+   ═══════════════════════════════ */
+function processInvoice() {
+  const client = document.getElementById('inv-client').value || '株式会社サンプル';
+  const item = document.getElementById('inv-item').value || 'Webサイト制作';
+  const amount = parseInt(document.getElementById('inv-amount').value) || 300000;
+  const deadline = document.getElementById('inv-deadline').value || '2025/02/28';
+  const tax = Math.floor(amount * 0.1);
+  const total = amount + tax;
+
+  const loader = document.getElementById('invoice-loading');
+  const results = document.getElementById('invoice-results');
+  results.innerHTML = '';
+  loader.classList.remove('hidden');
+
+  const invNo = 'INV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+  const today = new Date();
+  const dateStr = today.getFullYear() + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + String(today.getDate()).padStart(2,'0');
+
+  setTimeout(() => {
+    loader.classList.add('hidden');
+    results.innerHTML = `
+      <!-- Invoice Preview -->
+      <div class="result-section card overflow-hidden">
+        <div class="bg-gradient-to-r from-brand-800 to-teal-700 text-white px-5 py-4 flex justify-between items-start">
+          <div>
+            <p class="text-xs text-brand-200 font-medium">請求書番号</p>
+            <p class="text-lg font-bold mt-0.5">${invNo}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-brand-200 font-medium">発行日</p>
+            <p class="text-sm font-semibold mt-0.5">${dateStr}</p>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex justify-between mb-5">
+            <div>
+              <p class="text-xs text-gray-400 font-medium">請求先</p>
+              <p class="text-sm font-bold text-gray-900 mt-0.5">${client} 御中</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-gray-400 font-medium">支払期限</p>
+              <p class="text-sm font-bold text-red-600 mt-0.5">${deadline}</p>
+            </div>
+          </div>
+
+          <!-- Line items -->
+          <div class="border border-gray-100 rounded-xl overflow-hidden mb-4">
+            <div class="bg-gray-50 px-4 py-2 text-xs font-bold text-gray-500 flex">
+              <span class="flex-1">項目</span>
+              <span class="w-16 text-right">数量</span>
+              <span class="w-24 text-right">金額</span>
+            </div>
+            <div class="px-4 py-3 text-sm flex border-t border-gray-50">
+              <span class="flex-1 text-gray-800 font-medium">${item}</span>
+              <span class="w-16 text-right text-gray-500">1</span>
+              <span class="w-24 text-right font-semibold text-gray-900">¥${formatNum(amount)}</span>
+            </div>
+          </div>
+
+          <!-- Totals -->
+          <div class="space-y-2 border-t border-gray-100 pt-4">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">小計</span>
+              <span class="font-semibold text-gray-700">¥${formatNum(amount)}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">消費税（10%）</span>
+              <span class="font-semibold text-gray-700">¥${formatNum(tax)}</span>
+            </div>
+            <div class="flex justify-between text-lg font-extrabold pt-2 border-t border-gray-100">
+              <span class="text-brand-800">合計</span>
+              <span class="text-brand-700">¥${formatNum(total)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank info -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-brand-100 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-lg">🏦 振込先（自動入力）</span>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4 text-sm space-y-1.5">
+          <div class="flex justify-between"><span class="text-gray-500">銀行名</span><span class="font-semibold text-gray-800">三菱UFJ銀行</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">支店名</span><span class="font-semibold text-gray-800">渋谷支店（150）</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">口座種別</span><span class="font-semibold text-gray-800">普通</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">口座番号</span><span class="font-semibold text-gray-800">1234567</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">名義</span><span class="font-semibold text-gray-800">ヤマダ タロウ</span></div>
+        </div>
+      </div>
+
+      <!-- Monthly Summary -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-lg">📈 今月の売上サマリー</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-gray-50 rounded-xl p-3">
+            <p class="text-xs text-gray-500">請求件数</p>
+            <p class="text-xl font-extrabold text-gray-900 mt-1">4件</p>
+          </div>
+          <div class="bg-gray-50 rounded-xl p-3">
+            <p class="text-xs text-gray-500">今月売上</p>
+            <p class="text-xl font-extrabold text-brand-700 mt-1">¥${formatNum(total + 528000)}</p>
+          </div>
+          <div class="bg-gray-50 rounded-xl p-3">
+            <p class="text-xs text-gray-500">前月比</p>
+            <p class="text-xl font-extrabold text-brand-600 mt-1">+12%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Send options -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-sky-100 text-sky-700 text-xs font-bold px-2.5 py-1 rounded-lg">📧 メール送信</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <input type="email" placeholder="sample@example.com" class="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm" id="inv-email">
+          <button onclick="showToast('請求書をメールで送信しました')" class="gradient-btn text-white text-sm font-bold px-5 py-3 rounded-xl whitespace-nowrap shadow">送信</button>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">PDF添付で送信されます。インボイス制度対応済み。</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-section flex gap-3">
+        <button onclick="showToast('PDFをダウンロードしました')" class="flex-1 bg-white border-2 border-brand-500 text-brand-700 font-bold py-3.5 rounded-2xl text-sm hover:bg-brand-50 transition">
+          PDF保存
+        </button>
+        <button onclick="showToast('請求書を送信しました')" class="flex-1 gradient-btn text-white font-bold py-3.5 rounded-2xl text-sm shadow-lg">
+          送信する
+        </button>
+      </div>
+    `;
+    revealResults(results);
+  }, 2000);
+}
+
+/* ═══════════════════════════════
+   3. ContractAI
+   ═══════════════════════════════ */
+let contractFileReady = false;
+
+function handleContractFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  contractFileReady = true;
+  const zone = document.getElementById('contract-upload');
+  zone.classList.add('has-file');
+  document.getElementById('contract-upload-content').classList.add('hidden');
+  const preview = document.getElementById('contract-preview');
+  preview.classList.remove('hidden');
+  document.getElementById('contract-file-name').textContent = file.name;
+  const sizeKB = (file.size / 1024).toFixed(0);
+  document.getElementById('contract-file-size').textContent = sizeKB + ' KB';
+}
+
+function processContract() {
+  if (!contractFileReady) {
+    showToast('契約書ファイルをアップロードしてください');
+    return;
+  }
+  const loader = document.getElementById('contract-loading');
+  const results = document.getElementById('contract-results');
+  results.innerHTML = '';
+  loader.classList.remove('hidden');
+
+  setTimeout(() => {
+    loader.classList.add('hidden');
+    results.innerHTML = `
+      <!-- Risk Score -->
+      <div class="result-section card p-5 text-center">
+        <p class="text-xs text-gray-400 font-medium mb-2">総合リスクスコア</p>
+        <div class="relative inline-flex items-center justify-center">
+          <svg width="120" height="120" viewBox="0 0 120 120" class="transform -rotate-90">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="url(#riskGrad)" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
+              id="risk-circle"/>
+            <defs>
+              <linearGradient id="riskGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#ef4444"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="absolute text-3xl font-extrabold text-gray-900" id="risk-score-num">0</span>
+        </div>
+        <p class="text-sm text-amber-600 font-semibold mt-2">中〜高リスク — 専門家への相談を推奨</p>
+      </div>
+
+      <!-- High Risk 1 -->
+      <div class="result-section card overflow-hidden border-l-4 border-red-500">
+        <div class="p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-lg">🔴 高リスク</span>
+            <span class="text-xs text-gray-400">第8条</span>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-2">競業避止義務が過度に広範</p>
+          <div class="bg-red-50 rounded-xl p-3 mb-3">
+            <p class="text-xs text-red-700 italic leading-relaxed">「契約終了後<strong>5年間</strong>、日本国内において類似業務を一切行ってはならない」</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-brand-500 mt-0.5 text-sm">💡</span>
+            <p class="text-xs text-gray-600 leading-relaxed">一般的に競業避止は<strong>1〜2年</strong>が相場です。5年は裁判でも無効と判断される可能性があります。期間と地理的範囲の短縮を交渉してください。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- High Risk 2 -->
+      <div class="result-section card overflow-hidden border-l-4 border-red-500">
+        <div class="p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-lg">🔴 高リスク</span>
+            <span class="text-xs text-gray-400">第12条</span>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-2">損害賠償の上限が未設定</p>
+          <div class="bg-red-50 rounded-xl p-3 mb-3">
+            <p class="text-xs text-red-700 italic leading-relaxed">「乙は甲に生じた<strong>一切の損害</strong>を賠償する義務を負う」</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-brand-500 mt-0.5 text-sm">💡</span>
+            <p class="text-xs text-gray-600 leading-relaxed">賠償上限がないと、報酬額を大幅に超える請求を受ける恐れがあります。<strong>「報酬総額を上限とする」</strong>条項の追加を求めてください。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medium Risk -->
+      <div class="result-section card overflow-hidden border-l-4 border-amber-400">
+        <div class="p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-lg">🟡 中リスク</span>
+            <span class="text-xs text-gray-400">第5条</span>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-2">著作権の帰属が曖昧</p>
+          <div class="bg-amber-50 rounded-xl p-3 mb-3">
+            <p class="text-xs text-amber-700 italic leading-relaxed">「成果物の著作権は<strong>甲乙協議の上</strong>決定する」</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-brand-500 mt-0.5 text-sm">💡</span>
+            <p class="text-xs text-gray-600 leading-relaxed">「協議の上」は後のトラブルの元です。<strong>納品・入金完了時に甲に移転</strong>、ポートフォリオ利用権は留保、など明確にしましょう。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safe -->
+      <div class="result-section card overflow-hidden border-l-4 border-green-500">
+        <div class="p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-lg">🟢 安全</span>
+            <span class="text-xs text-gray-400">第3条</span>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-2">報酬・支払条件</p>
+          <p class="text-xs text-gray-600 leading-relaxed">報酬額、支払時期（月末締め翌月末払い）、振込先が明確に記載されています。問題ありません。</p>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="result-section card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-brand-100 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-lg">📋 診断サマリー</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center mb-4">
+          <div class="bg-red-50 rounded-xl p-3">
+            <p class="text-2xl font-extrabold text-red-600">2</p>
+            <p class="text-xs text-red-500 font-medium">高リスク</p>
+          </div>
+          <div class="bg-amber-50 rounded-xl p-3">
+            <p class="text-2xl font-extrabold text-amber-600">1</p>
+            <p class="text-xs text-amber-500 font-medium">中リスク</p>
+          </div>
+          <div class="bg-green-50 rounded-xl p-3">
+            <p class="text-2xl font-extrabold text-green-600">1</p>
+            <p class="text-xs text-green-500 font-medium">安全</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-sm text-gray-700 leading-relaxed"><strong class="text-brand-700">AIからの提案：</strong>高リスク条項が2件検出されました。特に競業避止と損害賠償は、フリーランスにとって大きな影響があります。署名前に弁護士への確認を強くおすすめします。</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-section flex gap-3">
+        <button onclick="showToast('レポートをPDFで保存しました')" class="flex-1 bg-white border-2 border-brand-500 text-brand-700 font-bold py-3.5 rounded-2xl text-sm hover:bg-brand-50 transition">
+          レポート保存
+        </button>
+        <button onclick="showToast('弁護士マッチングを開始します')" class="flex-1 gradient-btn text-white font-bold py-3.5 rounded-2xl text-sm shadow-lg">
+          弁護士に相談
+        </button>
+      </div>
+    `;
+    revealResults(results);
+
+    // Animate risk score circle & number
+    setTimeout(() => {
+      const circle = document.getElementById('risk-circle');
+      if (circle) {
+        // 6.2/10 => 62% of 314
+        circle.style.transition = 'stroke-dashoffset 1.5s ease';
+        circle.style.strokeDashoffset = 314 - (314 * 0.62);
+      }
+      // Animate number
+      const numEl = document.getElementById('risk-score-num');
+      if (numEl) {
+        let current = 0;
+        const target = 6.2;
+        const step = target / 30;
+        const interval = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(interval);
+          }
+          numEl.textContent = current.toFixed(1);
+        }, 40);
+      }
+    }, 300);
+  }, 2000);
+}
+
+/* ───── Copy Utility ───── */
+function copyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+
+/* ───── Drag & Drop ───── */
+['listing-upload', 'contract-upload'].forEach(id => {
+  const zone = document.getElementById(id);
+  if (!zone) return;
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('dragover');
+  });
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('dragover');
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const fileInput = id === 'listing-upload'
+      ? document.getElementById('listing-file')
+      : document.getElementById('contract-file');
+    fileInput.files = e.dataTransfer.files;
+    fileInput.dispatchEvent(new Event('change'));
+  });
+});
+</script>
+</body>
+</html>
