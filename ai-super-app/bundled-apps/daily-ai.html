@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DailyAI - 毎日のAIアシスタント</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#fff8f0',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+        }
+      }
+    }
+  }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #fef7f0;
+  min-height: 100vh;
+  overscroll-behavior: none;
+}
+
+.gradient-brand {
+  background: linear-gradient(135deg, #f97316, #f59e0b, #ef4444);
+}
+
+.gradient-brand-soft {
+  background: linear-gradient(135deg, #fff7ed, #fffbeb, #fef2f2);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tab-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.upload-zone {
+  border: 2px dashed #fdba74;
+  background: linear-gradient(135deg, #fff7ed, #fffbeb);
+  transition: all 0.3s ease;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: #f97316;
+  background: linear-gradient(135deg, #ffedd5, #fef3c7);
+  transform: scale(1.01);
+}
+
+.upload-zone.has-image {
+  border-style: solid;
+  border-color: #f97316;
+}
+
+.bounce-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f97316;
+  animation: bounce-dot 1.4s infinite ease-in-out both;
+}
+
+.bounce-dot:nth-child(1) { animation-delay: -0.32s; }
+.bounce-dot:nth-child(2) { animation-delay: -0.16s; }
+.bounce-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.result-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.result-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+}
+
+.btn-gradient:active {
+  transform: translateY(0);
+}
+
+.nav-item {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-item.active {
+  color: #f97316;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  border-radius: 2px;
+}
+
+.action-btn {
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); }
+}
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: #1f2937;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  z-index: 9999;
+  transition: transform 0.4s ease;
+  white-space: nowrap;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 4px; }
+</style>
+</head>
+<body class="pb-20">
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="gradient-brand text-white px-5 pt-10 pb-6 rounded-b-3xl shadow-lg relative overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white rounded-full"></div>
+    <div class="absolute -bottom-5 -left-5 w-28 h-28 bg-white rounded-full"></div>
+    <div class="absolute top-1/2 right-1/4 w-16 h-16 bg-white rounded-full"></div>
+  </div>
+  <div class="relative z-10">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">DailyAI</h1>
+        <p class="text-orange-100 text-xs mt-0.5">毎日のAIアシスタント</p>
+      </div>
+      <div class="text-right">
+        <p id="header-date" class="text-sm font-medium text-orange-100"></p>
+        <p id="header-time" class="text-xl font-bold tabular-nums"></p>
+      </div>
+    </div>
+    <div class="mt-3 bg-white/15 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
+      <span id="greeting-emoji" class="text-2xl"></span>
+      <div>
+        <p id="greeting-text" class="font-semibold text-sm"></p>
+        <p id="greeting-sub" class="text-orange-100 text-xs"></p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="px-4 pt-5 pb-4 max-w-lg mx-auto">
+
+  <!-- Tab 1: コーデ提案 (WardrobeAI) -->
+  <div id="panel-wardrobe" class="tab-panel active visible">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">👗</span>
+        <h2 class="text-lg font-bold text-gray-800">コーデ提案</h2>
+      </div>
+      <p class="text-xs text-gray-500 ml-10">クローゼットの写真からAIが今日のコーデを提案します</p>
+    </div>
+
+    <div id="upload-wardrobe" class="upload-zone rounded-2xl p-8 text-center cursor-pointer mb-4" onclick="document.getElementById('file-wardrobe').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDrop(event, this, 'wardrobe')">
+      <input type="file" id="file-wardrobe" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'wardrobe')">
+      <div id="upload-wardrobe-placeholder">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-orange-100 flex items-center justify-center">
+          <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <p class="text-sm font-medium text-gray-600 mb-1">クローゼットの写真をアップロード</p>
+        <p class="text-xs text-gray-400">タップして選択 またはドラッグ＆ドロップ</p>
+      </div>
+      <div id="upload-wardrobe-preview" class="hidden">
+        <img id="preview-wardrobe" class="max-h-48 mx-auto rounded-xl shadow" alt="preview">
+        <p class="text-xs text-orange-600 mt-2 font-medium">写真を変更するにはタップ</p>
+      </div>
+    </div>
+
+    <button id="btn-wardrobe" onclick="analyzeWardrobe()" class="btn-gradient w-full text-white font-bold py-3.5 rounded-xl text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+      <span id="btn-wardrobe-text">AIで分析する</span>
+      <span id="btn-wardrobe-loading" class="hidden">
+        <span class="bounce-dot"></span>
+        <span class="bounce-dot"></span>
+        <span class="bounce-dot"></span>
+      </span>
+    </button>
+
+    <div id="result-wardrobe" class="mt-5 space-y-3 hidden">
+      <!-- Weather card -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-lg">🌤️</span>
+          <h3 class="font-bold text-sm text-gray-800">今日の天気</h3>
+        </div>
+        <div class="flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3">
+          <div>
+            <p class="text-2xl font-bold text-gray-800">22°C</p>
+            <p class="text-xs text-gray-500">晴れ時々曇り</p>
+          </div>
+          <div class="text-right text-xs text-gray-500">
+            <p>湿度: 55%</p>
+            <p>降水確率: 10%</p>
+            <p>風速: 3m/s</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outfit suggestion card -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-lg">✨</span>
+          <h3 class="font-bold text-sm text-gray-800">おすすめコーデ</h3>
+        </div>
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3 bg-orange-50 rounded-xl p-3">
+            <span class="text-2xl">👕</span>
+            <div>
+              <p class="text-xs text-gray-400 font-medium">トップス</p>
+              <p class="text-sm font-semibold text-gray-700">ベージュのリネンシャツ</p>
+              <p class="text-xs text-gray-500">軽い素材で快適。袖をロールアップすると爽やかに</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-amber-50 rounded-xl p-3">
+            <span class="text-2xl">👖</span>
+            <div>
+              <p class="text-xs text-gray-400 font-medium">ボトムス</p>
+              <p class="text-sm font-semibold text-gray-700">ネイビーのワイドパンツ</p>
+              <p class="text-xs text-gray-500">ゆったりシルエットでリラックス感を演出</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-yellow-50 rounded-xl p-3">
+            <span class="text-2xl">👟</span>
+            <div>
+              <p class="text-xs text-gray-400 font-medium">シューズ</p>
+              <p class="text-sm font-semibold text-gray-700">白のレザースニーカー</p>
+              <p class="text-xs text-gray-500">清潔感のある足元で全体を引き締め</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Style tip card -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">💡</span>
+          <h3 class="font-bold text-sm text-gray-800">スタイルのコツ</h3>
+        </div>
+        <p class="text-sm text-gray-600 leading-relaxed">今日は気温が高めなので、アースカラーで統一するとまとまり感UP。アクセサリーにゴールド系の腕時計やブレスレットを合わせると、さりげないおしゃれ感が出ます。日差しが強いのでサングラスもおすすめです。</p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex gap-2 pt-1">
+        <button onclick="copyResult('wardrobe')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          コピー
+        </button>
+        <button onclick="downloadResult('wardrobe')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          保存
+        </button>
+        <button onclick="retryAnalysis('wardrobe')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          再分析
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: カロリー解析 (MenuAI) -->
+  <div id="panel-calorie" class="tab-panel">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">🍱</span>
+        <h2 class="text-lg font-bold text-gray-800">カロリー解析</h2>
+      </div>
+      <p class="text-xs text-gray-500 ml-10">料理の写真を撮るだけでAIが栄養素を分析します</p>
+    </div>
+
+    <div id="upload-calorie" class="upload-zone rounded-2xl p-8 text-center cursor-pointer mb-4" onclick="document.getElementById('file-calorie').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDrop(event, this, 'calorie')">
+      <input type="file" id="file-calorie" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'calorie')">
+      <div id="upload-calorie-placeholder">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-orange-100 flex items-center justify-center">
+          <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </div>
+        <p class="text-sm font-medium text-gray-600 mb-1">料理の写真をアップロード</p>
+        <p class="text-xs text-gray-400">タップして選択 またはドラッグ＆ドロップ</p>
+      </div>
+      <div id="upload-calorie-preview" class="hidden">
+        <img id="preview-calorie" class="max-h-48 mx-auto rounded-xl shadow" alt="preview">
+        <p class="text-xs text-orange-600 mt-2 font-medium">写真を変更するにはタップ</p>
+      </div>
+    </div>
+
+    <button id="btn-calorie" onclick="analyzeCalorie()" class="btn-gradient w-full text-white font-bold py-3.5 rounded-xl text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+      <span id="btn-calorie-text">AIで分析する</span>
+      <span id="btn-calorie-loading" class="hidden">
+        <span class="bounce-dot"></span>
+        <span class="bounce-dot"></span>
+        <span class="bounce-dot"></span>
+      </span>
+    </button>
+
+    <div id="result-calorie" class="mt-5 space-y-3 hidden">
+      <!-- Detected food -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-lg">🔍</span>
+          <h3 class="font-bold text-sm text-gray-800">検出された料理</h3>
+        </div>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4">
+          <p class="text-lg font-bold text-gray-800 mb-1">鶏の照り焼き定食</p>
+          <div class="flex flex-wrap gap-1.5 mt-2">
+            <span class="bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-full font-medium">照り焼きチキン</span>
+            <span class="bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-full font-medium">白米</span>
+            <span class="bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-full font-medium">味噌汁</span>
+            <span class="bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-full font-medium">サラダ</span>
+            <span class="bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-full font-medium">漬物</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calorie breakdown -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-lg">🔥</span>
+          <h3 class="font-bold text-sm text-gray-800">カロリー・栄養素</h3>
+        </div>
+        <div class="text-center mb-4">
+          <p class="text-4xl font-bold gradient-text">687</p>
+          <p class="text-xs text-gray-400 font-medium">kcal（推定）</p>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div class="bg-red-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-red-400 font-medium mb-1">タンパク質</p>
+            <p class="text-xl font-bold text-red-600">38.2g</p>
+            <div class="w-full bg-red-100 rounded-full h-1.5 mt-2">
+              <div class="bg-red-400 h-1.5 rounded-full" style="width: 76%"></div>
+            </div>
+          </div>
+          <div class="bg-yellow-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-yellow-500 font-medium mb-1">脂質</p>
+            <p class="text-xl font-bold text-yellow-600">18.5g</p>
+            <div class="w-full bg-yellow-100 rounded-full h-1.5 mt-2">
+              <div class="bg-yellow-400 h-1.5 rounded-full" style="width: 42%"></div>
+            </div>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-blue-400 font-medium mb-1">炭水化物</p>
+            <p class="text-xl font-bold text-blue-600">82.1g</p>
+            <div class="w-full bg-blue-100 rounded-full h-1.5 mt-2">
+              <div class="bg-blue-400 h-1.5 rounded-full" style="width: 65%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-gray-50 rounded-lg p-2 flex items-center justify-between">
+            <span class="text-xs text-gray-500">食物繊維</span>
+            <span class="text-xs font-bold text-gray-700">4.8g</span>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-2 flex items-center justify-between">
+            <span class="text-xs text-gray-500">糖質</span>
+            <span class="text-xs font-bold text-gray-700">77.3g</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Salt warning -->
+      <div class="result-card bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-4 border border-red-200">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">⚠️</span>
+          <h3 class="font-bold text-sm text-red-700">塩分注意</h3>
+        </div>
+        <p class="text-sm text-red-600 leading-relaxed">この食事の推定塩分量は <span class="font-bold">3.8g</span> です。1日の目標摂取量（7.5g未満）の約半分に相当します。味噌汁の塩分が高めなので、夕食では塩分控えめなメニューを選ぶことをおすすめします。</p>
+      </div>
+
+      <!-- Suggestion -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">💡</span>
+          <h3 class="font-bold text-sm text-gray-800">改善アドバイス</h3>
+        </div>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex items-start gap-2">
+            <span class="text-green-500 mt-0.5">●</span>
+            <span>白米を玄米に変えると食物繊維が約3倍に。血糖値の上昇もゆるやかになります。</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-green-500 mt-0.5">●</span>
+            <span>サラダにアマニ油をかけるとオメガ3脂肪酸を補給できます。</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-green-500 mt-0.5">●</span>
+            <span>全体的にバランスの良い食事です。この調子を続けましょう！</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex gap-2 pt-1">
+        <button onclick="copyResult('calorie')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          コピー
+        </button>
+        <button onclick="downloadResult('calorie')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          保存
+        </button>
+        <button onclick="retryAnalysis('calorie')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          再分析
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: レシピ提案 (RecipeAI) -->
+  <div id="panel-recipe" class="tab-panel">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">🧑‍🍳</span>
+        <h2 class="text-lg font-bold text-gray-800">レシピ提案</h2>
+      </div>
+      <p class="text-xs text-gray-500 ml-10">冷蔵庫の写真からAIがレシピを提案します</p>
+    </div>
+
+    <div id="upload-recipe" class="upload-zone rounded-2xl p-8 text-center cursor-pointer mb-4" onclick="document.getElementById('file-recipe').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDrop(event, this, 'recipe')">
+      <input type="file" id="file-recipe" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'recipe')">
+      <div id="upload-recipe-placeholder">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-orange-100 flex items-center justify-center">
+          <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <p class="text-sm font-medium text-gray-600 mb-1">冷蔵庫の写真をアップロード</p>
+        <p class="text-xs text-gray-400">タップして選択 またはドラッグ＆ドロップ</p>
+      </div>
+      <div id="upload-recipe-preview" class="hidden">
+        <img id="preview-recipe" class="max-h-48 mx-auto rounded-xl shadow" alt="preview">
+        <p class="text-xs text-orange-600 mt-2 font-medium">写真を変更するにはタップ</p>
+      </div>
+    </div>
+
+    <button id="btn-recipe" onclick="analyzeRecipe()" class="btn-gradient w-full text-white font-bold py-3.5 rounded-xl text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+      <span id="btn-recipe-text">AIで分析する</span>
+      <span id="btn-recipe-loading" class="hidden">
+        <span class="bounce-dot"></span>
+        <span class="bounce-dot"></span>
+        <span class="bounce-dot"></span>
+      </span>
+    </button>
+
+    <div id="result-recipe" class="mt-5 space-y-3 hidden">
+      <!-- Detected ingredients -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-lg">🥬</span>
+          <h3 class="font-bold text-sm text-gray-800">検出された食材</h3>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">鶏もも肉</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">にんじん</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">玉ねぎ</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">じゃがいも</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">卵</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">牛乳</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">しめじ</span>
+          <span class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">ほうれん草</span>
+          <span class="bg-yellow-100 text-yellow-700 text-xs px-3 py-1.5 rounded-full font-medium">バター</span>
+          <span class="bg-yellow-100 text-yellow-700 text-xs px-3 py-1.5 rounded-full font-medium">チーズ</span>
+        </div>
+      </div>
+
+      <!-- Recipe 1 -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-md">01</span>
+            <h3 class="font-bold text-sm text-gray-800">チキンクリームシチュー</h3>
+          </div>
+          <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg font-medium">⏱ 35分</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-3">鶏もも肉・にんじん・玉ねぎ・じゃがいも・しめじ・牛乳・バター</p>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3">
+          <p class="text-xs text-gray-600 leading-relaxed"><span class="font-semibold text-gray-700">作り方：</span>鶏もも肉を一口大に切り、玉ねぎ・にんじん・じゃがいもを乱切りに。バターで鶏肉を炒め、野菜としめじを加えて水400mlで15分煮込む。牛乳200mlと小麦粉大さじ2を加え、とろみがつくまで煮たら完成。</p>
+        </div>
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+          <span>🔥 約420kcal</span>
+          <span>👤 2人前</span>
+          <span class="text-yellow-500 font-medium">★ おすすめ度 4.8</span>
+        </div>
+      </div>
+
+      <!-- Recipe 2 -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-md">02</span>
+            <h3 class="font-bold text-sm text-gray-800">ほうれん草とチーズのオムレツ</h3>
+          </div>
+          <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg font-medium">⏱ 15分</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-3">卵・ほうれん草・チーズ・しめじ・バター・牛乳</p>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3">
+          <p class="text-xs text-gray-600 leading-relaxed"><span class="font-semibold text-gray-700">作り方：</span>ほうれん草を茹でて刻み、しめじは小房に分けてバターで炒める。卵3個に牛乳大さじ2を混ぜ、炒めた具材とチーズを加えてフライパンで焼く。半熟になったら半分に折り畳んで完成。</p>
+        </div>
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+          <span>🔥 約310kcal</span>
+          <span>👤 1人前</span>
+          <span class="text-yellow-500 font-medium">★ おすすめ度 4.5</span>
+        </div>
+      </div>
+
+      <!-- Recipe 3 -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-md">03</span>
+            <h3 class="font-bold text-sm text-gray-800">親子丼</h3>
+          </div>
+          <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg font-medium">⏱ 20分</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-3">鶏もも肉・玉ねぎ・卵・ほうれん草</p>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3">
+          <p class="text-xs text-gray-600 leading-relaxed"><span class="font-semibold text-gray-700">作り方：</span>鶏もも肉を薄切り、玉ねぎは薄切りに。だし200ml・醤油大さじ2・みりん大さじ2で鶏肉と玉ねぎを煮る。火が通ったら溶き卵を回し入れ、ほうれん草を添えてご飯にのせる。</p>
+        </div>
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+          <span>🔥 約550kcal</span>
+          <span>👤 1人前</span>
+          <span class="text-yellow-500 font-medium">★ おすすめ度 4.6</span>
+        </div>
+      </div>
+
+      <!-- Nutrition tip -->
+      <div class="result-card bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🥗</span>
+          <h3 class="font-bold text-sm text-gray-800">栄養アドバイス</h3>
+        </div>
+        <p class="text-sm text-gray-600 leading-relaxed">冷蔵庫の食材はバランスが良好です。タンパク質（鶏肉・卵）、ビタミン（にんじん・ほうれん草）、炭水化物（じゃがいも）が揃っています。今日中に使い切りたい食材は<span class="font-semibold text-orange-600">ほうれん草</span>と<span class="font-semibold text-orange-600">しめじ</span>です。鮮度の高いうちに調理しましょう。</p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex gap-2 pt-1">
+        <button onclick="copyResult('recipe')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          コピー
+        </button>
+        <button onclick="downloadResult('recipe')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          保存
+        </button>
+        <button onclick="retryAnalysis('recipe')" class="action-btn flex-1 bg-white border border-orange-200 text-orange-600 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          再分析
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-orange-100 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+  <div class="max-w-lg mx-auto flex items-center justify-around py-2 px-2">
+    <button onclick="switchTab('wardrobe')" id="nav-wardrobe" class="nav-item active flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl">
+      <span class="text-xl">👗</span>
+      <span class="text-[10px] font-semibold">コーデ提案</span>
+    </button>
+    <button onclick="switchTab('calorie')" id="nav-calorie" class="nav-item flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl text-gray-400">
+      <span class="text-xl">🍱</span>
+      <span class="text-[10px] font-semibold">カロリー解析</span>
+    </button>
+    <button onclick="switchTab('recipe')" id="nav-recipe" class="nav-item flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl text-gray-400">
+      <span class="text-xl">🧑‍🍳</span>
+      <span class="text-[10px] font-semibold">レシピ提案</span>
+    </button>
+  </div>
+  <div class="h-[env(safe-area-inset-bottom)]"></div>
+</nav>
+
+<script>
+// ===== State =====
+const state = {
+  activeTab: 'wardrobe',
+  uploads: { wardrobe: false, calorie: false, recipe: false },
+  analyzed: { wardrobe: false, calorie: false, recipe: false }
+};
+
+// ===== Header: Date, Time, Greeting =====
+function updateHeader() {
+  const now = new Date();
+  const days = ['日', '月', '火', '水', '木', '金', '土'];
+  const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
+  const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+  document.getElementById('header-date').textContent = dateStr;
+  document.getElementById('header-time').textContent = timeStr;
+
+  const hour = now.getHours();
+  let emoji, greeting, sub;
+
+  if (hour >= 5 && hour < 10) {
+    emoji = '🌅';
+    greeting = 'おはようございます！';
+    sub = '素敵な一日のスタートをAIがサポートします';
+  } else if (hour >= 10 && hour < 12) {
+    emoji = '☀️';
+    greeting = '良い午前ですね！';
+    sub = '今日も元気にいきましょう';
+  } else if (hour >= 12 && hour < 14) {
+    emoji = '🍽️';
+    greeting = 'ランチタイムです！';
+    sub = 'カロリー解析で賢く食事管理しませんか？';
+  } else if (hour >= 14 && hour < 17) {
+    emoji = '🌤️';
+    greeting = 'こんにちは！';
+    sub = '午後もDailyAIと一緒に過ごしましょう';
+  } else if (hour >= 17 && hour < 20) {
+    emoji = '🌇';
+    greeting = 'お疲れさまです！';
+    sub = '今日の夕食レシピをAIに聞いてみませんか？';
+  } else if (hour >= 20 && hour < 23) {
+    emoji = '🌙';
+    greeting = 'こんばんは！';
+    sub = '明日のコーデを今のうちに準備しましょう';
+  } else {
+    emoji = '🌟';
+    greeting = '夜更かしですか？';
+    sub = 'しっかり休んで明日に備えましょう';
+  }
+
+  document.getElementById('greeting-emoji').textContent = emoji;
+  document.getElementById('greeting-text').textContent = greeting;
+  document.getElementById('greeting-sub').textContent = sub;
+}
+
+updateHeader();
+setInterval(updateHeader, 30000);
+
+// ===== Tab Switching =====
+function switchTab(tab) {
+  if (state.activeTab === tab) return;
+
+  const oldPanel = document.getElementById(`panel-${state.activeTab}`);
+  const newPanel = document.getElementById(`panel-${tab}`);
+
+  // Remove visibility from old panel
+  oldPanel.classList.remove('visible');
+  setTimeout(() => {
+    oldPanel.classList.remove('active');
+
+    // Activate new panel
+    newPanel.classList.add('active');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        newPanel.classList.add('visible');
+      });
+    });
+  }, 200);
+
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.remove('active');
+    item.classList.add('text-gray-400');
+  });
+  const navItem = document.getElementById(`nav-${tab}`);
+  navItem.classList.add('active');
+  navItem.classList.remove('text-gray-400');
+
+  state.activeTab = tab;
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== File Upload Handling =====
+function handleDragOver(e, zone) {
+  e.preventDefault();
+  e.stopPropagation();
+  zone.classList.add('dragover');
+}
+
+function handleDragLeave(e, zone) {
+  e.preventDefault();
+  e.stopPropagation();
+  zone.classList.remove('dragover');
+}
+
+function handleDrop(e, zone, tool) {
+  e.preventDefault();
+  e.stopPropagation();
+  zone.classList.remove('dragover');
+
+  const files = e.dataTransfer.files;
+  if (files.length > 0 && files[0].type.startsWith('image/')) {
+    processFile(files[0], tool);
+  }
+}
+
+function handleFileSelect(input, tool) {
+  if (input.files.length > 0) {
+    processFile(input.files[0], tool);
+  }
+}
+
+function processFile(file, tool) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const placeholder = document.getElementById(`upload-${tool}-placeholder`);
+    const previewContainer = document.getElementById(`upload-${tool}-preview`);
+    const previewImg = document.getElementById(`preview-${tool}`);
+    const uploadZone = document.getElementById(`upload-${tool}`);
+
+    previewImg.src = e.target.result;
+    placeholder.classList.add('hidden');
+    previewContainer.classList.remove('hidden');
+    uploadZone.classList.add('has-image');
+
+    state.uploads[tool] = true;
+    document.getElementById(`btn-${tool}`).disabled = false;
+
+    // Reset results if re-uploading
+    if (state.analyzed[tool]) {
+      document.getElementById(`result-${tool}`).classList.add('hidden');
+      state.analyzed[tool] = false;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== Analysis Functions =====
+function showLoading(tool) {
+  const btn = document.getElementById(`btn-${tool}`);
+  const text = document.getElementById(`btn-${tool}-text`);
+  const loading = document.getElementById(`btn-${tool}-loading`);
+
+  btn.disabled = true;
+  text.classList.add('hidden');
+  loading.classList.remove('hidden');
+}
+
+function hideLoading(tool) {
+  const btn = document.getElementById(`btn-${tool}`);
+  const text = document.getElementById(`btn-${tool}-text`);
+  const loading = document.getElementById(`btn-${tool}-loading`);
+
+  btn.disabled = false;
+  text.classList.remove('hidden');
+  loading.classList.add('hidden');
+}
+
+function showResults(tool) {
+  const container = document.getElementById(`result-${tool}`);
+  container.classList.remove('hidden');
+
+  const cards = container.querySelectorAll('.result-card');
+  cards.forEach((card, index) => {
+    setTimeout(() => {
+      card.classList.add('show');
+    }, index * 150);
+  });
+
+  state.analyzed[tool] = true;
+}
+
+function analyzeWardrobe() {
+  if (!state.uploads.wardrobe) return;
+  showLoading('wardrobe');
+
+  setTimeout(() => {
+    hideLoading('wardrobe');
+    showResults('wardrobe');
+  }, 2000);
+}
+
+function analyzeCalorie() {
+  if (!state.uploads.calorie) return;
+  showLoading('calorie');
+
+  setTimeout(() => {
+    hideLoading('calorie');
+    showResults('calorie');
+  }, 2000);
+}
+
+function analyzeRecipe() {
+  if (!state.uploads.recipe) return;
+  showLoading('recipe');
+
+  setTimeout(() => {
+    hideLoading('recipe');
+    showResults('recipe');
+  }, 2000);
+}
+
+// ===== Action Buttons =====
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
+}
+
+function copyResult(tool) {
+  const resultTexts = {
+    wardrobe: `【DailyAI コーデ提案】
+🌤️ 天気: 22°C 晴れ時々曇り（湿度55%、降水確率10%）
+
+✨ おすすめコーデ
+👕 トップス: ベージュのリネンシャツ - 軽い素材で快適。袖をロールアップすると爽やかに
+👖 ボトムス: ネイビーのワイドパンツ - ゆったりシルエットでリラックス感を演出
+👟 シューズ: 白のレザースニーカー - 清潔感のある足元で全体を引き締め
+
+💡 スタイルのコツ
+アースカラーで統一するとまとまり感UP。ゴールド系のアクセサリーでおしゃれ感を。日差しが強いのでサングラスもおすすめ。`,
+
+    calorie: `【DailyAI カロリー解析】
+🔍 検出: 鶏の照り焼き定食（照り焼きチキン・白米・味噌汁・サラダ・漬物）
+
+🔥 総カロリー: 687 kcal
+├ タンパク質: 38.2g
+├ 脂質: 18.5g
+├ 炭水化物: 82.1g
+├ 食物繊維: 4.8g
+└ 糖質: 77.3g
+
+⚠️ 塩分注意: 推定3.8g（1日目標7.5gの約半分）
+
+💡 アドバイス
+・白米を玄米に変えると食物繊維が約3倍に
+・サラダにアマニ油をかけるとオメガ3補給
+・全体的にバランス良好です`,
+
+    recipe: `【DailyAI レシピ提案】
+🥬 検出食材: 鶏もも肉・にんじん・玉ねぎ・じゃがいも・卵・牛乳・しめじ・ほうれん草・バター・チーズ
+
+01. チキンクリームシチュー（35分・約420kcal・2人前）
+鶏もも肉を一口大に切り、バターで炒め、野菜としめじを加えて水400mlで15分煮込む。牛乳200mlと小麦粉大さじ2を加えてとろみがつくまで煮る。
+
+02. ほうれん草とチーズのオムレツ（15分・約310kcal・1人前）
+ほうれん草としめじをバターで炒め、卵3個に牛乳大さじ2を混ぜて焼く。チーズを加えて半分に折り畳む。
+
+03. 親子丼（20分・約550kcal・1人前）
+だし200ml・醤油大さじ2・みりん大さじ2で鶏肉と玉ねぎを煮て、溶き卵を回し入れる。
+
+🥗 栄養アドバイス: ほうれん草としめじは早めに使い切りましょう。`
+  };
+
+  navigator.clipboard.writeText(resultTexts[tool]).then(() => {
+    showToast('クリップボードにコピーしました');
+  }).catch(() => {
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = resultTexts[tool];
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showToast('クリップボードにコピーしました');
+  });
+}
+
+function downloadResult(tool) {
+  const titles = {
+    wardrobe: 'コーデ提案',
+    calorie: 'カロリー解析',
+    recipe: 'レシピ提案'
+  };
+
+  const resultContainer = document.getElementById(`result-${tool}`);
+  const textContent = resultContainer.innerText;
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+
+  const blob = new Blob([`DailyAI ${titles[tool]} - ${dateStr}\n${'='.repeat(40)}\n\n${textContent}`], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `dailyai_${tool}_${dateStr}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('ファイルをダウンロードしました');
+}
+
+function retryAnalysis(tool) {
+  // Hide current results with animation
+  const container = document.getElementById(`result-${tool}`);
+  const cards = container.querySelectorAll('.result-card');
+  cards.forEach(card => card.classList.remove('show'));
+
+  setTimeout(() => {
+    container.classList.add('hidden');
+    state.analyzed[tool] = false;
+
+    // Run analysis again
+    if (tool === 'wardrobe') analyzeWardrobe();
+    else if (tool === 'calorie') analyzeCalorie();
+    else if (tool === 'recipe') analyzeRecipe();
+  }, 300);
+}
+
+// ===== Initialize =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Set initial panel state
+  const firstPanel = document.getElementById('panel-wardrobe');
+  firstPanel.classList.add('active', 'visible');
+});
+</script>
+</body>
+</html>

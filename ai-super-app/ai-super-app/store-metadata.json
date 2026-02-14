@@ -1,0 +1,50 @@
+{
+  "appId": "app.aisuper.tools",
+  "appName": "AI Super App",
+  "pricing": "free_with_iap",
+  "category": "Productivity",
+  "secondaryCategory": "Utilities",
+  "contentRating": "4+",
+  "locales": {
+    "ja": {
+      "name": "AI Super App - 40のAIツール",
+      "subtitle": "毎日開く、を作る。",
+      "description": "AI Super Appは、40種類のAIツールを1つのアプリに集約した、あなたの毎日のAIコンパニオンです。\n\n【主な機能】\n◆ DailyAI — 毎日のAIアシスタント\n◆ CreatorAI — クリエイターのためのAIスタジオ\n◆ TravelAI — 旅行プランをAIが自動作成\n◆ CookAI — レシピ提案・カロリー計算\n◆ DesignAI — ロゴ・サムネイル・カラーパレット生成\n◆ WriterAI — 文章作成・校正・要約\n◆ HealthAI — 健康相談・フィットネス\n◆ MoneyAI — 家計管理・投資学習\n◆ StyleAI — ファッションコーディネート\n◆ LearnAI — 語学・学習サポート\n...他30種類以上のAIツール\n\n【特徴】\n✓ 1つのアプリで40のAI機能にアクセス\n✓ 美しいビジュアル出力（SVGロゴ、旅行カード等）\n✓ 日本語・英語・中国語・韓国語対応\n✓ 無料で毎日使える（プレミアムで無制限）\n\n【プレミアム】\n月額¥980で全機能が無制限に使えます。",
+      "keywords": "AI,人工知能,ツール,アシスタント,旅行,レシピ,デザイン,ロゴ,翻訳,健康,フィットネス",
+      "whatsNew": "初回リリース！40のAIツールをお楽しみください。"
+    },
+    "en": {
+      "name": "AI Super App - 40 AI Tools",
+      "subtitle": "Your daily AI companion",
+      "description": "AI Super App brings 40 AI-powered tools together in one beautiful app — your daily AI companion for everything.\n\n【Key Features】\n◆ DailyAI — Your everyday AI assistant\n◆ CreatorAI — AI studio for creators\n◆ TravelAI — Auto-generated travel plans\n◆ CookAI — Recipe suggestions & calorie counting\n◆ DesignAI — Logo, thumbnail & color palette generation\n◆ WriterAI — Writing, editing & summarization\n◆ HealthAI — Health advice & fitness\n◆ MoneyAI — Budget management & investment learning\n◆ StyleAI — Fashion coordination\n◆ LearnAI — Language learning & study support\n...and 30+ more AI tools\n\n【Highlights】\n✓ Access 40 AI features in one app\n✓ Beautiful visual output (SVG logos, travel cards, etc.)\n✓ Available in Japanese, English, Chinese & Korean\n✓ Free daily usage (unlimited with Premium)\n\n【Premium】\nGet unlimited access to all features for $6.99/month.",
+      "keywords": "AI,artificial intelligence,tools,assistant,travel,recipe,design,logo,translate,health,fitness",
+      "whatsNew": "Initial release! Enjoy 40 AI-powered tools."
+    },
+    "zh": {
+      "name": "AI Super App - 40个AI工具",
+      "subtitle": "你的日常AI伙伴",
+      "description": "AI Super App将40个AI驱动的工具集于一身——你的日常AI伙伴。\n\n【主要功能】\n◆ DailyAI — 日常AI助手\n◆ CreatorAI — 创作者AI工作室\n◆ TravelAI — 自动生成旅行计划\n◆ CookAI — 食谱推荐和卡路里计算\n◆ DesignAI — Logo、缩略图和配色方案生成\n◆ WriterAI — 写作、编辑和摘要\n◆ HealthAI — 健康建议和健身\n◆ MoneyAI — 预算管理和投资学习\n◆ StyleAI — 时尚搭配\n◆ LearnAI — 语言学习和学习辅助\n...以及30多种AI工具\n\n【特点】\n✓ 一个应用访问40种AI功能\n✓ 精美的视觉输出（SVG标志、旅行卡片等）\n✓ 支持日语、英语、中文和韩语\n✓ 每天免费使用（高级版无限制）\n\n【高级版】\n每月¥45即可无限使用所有功能。",
+      "keywords": "AI,人工智能,工具,助手,旅行,食谱,设计,标志,翻译,健康,健身",
+      "whatsNew": "首次发布！畅享40个AI工具。"
+    },
+    "ko": {
+      "name": "AI Super App - 40개의 AI 도구",
+      "subtitle": "당신의 일상 AI 동반자",
+      "description": "AI Super App은 40개의 AI 도구를 하나의 앱에 모았습니다 — 당신의 일상 AI 동반자입니다.\n\n【주요 기능】\n◆ DailyAI — 일상 AI 어시스턴트\n◆ CreatorAI — 크리에이터를 위한 AI 스튜디오\n◆ TravelAI — 자동 여행 계획 생성\n◆ CookAI — 레시피 제안 및 칼로리 계산\n◆ DesignAI — 로고, 썸네일, 컬러 팔레트 생성\n◆ WriterAI — 글쓰기, 편집, 요약\n◆ HealthAI — 건강 상담 및 피트니스\n◆ MoneyAI — 가계 관리 및 투자 학습\n◆ StyleAI — 패션 코디네이션\n◆ LearnAI — 어학 학습 및 학습 지원\n...그 외 30개 이상의 AI 도구\n\n【특징】\n✓ 하나의 앱으로 40개 AI 기능 접근\n✓ 아름다운 비주얼 출력 (SVG 로고, 여행 카드 등)\n✓ 일본어, 영어, 중국어, 한국어 지원\n✓ 매일 무료 사용 (프리미엄으로 무제한)\n\n【프리미엄】\n월 ₩9,900으로 모든 기능을 무제한 사용하세요.",
+      "keywords": "AI,인공지능,도구,어시스턴트,여행,레시피,디자인,로고,번역,건강,피트니스",
+      "whatsNew": "첫 출시! 40개의 AI 도구를 즐기세요."
+    }
+  },
+  "iap": [
+    {
+      "productId": "premium_monthly",
+      "type": "auto_renewable_subscription",
+      "price": {
+        "jp": 980,
+        "us": 6.99,
+        "cn": 45,
+        "kr": 9900
+      }
+    }
+  ]
+}

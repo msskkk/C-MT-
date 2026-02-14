@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Super App — 40のAIアプリを1つに</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadein .4s ease-out forwards}
+@keyframes bounce1{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.dot1{animation:bounce1 .8s infinite}.dot2{animation:bounce1 .8s .15s infinite}.dot3{animation:bounce1 .8s .3s infinite}
+.tab-enter{animation:fadein .3s ease-out}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+<div id="root"></div>
+
+<script>
+// ============================================================
+// DATA: 40 bundles grouped into 8 categories
+// ============================================================
+const bundles = [
+  {
+    id:"daily",name:"DailyAI",tagline:"毎日のAIアシスタント",emoji:"☀️",
+    gradient:"from-orange-400 to-amber-500",bgLight:"bg-orange-50",
+    tools:[
+      {id:"wardrobe",name:"コーデ提案",emoji:"👔",type:"image-upload",
+        inputLabel:"クローゼットの写真をアップロード",
+        outputLabel:"今日のおすすめコーデ",
+        results:["☀️ 天気: 晴れ 18℃ → 軽めのアウター推奨","👕 トップス: 白Tシャツ + ネイビーカーディガン","👖 ボトムス: ベージュチノパン","👟 シューズ: 白スニーカー","💡 カジュアルだけど清潔感あり。デートにも◎"]},
+      {id:"calorie",name:"カロリー解析",emoji:"🍽️",type:"image-upload",
+        inputLabel:"料理の写真をアップロード",
+        outputLabel:"栄養分析結果",
+        results:["🔥 推定カロリー: 685 kcal","🥩 タンパク質: 32g | 💪 脂質: 24g | 🍚 炭水化物: 78g","📊 PFCバランス: P18% / F32% / C50%","⚠️ 塩分がやや高め (推定 4.2g)","💡 提案: サラダを追加でビタミンC補給がおすすめ"]},
+      {id:"recipe",name:"レシピ提案",emoji:"🍳",type:"image-upload",
+        inputLabel:"冷蔵庫の写真をアップロード",
+        outputLabel:"レシピ提案",
+        results:["🔍 検出食材: 卵、豆腐、ネギ、豚肉、キャベツ、味噌","🍳 レシピ1: 豚キャベツの味噌炒め(15分)","🍳 レシピ2: ふわふわ卵の豆腐チャンプルー(10分)","🍳 レシピ3: 具だくさん味噌汁+卵かけごはん(8分)","📊 栄養バランス: レシピ2がPFCバランス最良","💡 買い足し提案: にんじん+しめじで+3レシピ追加可能"]}
+    ]
+  },
+  {
+    id:"creator",name:"CreatorAI",tagline:"クリエイターのためのAIスタジオ",emoji:"🎬",
+    gradient:"from-red-500 to-rose-600",bgLight:"bg-rose-50",
+    tools:[
+      {id:"thumbnail",name:"サムネ生成",emoji:"🖼️",type:"text-input",
+        inputLabel:"動画のタイトルを入力",
+        placeholder:"例: 【衝撃】AIで月収100万円稼ぐ方法を試してみた",
+        outputLabel:"生成されたサムネイル候補",
+        results:["🎨 パターンA: 驚き顔+大きな金額テキスト+赤背景","🎨 パターンB: ビフォーアフター分割+矢印エフェクト","🎨 パターンC: ミニマルデザイン+インパクトフォント","📊 予測CTR: パターンA 8.2% / B 7.5% / C 6.1%","💡 推奨: パターンAが最もクリック率が高い傾向"]},
+      {id:"voice",name:"声クローン",emoji:"🎙️",type:"text-input",
+        inputLabel:"読み上げたいテキストを入力",
+        placeholder:"例: こんにちは、今日の動画では最新のAI技術について解説します...",
+        outputLabel:"音声生成結果",
+        results:["🎙️ 音声クローン精度: 94.7%","⏱️ 生成時間: 3.2秒","📊 自然さスコア: 4.6/5.0","🔊 MP3/WAV形式でダウンロード可能","💡 感情パラメータ: ニュートラル → 明るい/落ち着き に変更可能"]},
+      {id:"pitch",name:"スライド生成",emoji:"📊",type:"text-input",
+        inputLabel:"ビジネスの概要を入力",
+        placeholder:"例: AIを使って飲食店の食品ロスを50%削減するSaaS...",
+        outputLabel:"生成されたスライド構成",
+        results:["📊 スライド1: タイトル — FoodSave AI","📊 スライド2: 課題 — 年間600万トンの食品ロス","📊 スライド3: ソリューション — AI需要予測+自動発注","📊 スライド4: 市場規模 — TAM ¥2.5兆","📊 スライド5-12: ビジネスモデル/チーム/財務計画...","📦 PowerPoint/PDF/Googleスライドでエクスポート可能"]}
+    ]
+  },
+  {
+    id:"sidehustle",name:"SideHustleAI",tagline:"副業・フリーランスのAI相棒",emoji:"💼",
+    gradient:"from-emerald-500 to-teal-600",bgLight:"bg-emerald-50",
+    tools:[
+      {id:"listing",name:"出品文生成",emoji:"🏷️",type:"image-upload",
+        inputLabel:"出品したい商品の写真をアップロード",
+        outputLabel:"生成された出品文",
+        results:["📦 商品名: 【美品】Nike Air Max 90 ホワイト 27cm","💰 推奨価格: ¥8,500〜¥9,800(相場: ¥7,000〜¥12,000)","📝 説明文: 2回のみ着用の美品です。箱・タグ付き。サイズ27cm...","🏷️ カテゴリ: メンズ > 靴 > スニーカー","💡 ヒント: 横からの写真を追加すると売れやすさUP"]},
+      {id:"invoice",name:"請求書作成",emoji:"💴",type:"form-input",
+        inputLabel:"請求情報を入力",
+        fields:[{n:"取引先",p:"例: 株式会社サンプル"},{n:"項目",p:"例: Webサイト制作"},{n:"金額",p:"例: 300000"},{n:"支払期限",p:"例: 2025/02/28"}],
+        outputLabel:"生成された請求書",
+        results:["📄 請求書番号: INV-2025-0042","💰 小計: ¥300,000 | 消費税(10%): ¥30,000 | 合計: ¥330,000","🏦 振込先情報を自動記載","📧 PDFをメールで直接送信可能","📊 今月の売上合計: ¥1,230,000 | 未入金: ¥330,000"]},
+      {id:"contract",name:"契約書チェック",emoji:"⚖️",type:"file-upload",
+        inputLabel:"契約書をアップロード (PDF)",
+        outputLabel:"リスク分析結果",
+        results:["🔴 高リスク: 第8条 — 競業避止義務が退職後5年間は長すぎる","🔴 高リスク: 第12条 — 損害賠償の上限規定がない","🟡 中リスク: 第5条 — 知的財産権の帰属が曖昧","🟢 問題なし: 報酬条件、支払いサイクル、解約条件","💡 総合リスクスコア: 6.2/10 — 修正交渉を推奨"]}
+    ]
+  },
+  {
+    id:"beauty",name:"BeautyAI",tagline:"あなたの魅力を最大化するAI",emoji:"💄",
+    gradient:"from-rose-400 to-pink-600",bgLight:"bg-pink-50",
+    tools:[
+      {id:"skin",name:"スキンケア診断",emoji:"✨",type:"image-upload",
+        inputLabel:"顔の写真をアップロード",
+        outputLabel:"スキンケア診断結果",
+        results:["🔍 肌質: 混合肌(Tゾーン脂性/Uゾーン乾燥)","⚠️ 気になる点: 毛穴の開き(鼻周り)、軽度の色素沈着","💊 朝: 泡洗顔→ビタミンC美容液→保湿→日焼け止め","🌙 夜: クレンジング→AHA洗顔→レチノール→クリーム","🛍️ おすすめ: CeraVe洗顔、The Ordinary ナイアシンアミド"]},
+      {id:"outfit",name:"コーデ提案",emoji:"👔",type:"image-upload",
+        inputLabel:"クローゼットの写真をアップロード",
+        outputLabel:"今日のおすすめコーデ",
+        results:["☀️ 天気: 晴れ 18℃ → 軽めのアウター推奨","👕 トップス: 白ブラウス + ベージュトレンチ","👖 ボトムス: ネイビーワイドパンツ","👠 シューズ: ベージュパンプス","💡 オフィスカジュアル◎ 清潔感と女性らしさのバランス"]},
+      {id:"headshot",name:"プロフ写真",emoji:"👤",type:"image-upload",
+        inputLabel:"自撮り写真をアップロード(3枚以上推奨)",
+        outputLabel:"生成されたプロフィール写真",
+        results:["👔 スーツ姿 — ネイビー/チャコール/ブラック 3色","👕 ビジネスカジュアル — ジャケット+シャツ","📸 背景: グレーグラデーション / オフィス / 白壁","✨ レタッチ: 肌補正+ライティング調整済み","📐 サイズ: LinkedIn/名刺/社員証 各フォーマット対応"]}
+    ]
+  },
+  {
+    id:"parent",name:"ParentAI",tagline:"家族のためのAIアシスタント",emoji:"👨‍👩‍👧‍👦",
+    gradient:"from-yellow-400 to-amber-500",bgLight:"bg-yellow-50",
+    tools:[
+      {id:"babyname",name:"命名",emoji:"👶",type:"form-input",
+        inputLabel:"命名条件を入力",
+        fields:[{n:"姓",p:"例: 田中"},{n:"好みの響き",p:"例: 柔らかい、力強い"},{n:"漢字の希望",p:"例: 陽、空、美"},{n:"性別",p:"男の子 / 女の子"}],
+        outputLabel:"おすすめの名前候補",
+        results:["🌟 陽翔(はると) — 画数32画(大吉) 太陽のように明るく翔ける","🌟 蒼空(そら) — 画数21画(吉) 広い空のようなスケール感","🌟 結月(ゆづき) — 画数16画(大吉) 人の縁を結ぶ月の光","🌟 凛(りん) — 画数15画(吉) 凛とした美しさ","📊 全100候補をPDFでダウンロード可能"]},
+      {id:"recipe2",name:"レシピ",emoji:"🍳",type:"image-upload",
+        inputLabel:"冷蔵庫の写真をアップロード",
+        outputLabel:"レシピ提案",
+        results:["🔍 検出食材: 卵、豆腐、ネギ、豚肉、キャベツ、味噌","🍳 レシピ1: 豚キャベツの味噌炒め(15分)","🍳 レシピ2: ふわふわ卵の豆腐チャンプルー(10分)","🍳 レシピ3: 具だくさん味噌汁+卵かけごはん(8分)","💡 子どもが食べやすいのはレシピ2(甘め味付け)"]},
+      {id:"plant",name:"植物診断",emoji:"🌿",type:"image-upload",
+        inputLabel:"植物の写真をアップロード",
+        outputLabel:"診断結果",
+        results:["🔍 植物: モンステラ・デリシオサ","⚠️ 症状: 葉先の褐変 — 根腐れの初期症状","💊 対処法: 水やりを週1回に減らし、排水性の良い土に植え替え","💡 適切な環境: 明るい間接光、湿度60%以上","📅 次の水やり: 3日後(土が乾いてから)"]},
+      {id:"receipt",name:"家計簿",emoji:"🧾",type:"image-upload",
+        inputLabel:"レシートの写真をアップロード",
+        outputLabel:"読み取り結果",
+        results:["🏪 店舗: セブンイレブン 渋谷店","📅 日時: 2025/01/15 12:34","🛒 おにぎり(鮭) ¥160 → 食費","🛒 緑茶500ml ¥150 → 飲料","🛒 電池単3 ¥330 → 日用品","💰 合計: ¥640 | 今月の食費累計: ¥32,450"]}
+    ]
+  },
+  {
+    id:"student",name:"StudentAI",tagline:"学びから就活まで、AIがサポート",emoji:"🎓",
+    gradient:"from-blue-500 to-indigo-600",bgLight:"bg-blue-50",
+    tools:[
+      {id:"study",name:"問題集生成",emoji:"📚",type:"image-upload",
+        inputLabel:"教科書/ノートの写真をアップロード",
+        outputLabel:"生成された問題集",
+        results:["📖 認識内容: 日本史 — 明治維新の章","❓ Q1: 大政奉還を行った将軍は? → 徳川慶喜","❓ Q2: 廃藩置県は何年? → 1871年","❓ Q3: 西南戦争の中心人物は? → 西郷隆盛","📊 生成問題数: 25問(一問一答15問 + 選択式10問)","💡 Ankiデッキ形式でエクスポート可能"]},
+      {id:"tone",name:"トーン変換",emoji:"✏️",type:"text-input",
+        inputLabel:"変換したい文章を入力",
+        placeholder:"例: 会議の日程を変更していただけないでしょうか。",
+        outputLabel:"トーン変換結果",
+        results:["💼 フォーマル: 会議日程のご変更をお願いできますでしょうか。","😊 カジュアル: ミーティングの日にち変えてもらえる?","😄 フレンドリー: すみません、会議の日程ちょっとずらせたりしますか〜?","🎓 学術的: 会議の日程調整について、ご検討をお願い申し上げます。","🇬🇧 英語: Would it be possible to reschedule our meeting?"]},
+      {id:"resume",name:"履歴書最適化",emoji:"📄",type:"file-upload",
+        inputLabel:"職務経歴書をアップロード (PDF/Word)",
+        outputLabel:"最適化された職務経歴書",
+        results:["✅ 職務要約を成果ベースに書き換えました","✅ アクションワードを強化: 「担当」→「主導」「推進」","✅ 定量的な成果を追加: 売上20%向上、チーム8名のマネジメント","✅ ATS(採用管理システム)最適化済み","✅ 業界キーワードを12個追加"]}
+    ]
+  },
+  {
+    id:"health",name:"HealthAI",tagline:"カラダのことはAIに聞こう",emoji:"💪",
+    gradient:"from-green-500 to-emerald-600",bgLight:"bg-green-50",
+    tools:[
+      {id:"calorie2",name:"カロリー解析",emoji:"🍽️",type:"image-upload",
+        inputLabel:"食事の写真をアップロード",
+        outputLabel:"栄養分析結果",
+        results:["🔥 推定カロリー: 685 kcal","🥩 タンパク質: 32g | 💪 脂質: 24g | 🍚 炭水化物: 78g","📊 PFCバランス: P18% / F32% / C50%","⚠️ 塩分がやや高め (推定 4.2g)","💡 提案: サラダを追加でビタミンC補給がおすすめ"]},
+      {id:"run",name:"ランニングルート",emoji:"🏃",type:"form-input",
+        inputLabel:"ルート条件を入力",
+        fields:[{n:"出発地",p:"例: 渋谷駅"},{n:"距離",p:"例: 5km"},{n:"好み",p:"例: 川沿い、坂道少なめ"}],
+        outputLabel:"生成されたルート",
+        results:["🗺️ ルートA: 代々木公園周回コース(5.2km)","📊 標高差: +15m(ほぼフラット) | 信号: 3箇所","🌳 緑地率: 72% | 歩道幅: 平均3.5m","🗺️ ルートB: 神宮外苑→明治神宮コース(4.8km)","💡 おすすめ: ルートAは木陰が多く夏向き"]},
+      {id:"skin2",name:"スキンケア診断",emoji:"✨",type:"image-upload",
+        inputLabel:"顔の写真をアップロード",
+        outputLabel:"スキンケア診断結果",
+        results:["🔍 肌質: 混合肌(Tゾーン脂性/Uゾーン乾燥)","⚠️ 気になる点: 毛穴の開き(鼻周り)、軽度の色素沈着","💊 朝: 泡洗顔→ビタミンC美容液→保湿→日焼け止め","🌙 夜: クレンジング→AHA洗顔→レチノール→クリーム","🛍️ おすすめ: CeraVe洗顔、The Ordinary ナイアシンアミド"]}
+    ]
+  },
+  {
+    id:"design",name:"DesignAI",tagline:"デザインの全てをAIで時短",emoji:"🎯",
+    gradient:"from-violet-500 to-purple-700",bgLight:"bg-violet-50",
+    tools:[
+      {id:"logo",name:"ロゴ生成",emoji:"🎨",type:"form-input",
+        inputLabel:"ブランド情報を入力",
+        fields:[{n:"ブランド名",p:"例: CafeNova"},{n:"業種",p:"例: カフェ、テック"},{n:"雰囲気",p:"例: モダン、温かみ"}],
+        outputLabel:"生成されたロゴ候補",
+        results:["🎨 案1: ミニマル+サンセリフ — モダンで洗練されたデザイン","🎨 案2: アイコン+テキスト — コーヒーカップをモチーフに","🎨 案3: レタリング — 手書き感のあるロゴタイプ","📐 SVG/PNG/PDF全形式でダウンロード可能","🎯 カラーバリエーション(3色)も同時に生成"]},
+      {id:"color",name:"配色パレット",emoji:"🌈",type:"image-upload",
+        inputLabel:"参考にしたい写真をアップロード",
+        outputLabel:"配色パレット",
+        results:["🎨 メインカラー: #2D5F8A (深いブルー)","🎨 サブカラー: #F4A261 (サンセットオレンジ)","🎨 アクセント: #E76F51 (テラコッタ)","🎨 背景: #FAF3E0 (クリーム)","📋 CSS変数としてコピー可能","💡 類似パレット3件+補色パレット1件も生成"]},
+      {id:"mockup2",name:"UI生成",emoji:"📱",type:"image-upload",
+        inputLabel:"手描きワイヤーフレームをアップロード",
+        outputLabel:"生成されたUIデザイン",
+        results:["📱 モバイルUI: Material Design 3準拠で生成","🖥️ デスクトップ版も同時に生成","🎨 カラーテーマ: 3パターン(ライト/ダーク/ブランド)","📐 Figmaファイルとしてエクスポート可能","💡 コンポーネント数: 12個を自動検出"]}
+    ]
+  },
+  {
+    id:"realestate",name:"住まいAI",tagline:"引越し・住まいの全てをAIで",emoji:"🏠",
+    gradient:"from-cyan-500 to-teal-600",bgLight:"bg-cyan-50",
+    tools:[
+      {id:"floor",name:"3D内装",emoji:"🛋️",type:"image-upload",
+        inputLabel:"間取り図をアップロード",
+        outputLabel:"3D内装イメージ",
+        results:["🛋️ リビング: 北欧モダンスタイルで配置","🍳 キッチン: L字型カウンター+アイランド提案","🛏️ 寝室: ダブルベッド+サイドテーブル配置","📐 推定面積: リビング12畳 / 寝室6畳 / キッチン4畳","💡 動線を考慮した最適レイアウトを3パターン生成"]},
+      {id:"move2",name:"引越し見積",emoji:"📦",type:"image-upload",
+        inputLabel:"部屋の写真をアップロード(複数可)",
+        outputLabel:"引越し見積もり結果",
+        results:["📦 推定荷物量: 2tトラック1台分","💰 費用目安: ¥45,000〜¥75,000(時期・距離による)","📋 段ボール推定: 約25箱","📅 おすすめ時期: 月中の平日が最安(最大40%OFF)","✅ 梱包チェックリスト(32項目)を生成"]},
+      {id:"plant2",name:"植物診断",emoji:"🌿",type:"image-upload",
+        inputLabel:"植物の写真をアップロード",
+        outputLabel:"診断結果",
+        results:["🔍 植物: モンステラ・デリシオサ","⚠️ 症状: 葉先の褐変 — 根腐れの初期症状","💊 対処法: 水やりを週1回に減らし、排水性の良い土に植え替え","💡 適切な環境: 明るい間接光、湿度60%以上","📅 次の水やり: 3日後(土が乾いてから)"]}
+    ]
+  },
+  {
+    id:"sns",name:"BuzzAI",tagline:"SNS運用を全自動化",emoji:"📱",
+    gradient:"from-pink-500 to-fuchsia-600",bgLight:"bg-fuchsia-50",
+    tools:[
+      {id:"thumb2",name:"サムネ生成",emoji:"🖼️",type:"text-input",
+        inputLabel:"投稿のタイトル/テーマを入力",
+        placeholder:"例: 【保存版】一人暮らしの神グッズ20選",
+        outputLabel:"生成されたサムネイル候補",
+        results:["🎨 パターンA: 商品グリッド+大きなテキスト+黄色背景","🎨 パターンB: ランキング形式+数字強調+グラデ背景","🎨 パターンC: ミニマル+余白多め+おしゃれフォント","📊 予測エンゲージメント: A 4.2% / B 3.8% / C 3.1%","💡 Instagram向け: パターンCが最適"]},
+      {id:"tone2",name:"トーン変換",emoji:"✏️",type:"text-input",
+        inputLabel:"投稿文を入力",
+        placeholder:"例: 新しいカフェ見つけた。雰囲気良くてコーヒーも美味しい。",
+        outputLabel:"トーン変換結果",
+        results:["🐦 Twitter向け: 渋谷で見つけた隠れ家カフェが神すぎた...雰囲気◎コーヒー◎ 詳しくはスレッドで👇","📸 Instagram向け: 週末のご褒美カフェ☕✨ 落ち着いた空間で至福の一杯。 #カフェ巡り #東京カフェ","💼 LinkedIn向け: 素晴らしいカフェを発見。空間設計とプロダクト品質の両立は、あらゆるビジネスに通じます。","📝 ブログ向け: 【レビュー】渋谷の隠れ家カフェ「○○」に行ってきました。店内の雰囲気からメニューまで徹底紹介。"]},
+      {id:"bg",name:"商品写真加工",emoji:"🖼️",type:"image-upload",
+        inputLabel:"商品/料理の写真をアップロード",
+        outputLabel:"背景変換結果",
+        results:["✅ 背景除去完了 (精度: 98.5%)","🤍 白背景バージョン — EC・メルカリ向け","🏡 ライフスタイル背景 — テーブル上の自然光","🎄 季節背景 — クリスマス/春/夏/秋 4パターン","📐 リサイズ: 正方形(1:1) / 横長(16:9) / ストーリー(9:16)"]}
+    ]
+  },
+  {
+    id:"money",name:"MoneyAI",tagline:"お金のことはAIにおまかせ",emoji:"💰",
+    gradient:"from-yellow-500 to-orange-600",bgLight:"bg-yellow-50",
+    tools:[
+      {id:"receipt2",name:"家計簿",emoji:"🧾",type:"image-upload",
+        inputLabel:"レシートの写真をアップロード",
+        outputLabel:"読み取り結果",
+        results:["🏪 店舗: セブンイレブン 渋谷店","📅 日時: 2025/01/15 12:34","🛒 おにぎり(鮭) ¥160 → 食費","🛒 緑茶500ml ¥150 → 飲料","🛒 電池単3 ¥330 → 日用品","💰 合計: ¥640 | 今月の食費累計: ¥32,450"]},
+      {id:"invoice2",name:"請求書作成",emoji:"💴",type:"form-input",
+        inputLabel:"請求情報を入力",
+        fields:[{n:"取引先",p:"例: 株式会社サンプル"},{n:"項目",p:"例: Webサイト制作"},{n:"金額",p:"例: 300000"},{n:"支払期限",p:"例: 2025/02/28"}],
+        outputLabel:"生成された請求書",
+        results:["📄 請求書番号: INV-2025-0042","💰 小計: ¥300,000 | 消費税(10%): ¥30,000 | 合計: ¥330,000","🏦 振込先情報を自動記載","📧 PDFをメールで直接送信可能","📊 今月の売上合計: ¥1,230,000 | 未入金: ¥330,000"]},
+      {id:"contract2",name:"契約書チェック",emoji:"⚖️",type:"file-upload",
+        inputLabel:"契約書をアップロード (PDF)",
+        outputLabel:"リスク分析結果",
+        results:["🔴 高リスク: 第8条 — 競業避止義務が退職後5年間は長すぎる","🔴 高リスク: 第12条 — 損害賠償の上限規定がない","🟡 中リスク: 第5条 — 知的財産権の帰属が曖昧","🟢 問題なし: 報酬条件、支払いサイクル、解約条件","💡 総合リスクスコア: 6.2/10 — 修正交渉を推奨"]}
+    ]
+  },
+  {
+    id:"pet",name:"PetAI",tagline:"ペットとの暮らしをAIでもっと楽しく",emoji:"🐾",
+    gradient:"from-orange-400 to-pink-500",bgLight:"bg-orange-50",
+    tools:[
+      {id:"petphoto",name:"ペット写真",emoji:"📸",type:"image-upload",
+        inputLabel:"ペットの写真をアップロード",
+        outputLabel:"生成された写真",
+        results:["🎨 スタジオ撮影風 — 黒背景+ソフトライティング","🖼️ 油絵風 — ルネサンス肖像画スタイル","✨ アニメ風 — ジブリ調イラスト","📸 雑誌表紙風 — VOGUE PETSスタイル","💡 SNSプロフィール用の正方形版も生成"]},
+      {id:"plant3",name:"ペットに安全な植物",emoji:"🌿",type:"image-upload",
+        inputLabel:"植物の写真をアップロード",
+        outputLabel:"ペット安全性チェック",
+        results:["🔍 植物: ポトス(Epipremnum aureum)","🔴 ペット安全性: 危険 — 犬猫に有毒","⚠️ 症状: 口腔内の炎症、嘔吐、嚥下困難","💡 安全な代替植物: パキラ、エバーフレッシュ、アレカヤシ","📋 あなたの家の植物安全リストを作成しました"]},
+      {id:"recipe3",name:"ペットフード",emoji:"🍖",type:"form-input",
+        inputLabel:"ペット情報を入力",
+        fields:[{n:"種類",p:"例: 犬(トイプードル)"},{n:"年齢",p:"例: 3歳"},{n:"体重",p:"例: 4kg"},{n:"アレルギー",p:"例: チキン"}],
+        outputLabel:"手作りフードレシピ",
+        results:["🍖 レシピ1: サーモン&さつまいもごはん(1食分 約180kcal)","🍖 レシピ2: 豚ひき肉&かぼちゃリゾット(1食分 約165kcal)","📊 必要栄養素: タンパク質25g/脂質10g/炭水化物20g","⚠️ チキン不使用で全レシピ作成済み","💡 1週間分の献立表をPDFでダウンロード可能"]}
+    ]
+  },
+  {
+    id:"travel",name:"TravelAI",tagline:"旅行の計画はAIにおまかせ",emoji:"✈️",
+    gradient:"from-sky-400 to-blue-600",bgLight:"bg-sky-50",
+    tools:[
+      {id:"t_route",name:"ルート提案",emoji:"🗺️",type:"form-input",
+        inputLabel:"旅行条件を入力",
+        fields:[{n:"目的地",p:"例: 京都"},{n:"日数",p:"例: 2泊3日"},{n:"予算",p:"例: 5万円"},{n:"好み",p:"例: 寺社仏閣、グルメ"}],
+        outputLabel:"旅行プラン",
+        results:["📅 1日目: 伏見稲荷→清水寺→祇園(徒歩+バス)","📅 2日目: 嵐山竹林→天龍寺→渡月橋","📅 3日目: 金閣寺→錦市場→京都駅","💰 推定費用: ¥48,500(交通¥12,000/宿¥20,000/食¥16,500)","💡 混雑回避: 伏見稲荷は朝7時がベスト"]},
+      {id:"t_pack",name:"荷物チェック",emoji:"🧳",type:"form-input",
+        inputLabel:"旅行情報を入力",
+        fields:[{n:"目的地",p:"例: 沖縄"},{n:"日数",p:"例: 3泊4日"},{n:"季節",p:"例: 夏"}],
+        outputLabel:"持ち物チェックリスト",
+        results:["👕 衣類: Tシャツ4枚、短パン2枚、水着、サンダル","🧴 日用品: 日焼け止め(SPF50+)、虫除け、常備薬","📱 電子機器: モバイルバッテリー、防水ケース","💡 沖縄Tips: ラッシュガード推奨、珊瑚に優しい日焼け止めを","✅ 全28アイテムのチェックリストを生成"]},
+      {id:"t_trans",name:"翻訳",emoji:"🌐",type:"text-input",
+        inputLabel:"翻訳したいフレーズを入力",
+        placeholder:"例: この料理にアレルギー成分は含まれていますか？",
+        outputLabel:"翻訳結果",
+        results:["🇬🇧 英語: Does this dish contain any allergens?","🇰🇷 韓国語: 이 요리에 알레르기 성분이 포함되어 있나요?","🇨🇳 中国語: 这道菜含有过敏原吗？","🇫🇷 フランス語: Ce plat contient-il des allergènes ?","💡 発音ガイド付き / オフライン保存可能"]}
+    ]
+  },
+  {
+    id:"writer",name:"WriterAI",tagline:"文章のことは全部AIで",emoji:"📝",
+    gradient:"from-amber-500 to-orange-600",bgLight:"bg-amber-50",
+    tools:[
+      {id:"w_email",name:"メール作成",emoji:"📧",type:"form-input",
+        inputLabel:"メール情報を入力",
+        fields:[{n:"目的",p:"例: お詫び、依頼、催促"},{n:"相手",p:"例: 取引先の部長"},{n:"状況",p:"例: 納期が1週間遅れそう"}],
+        outputLabel:"生成されたメール",
+        results:["件名: 【お詫び】納品スケジュール変更のご連絡","","株式会社○○ 山田部長","いつもお世話になっております。","誠に申し訳ございませんが、ご依頼の案件につきまして...","💡 フォーマル度: ★★★★☆ | 文字数: 280文字"]},
+      {id:"w_tone",name:"トーン変換",emoji:"✏️",type:"text-input",
+        inputLabel:"変換したい文章を入力",
+        placeholder:"例: 会議の日程を変更していただけないでしょうか。",
+        outputLabel:"トーン変換結果",
+        results:["💼 フォーマル: 会議日程のご変更をお願いできますでしょうか。","😊 カジュアル: ミーティングの日にち変えてもらえる?","😄 フレンドリー: すみません、会議の日程ちょっとずらせたりしますか〜?","🎓 学術的: 会議の日程調整について、ご検討をお願い申し上げます。","🇬🇧 英語: Would it be possible to reschedule our meeting?"]},
+      {id:"w_pitch",name:"スライド生成",emoji:"📊",type:"text-input",
+        inputLabel:"プレゼンの概要を入力",
+        placeholder:"例: 来期の売上目標と施策について...",
+        outputLabel:"スライド構成",
+        results:["📊 スライド1: タイトル — 来期売上戦略","📊 スライド2: 現状分析 — 今期実績と課題","📊 スライド3: 目標設定 — 売上120%成長","📊 スライド4: 施策一覧 — 3つの重点施策","📊 スライド5-10: 施策詳細/スケジュール/予算","📦 PowerPoint形式でエクスポート可能"]}
+    ]
+  },
+  {
+    id:"diy",name:"DIY AI",tagline:"ものづくりをAIでサポート",emoji:"🔨",
+    gradient:"from-stone-500 to-stone-700",bgLight:"bg-stone-50",
+    tools:[
+      {id:"d_plan",name:"設計図生成",emoji:"📐",type:"text-input",
+        inputLabel:"作りたいものを入力",
+        placeholder:"例: 幅80cmの本棚、3段、パイン材で",
+        outputLabel:"設計図",
+        results:["📐 サイズ: W800 x D300 x H1200mm","🪵 材料: パイン材 1x6 x 4枚、1x10 x 2枚、木ネジ24本","🔧 工具: 電動ドリル、のこぎり、紙やすり(#180)","📋 手順: 全8ステップ(推定作業時間: 2時間)","💰 材料費目安: ¥3,500〜¥4,500"]},
+      {id:"d_color",name:"配色シミュレーション",emoji:"🎨",type:"image-upload",
+        inputLabel:"部屋/家具の写真をアップロード",
+        outputLabel:"配色提案",
+        results:["🎨 案1: ナチュラル — オーク+ホワイト+グリーン","🎨 案2: インダストリアル — ブラック+ウォールナット+アイアン","🎨 案3: 北欧 — ライトグレー+ビーチ+マスタード","🖌️ おすすめペンキ: ベンジャミンムーア OC-17","💡 案1が現在の部屋に最も調和します"]},
+      {id:"d_fix",name:"修理診断",emoji:"🔧",type:"image-upload",
+        inputLabel:"壊れた箇所の写真をアップロード",
+        outputLabel:"修理方法",
+        results:["🔍 症状: 蛇口からの水漏れ(パッキン劣化)","🔧 必要部品: 水栓用パッキン(13mm) ¥150","📋 修理手順: 1.元栓を閉める 2.ハンドルを外す 3.パッキン交換","⏱️ 所要時間: 約15分(初心者OK)","💡 業者に頼むと¥8,000〜¥15,000。自分でやれば¥150"]}
+    ]
+  },
+  {
+    id:"music",name:"MusicAI",tagline:"音楽制作をAIで加速",emoji:"🎵",
+    gradient:"from-purple-600 to-pink-600",bgLight:"bg-purple-50",
+    tools:[
+      {id:"m_voice",name:"ボーカル生成",emoji:"🎤",type:"text-input",
+        inputLabel:"歌詞を入力",
+        placeholder:"例: 夜空に浮かぶ星たちが 僕らの道を照らしてる...",
+        outputLabel:"ボーカル生成結果",
+        results:["🎤 ボーカルスタイル: J-POP女性(Alto)","🎵 テンポ: BPM 128","📊 自然さスコア: 4.5/5.0","🔊 WAV/MP3でダウンロード可能","💡 男性ボーカル版・ハモリ版も生成可能"]},
+      {id:"m_chord",name:"コード進行",emoji:"🎹",type:"form-input",
+        inputLabel:"曲の雰囲気を入力",
+        fields:[{n:"ジャンル",p:"例: J-POP、ボサノバ、EDM"},{n:"雰囲気",p:"例: 切ない、明るい、壮大"},{n:"キー",p:"例: C Major、自動"}],
+        outputLabel:"コード進行提案",
+        results:["🎹 進行A: Am → F → C → G (王道バラード)","🎹 進行B: Am → Em → F → C (少し切ない)","🎹 進行C: C → G → Am → F (ポップで明るい)","🎵 MIDIファイルでダウンロード可能","💡 進行Aがご希望の「切ない」雰囲気に最適"]},
+      {id:"m_master",name:"マスタリング",emoji:"🔊",type:"file-upload",
+        inputLabel:"音源ファイルをアップロード(.wav/.mp3)",
+        outputLabel:"マスタリング結果",
+        results:["🔊 ラウドネス: -14 LUFS(ストリーミング最適)","📊 周波数バランス: 低域+2dB補正、高域をクリアに","✨ ステレオイメージ: 拡張済み(自然な広がり)","📦 WAV(24bit)/MP3(320kbps)でダウンロード","💡 Spotify/Apple Music向け最適化済み"]}
+    ]
+  },
+  {
+    id:"game",name:"GameAI",tagline:"ゲーム開発をAIで効率化",emoji:"🎮",
+    gradient:"from-indigo-600 to-violet-700",bgLight:"bg-indigo-50",
+    tools:[
+      {id:"g_char",name:"キャラ生成",emoji:"🧙",type:"form-input",
+        inputLabel:"キャラクター情報を入力",
+        fields:[{n:"名前",p:"例: アリア"},{n:"種族/職業",p:"例: エルフの魔法使い"},{n:"性格",p:"例: クールだけど優しい"}],
+        outputLabel:"キャラクターシート",
+        results:["🧙 アリア — Lv.1 エルフ魔法使い","📊 HP:45 MP:120 STR:8 INT:18 DEX:14","⚔️ 初期スキル: ファイアボルト、ヒール、マナシールド","📖 背景: 森の奥で育った孤高のエルフ。人間界に興味を持ち...","🎨 立ち絵イメージを3パターン生成"]},
+      {id:"g_story",name:"シナリオ生成",emoji:"📖",type:"text-input",
+        inputLabel:"ゲームの世界観を入力",
+        placeholder:"例: 魔法が失われた世界で、最後の魔法使いが...",
+        outputLabel:"シナリオ構成",
+        results:["📖 第1章: 目覚め — 主人公が力に気づく","📖 第2章: 旅立ち — 仲間との出会い","📖 第3章: 試練 — 最初のダンジョン攻略","📖 第4章: 真実 — 魔法消失の謎が明らかに","📖 第5章: 決戦 — ラスボスとの対峙","💡 サブクエスト5本+エンディング分岐3パターン付き"]},
+      {id:"g_map",name:"マップ生成",emoji:"🗺️",type:"form-input",
+        inputLabel:"マップ条件を入力",
+        fields:[{n:"タイプ",p:"例: ダンジョン、フィールド、街"},{n:"サイズ",p:"例: 中規模(5部屋)"},{n:"テーマ",p:"例: 古代遺跡、氷の洞窟"}],
+        outputLabel:"生成されたマップ",
+        results:["🗺️ 古代遺跡ダンジョン(5部屋+ボス部屋)","🚪 部屋1: エントランス(パズルギミック)","🚪 部屋2: 宝物庫(トラップ×3)","🚪 部屋3: 大広間(中ボス戦)","🚪 部屋4-5: 回廊+祭壇(ボス前セーブ)","📦 PNG/JSON形式でエクスポート可能"]}
+    ]
+  },
+  {
+    id:"cook",name:"CookAI",tagline:"料理のすべてをAIで楽しく",emoji:"👨‍🍳",
+    gradient:"from-red-500 to-orange-500",bgLight:"bg-red-50",
+    tools:[
+      {id:"c_recipe",name:"レシピ提案",emoji:"🍳",type:"image-upload",
+        inputLabel:"冷蔵庫/食材の写真をアップロード",
+        outputLabel:"レシピ提案",
+        results:["🔍 検出食材: 鶏もも肉、じゃがいも、玉ねぎ、カレー粉","🍳 レシピ1: スパイスチキンカレー(30分)","🍳 レシピ2: チキンとじゃがいものオーブン焼き(25分)","🍳 レシピ3: 親子丼風煮込み(15分)","💡 レシピ1がコスパ最高。4人分で約¥600"]},
+      {id:"c_cal",name:"カロリー計算",emoji:"📊",type:"image-upload",
+        inputLabel:"料理の写真をアップロード",
+        outputLabel:"栄養分析",
+        results:["🔥 推定カロリー: 520 kcal","🥩 タンパク質: 28g | 💪 脂質: 18g | 🍚 炭水化物: 62g","📊 PFCバランス: P21% / F31% / C48%","✅ 筋トレ後の食事として理想的なバランス","💡 あと1品: サラダ追加でビタミン補給◎"]},
+      {id:"c_plan",name:"献立プランナー",emoji:"📅",type:"form-input",
+        inputLabel:"条件を入力",
+        fields:[{n:"人数",p:"例: 2人"},{n:"予算(1週間)",p:"例: 7000円"},{n:"制限",p:"例: グルテンフリー、低糖質"}],
+        outputLabel:"1週間の献立",
+        results:["📅 月: 鮭の塩焼き定食 / 豚しゃぶサラダ","📅 火: 牛肉とブロッコリー炒め / 鶏の照り焼き","📅 水: 麻婆豆腐 / サバの味噌煮","📅 木-日: さらに8食分を生成","💰 合計: ¥6,850(予算内) | 📋 買い物リスト付き"]}
+    ]
+  },
+  {
+    id:"fitness",name:"FitAI",tagline:"トレーニングをAIが最適化",emoji:"🏋️",
+    gradient:"from-red-600 to-rose-700",bgLight:"bg-red-50",
+    tools:[
+      {id:"f_menu",name:"筋トレメニュー",emoji:"💪",type:"form-input",
+        inputLabel:"トレーニング条件を入力",
+        fields:[{n:"目的",p:"例: 筋肥大、ダイエット"},{n:"部位",p:"例: 胸、背中、全身"},{n:"器具",p:"例: ダンベルのみ、ジム"},{n:"時間",p:"例: 45分"}],
+        outputLabel:"トレーニングメニュー",
+        results:["💪 ベンチプレス: 60kg x 10rep x 3set(REST 90秒)","💪 インクラインダンベル: 20kg x 12rep x 3set","💪 ケーブルフライ: 15kg x 15rep x 3set","💪 ディップス: 自重 x 12rep x 3set","📊 推定消費カロリー: 320kcal | 所要時間: 42分"]},
+      {id:"f_cal",name:"食事管理",emoji:"🍽️",type:"image-upload",
+        inputLabel:"食事の写真をアップロード",
+        outputLabel:"マクロ栄養素分析",
+        results:["🔥 カロリー: 685 kcal","🥩 タンパク質: 32g (目標まであと88g)","📊 本日の合計: 1,450 / 2,200 kcal","⚠️ タンパク質が不足気味。プロテイン追加推奨","💡 夕食でささみ200g追加で目標達成"]},
+      {id:"f_form",name:"フォームチェック",emoji:"📹",type:"image-upload",
+        inputLabel:"トレーニング中の写真/動画をアップロード",
+        outputLabel:"フォーム診断",
+        results:["🔍 種目: スクワット","⚠️ 膝がつま先より前に出すぎ(ケガのリスク)","✅ 背中のアーチは良好","💡 改善点: もう少しお尻を後ろに引く意識で","📊 フォームスコア: 72/100 → 修正後: 推定90/100"]}
+    ]
+  },
+  {
+    id:"photo",name:"PhotoAI",tagline:"写真を何でもプロ品質に",emoji:"📸",
+    gradient:"from-gray-800 to-gray-950",bgLight:"bg-gray-50",
+    tools:[
+      {id:"p_bg",name:"背景変換",emoji:"🖼️",type:"image-upload",
+        inputLabel:"写真をアップロード",
+        outputLabel:"背景変換結果",
+        results:["✅ 背景除去完了 (精度: 98.5%)","🤍 白背景バージョン","🌅 夕暮れビーチ背景","🏙️ 都会の夜景背景","📐 リサイズ: 正方形/横長/縦長 全対応"]},
+      {id:"p_enhance",name:"高画質化",emoji:"✨",type:"image-upload",
+        inputLabel:"低画質の写真をアップロード",
+        outputLabel:"高画質化結果",
+        results:["✨ 解像度: 640x480 → 2560x1920 (4倍)","🔍 ノイズ除去: 完了","🎨 色補正: 自動調整済み","📸 顔検出: 1人 → 顔部分を重点的に補正","📦 PNG/JPEG(最高品質)でダウンロード"]},
+      {id:"p_age",name:"年齢変換",emoji:"⏳",type:"image-upload",
+        inputLabel:"自撮り写真をアップロード",
+        outputLabel:"年齢変換結果",
+        results:["👶 5歳バージョン — 幼少期の推定イメージ","🧑 現在(参照用)","👨 +10年 — 30代後半の推定イメージ","👴 +30年 — 50代後半の推定イメージ","📸 高解像度で保存可能 | SNSシェアボタン付き"]}
+    ]
+  },
+  {
+    id:"legal",name:"LegalAI",tagline:"法律のことをAIで身近に",emoji:"⚖️",
+    gradient:"from-slate-700 to-slate-900",bgLight:"bg-slate-50",
+    tools:[
+      {id:"l_contract",name:"契約書チェック",emoji:"📋",type:"file-upload",
+        inputLabel:"契約書をアップロード (PDF)",
+        outputLabel:"リスク分析結果",
+        results:["🔴 高リスク: 第8条 — 競業避止義務が退職後5年間は長すぎる","🔴 高リスク: 第12条 — 損害賠償の上限規定がない","🟡 中リスク: 第5条 — 知的財産権の帰属が曖昧","🟢 問題なし: 報酬条件、支払いサイクル、解約条件","💡 総合リスクスコア: 6.2/10 — 修正交渉を推奨"]},
+      {id:"l_terms",name:"利用規約生成",emoji:"📜",type:"form-input",
+        inputLabel:"サービス情報を入力",
+        fields:[{n:"サービス名",p:"例: MyApp"},{n:"種類",p:"例: SaaS、ECサイト、アプリ"},{n:"個人情報の取扱",p:"例: メールアドレスのみ収集"}],
+        outputLabel:"生成された利用規約",
+        results:["📜 全15条の利用規約を生成","📋 第1条: 総則 / 第2条: 定義 / 第3条: 利用登録","📋 第7条: 禁止事項 / 第10条: 免責事項","📋 プライバシーポリシーも同時に生成","💡 GDPR/個人情報保護法に準拠 | Word形式でDL可能"]},
+      {id:"l_nda",name:"NDA生成",emoji:"🤝",type:"form-input",
+        inputLabel:"NDA情報を入力",
+        fields:[{n:"甲(自社)",p:"例: 株式会社サンプル"},{n:"乙(相手)",p:"例: 株式会社テスト"},{n:"目的",p:"例: 共同開発の検討"},{n:"期間",p:"例: 2年間"}],
+        outputLabel:"生成されたNDA",
+        results:["📄 秘密保持契約書(NDA)を生成","📋 秘密情報の定義: 技術情報、営業情報、顧客情報","📋 有効期間: 2年間(契約終了後も3年間義務継続)","📋 損害賠償条項: 直接損害に限定","💡 PDF生成済み | 電子署名対応フォーマット"]}
+    ]
+  },
+  {
+    id:"learn",name:"LearnAI",tagline:"何でも学べるAI家庭教師",emoji:"📖",
+    gradient:"from-teal-500 to-cyan-600",bgLight:"bg-teal-50",
+    tools:[
+      {id:"le_quiz",name:"問題集生成",emoji:"📚",type:"image-upload",
+        inputLabel:"教科書/参考書の写真をアップロード",
+        outputLabel:"生成された問題集",
+        results:["📖 認識内容: 英語 — 関係代名詞の章","❓ Q1: 空欄に入る適切な関係代名詞は? → who","❓ Q2: 次の文を関係代名詞を使って1文にせよ","❓ Q3: 誤りのある箇所を指摘せよ","📊 生成問題数: 30問(文法20問+読解10問)"]},
+      {id:"le_explain",name:"わかりやすく解説",emoji:"💡",type:"text-input",
+        inputLabel:"わからないことを入力",
+        placeholder:"例: 微分積分の基本定理がよくわからない",
+        outputLabel:"AI解説",
+        results:["📖 微分積分の基本定理を3段階で解説:","1️⃣ 直感的理解: 「面積の変化率=高さ」ということ","2️⃣ 数式: ∫[a,b] f(x)dx = F(b) - F(a)","3️⃣ 具体例: f(x)=2xの場合、F(x)=x²として...","💡 関連問題3問+理解度チェッククイズ付き"]},
+      {id:"le_flash",name:"暗記カード",emoji:"🃏",type:"text-input",
+        inputLabel:"暗記したい内容を入力",
+        placeholder:"例: 英検2級の頻出単語を50個",
+        outputLabel:"暗記カード",
+        results:["🃏 50枚の暗記カードを生成","📝 例: abundant → 豊富な(例文: an abundant supply of water)","📝 例: contribute → 貢献する(例文: contribute to society)","📊 難易度分布: 初級20枚/中級20枚/上級10枚","💡 Ankiデッキ/PDF/画像形式でエクスポート可能"]}
+    ]
+  },
+  {
+    id:"wedding",name:"WeddingAI",tagline:"結婚式の準備をAIで楽しく",emoji:"💒",
+    gradient:"from-rose-300 to-pink-500",bgLight:"bg-rose-50",
+    tools:[
+      {id:"w_invite",name:"招待状デザイン",emoji:"💌",type:"form-input",
+        inputLabel:"結婚式情報を入力",
+        fields:[{n:"新郎新婦",p:"例: 太郎 & 花子"},{n:"日時",p:"例: 2025年6月15日"},{n:"会場",p:"例: ホテルニューオータニ"},{n:"テーマ",p:"例: ナチュラル、和モダン"}],
+        outputLabel:"招待状デザイン",
+        results:["💌 デザイン1: ナチュラルグリーン — 水彩ボタニカル","💌 デザイン2: 和モダン — 金箔+墨絵テイスト","💌 デザイン3: ミニマル — ホワイト+ゴールド活版印刷風","📐 はがきサイズ/A5サイズ対応","💡 Web招待状(RSVP機能付き)も同時に生成"]},
+      {id:"w_seat",name:"席順最適化",emoji:"🪑",type:"text-input",
+        inputLabel:"ゲスト情報を入力(名前と関係性)",
+        placeholder:"例: 山田太郎(会社上司)、佐藤花(大学友人)、鈴木一郎(親族)...",
+        outputLabel:"席順提案",
+        results:["🪑 テーブル1(主賓): 山田部長、佐藤課長、田中先輩","🪑 テーブル2(大学): 佐藤花、高橋美、渡辺愛","🪑 テーブル3(親族): 鈴木一郎、鈴木二郎","📊 相性スコアを考慮した最適配置","💡 仲の良いグループを同テーブルに配置済み"]},
+      {id:"w_speech",name:"スピーチ下書き",emoji:"🎤",type:"form-input",
+        inputLabel:"スピーチ情報を入力",
+        fields:[{n:"立場",p:"例: 新郎友人代表"},{n:"エピソード",p:"例: 大学のサークルで出会い..."},{n:"長さ",p:"例: 3分"}],
+        outputLabel:"スピーチ下書き",
+        results:["🎤 スピーチ原稿(約800文字 / 3分)を生成","📝 構成: 自己紹介→エピソード→お祝いの言葉","💡 ユーモアポイントを2箇所配置","⏱️ 読み上げ速度: ゆっくり3分10秒/普通2分50秒","📋 カンペ用の要点メモも生成"]}
+    ]
+  },
+  {
+    id:"moving",name:"引越しAI",tagline:"引越しの全てをAIでスムーズに",emoji:"🚚",
+    gradient:"from-amber-500 to-yellow-600",bgLight:"bg-amber-50",
+    tools:[
+      {id:"mv_est",name:"費用見積もり",emoji:"💰",type:"image-upload",
+        inputLabel:"部屋の写真をアップロード",
+        outputLabel:"引越し見積もり",
+        results:["📦 推定荷物量: 2tトラック1台分","💰 費用目安: ¥45,000〜¥75,000(時期・距離による)","📋 段ボール推定: 約25箱","📅 おすすめ時期: 月中の平日が最安(最大40%OFF)","✅ 梱包チェックリスト(32項目)を生成"]},
+      {id:"mv_interior",name:"新居レイアウト",emoji:"🛋️",type:"image-upload",
+        inputLabel:"新居の間取り図をアップロード",
+        outputLabel:"レイアウト提案",
+        results:["🛋️ リビング: 北欧モダンスタイルで配置","🍳 キッチン: 動線重視のL字配置","🛏️ 寝室: 窓側にベッド(朝日で目覚め)","📐 家具サイズの配置シミュレーション済み","💡 手持ち家具で3パターン提案"]},
+      {id:"mv_check",name:"手続きリスト",emoji:"📋",type:"form-input",
+        inputLabel:"引越し情報を入力",
+        fields:[{n:"引越し日",p:"例: 2025/04/01"},{n:"現住所",p:"例: 東京都渋谷区"},{n:"新住所",p:"例: 神奈川県横浜市"}],
+        outputLabel:"手続きチェックリスト",
+        results:["📋 14日前: 転出届提出(渋谷区役所)","📋 7日前: 電気/ガス/水道の停止・開始連絡","📋 引越し後: 転入届(横浜市役所・14日以内)","📋 その他: 免許証住所変更、銀行届出、郵便転送","✅ 全22項目のタイムライン付きリスト"]}
+    ]
+  },
+  {
+    id:"kid",name:"KidsAI",tagline:"子どもの学びと遊びをAIで",emoji:"🧒",
+    gradient:"from-green-400 to-cyan-500",bgLight:"bg-green-50",
+    tools:[
+      {id:"k_story",name:"おはなし生成",emoji:"📕",type:"form-input",
+        inputLabel:"おはなしの条件を入力",
+        fields:[{n:"主人公",p:"例: うさぎのミミちゃん"},{n:"テーマ",p:"例: 友達との冒険"},{n:"年齢",p:"例: 4歳向け"}],
+        outputLabel:"生成されたおはなし",
+        results:["📕 タイトル: ミミちゃんとふしぎな森のぼうけん","📖 むかしむかし、うさぎのミミちゃんは森の入り口で泣いているリスさんに出会いました...","📖 「いっしょに探しに行こう！」ミミちゃんは元気よく言いました...","🎨 挿絵イラスト5枚を同時に生成","⏱️ 読み聞かせ目安: 約5分"]},
+      {id:"k_quiz",name:"学習クイズ",emoji:"🧠",type:"form-input",
+        inputLabel:"クイズ条件を入力",
+        fields:[{n:"教科",p:"例: 算数、理科、社会"},{n:"学年",p:"例: 小学3年生"},{n:"範囲",p:"例: かけ算の筆算"}],
+        outputLabel:"学習クイズ",
+        results:["🧠 Q1: 23 × 14 = ? → 322","🧠 Q2: 45 × 21 = ? → 945","🧠 Q3: 文章題: りんごが1箱23個入りで14箱あります...","📊 全15問生成(基本10問+応用5問)","💡 間違えやすいポイントの解説付き"]},
+      {id:"k_color",name:"ぬりえ生成",emoji:"🎨",type:"text-input",
+        inputLabel:"ぬりえのテーマを入力",
+        placeholder:"例: 恐竜、お城、宇宙、動物園",
+        outputLabel:"ぬりえ",
+        results:["🎨 テーマ「恐竜」のぬりえを4枚生成","🦕 1枚目: ブラキオサウルス(かんたん)","🦖 2枚目: ティラノサウルス(ふつう)","🌋 3枚目: 恐竜の世界(むずかしい)","📦 PDF/PNG形式でダウンロード → 印刷してすぐ使える"]}
+    ]
+  },
+  {
+    id:"senior",name:"シニアAI",tagline:"シニアの暮らしを便利に",emoji:"👴",
+    gradient:"from-emerald-600 to-green-700",bgLight:"bg-emerald-50",
+    tools:[
+      {id:"s_med",name:"お薬管理",emoji:"💊",type:"image-upload",
+        inputLabel:"お薬手帳/薬の写真をアップロード",
+        outputLabel:"お薬情報",
+        results:["💊 アムロジピン5mg — 朝1回(血圧降下薬)","💊 メトホルミン500mg — 朝夕各1回(糖尿病薬)","⚠️ 飲み合わせ注意: グレープフルーツとの併用は避ける","📅 次の処方日: 2月28日(あと18日)","💡 飲み忘れ防止アラームを設定できます"]},
+      {id:"s_recipe4",name:"健康レシピ",emoji:"🥗",type:"form-input",
+        inputLabel:"健康情報を入力",
+        fields:[{n:"気になること",p:"例: 血圧が高い"},{n:"制限",p:"例: 塩分控えめ"},{n:"好み",p:"例: 和食中心"}],
+        outputLabel:"健康レシピ",
+        results:["🥗 レシピ1: 減塩味噌汁(塩分0.8g/1杯)","🥗 レシピ2: 蒸し鶏の梅しそサラダ(塩分1.2g)","🥗 レシピ3: かぼちゃの煮物(出汁で旨味UP)","📊 1食あたり塩分: 2.5g(目標6g/日の範囲内)","💡 カリウム豊富な食材で塩分排出を促進"]},
+      {id:"s_letter",name:"手紙作成",emoji:"✉️",type:"form-input",
+        inputLabel:"手紙の情報を入力",
+        fields:[{n:"相手",p:"例: 孫(大学生)"},{n:"用件",p:"例: 入学祝い"},{n:"伝えたいこと",p:"例: おめでとう、体に気をつけて"}],
+        outputLabel:"手紙の下書き",
+        results:["✉️ 拝啓 春暖の候、ますますご健勝のことと...","📝 大学ご入学、誠におめでとうございます。","📝 新しい環境で様々なことに挑戦してください。","📝 体に気をつけて、たまには顔を見せにきてね。","💡 縦書きPDF/毛筆フォント版もダウンロード可能"]}
+    ]
+  },
+  {
+    id:"date",name:"DateAI",tagline:"デートの全てをAIがプラン",emoji:"❤️",
+    gradient:"from-red-400 to-rose-500",bgLight:"bg-red-50",
+    tools:[
+      {id:"da_plan",name:"デートプラン",emoji:"📅",type:"form-input",
+        inputLabel:"条件を入力",
+        fields:[{n:"エリア",p:"例: 東京・表参道"},{n:"予算",p:"例: 1万円"},{n:"好み",p:"例: カフェ巡り、自然"},{n:"時間帯",p:"例: 午後〜夜"}],
+        outputLabel:"デートプラン",
+        results:["📍 14:00 表参道のボタニカルカフェでお茶","📍 15:30 明治神宮の森を散策","📍 17:00 原宿でウィンドウショッピング","📍 18:30 隠れ家イタリアンでディナー(¥6,000/2人)","💰 合計: ¥9,200 | 💡 雨天時の代替プランも用意"]},
+      {id:"da_gift",name:"プレゼント提案",emoji:"🎁",type:"form-input",
+        inputLabel:"相手の情報を入力",
+        fields:[{n:"相手",p:"例: 彼女、28歳"},{n:"予算",p:"例: 5000円"},{n:"好み",p:"例: コスメ好き、甘いもの好き"},{n:"イベント",p:"例: 誕生日"}],
+        outputLabel:"プレゼント候補",
+        results:["🎁 1位: ジルスチュアート リップブロッサム ¥3,520","🎁 2位: ゴディバ アソートメント12粒 ¥3,240","🎁 3位: Aesop ハンドクリーム ¥4,070","🎁 4位: スタバ限定タンブラー+カード ¥4,500","💡 ラッピング映え度: 1位★★★★★"]},
+      {id:"da_msg",name:"メッセージ作成",emoji:"💬",type:"form-input",
+        inputLabel:"メッセージ情報を入力",
+        fields:[{n:"場面",p:"例: 記念日、告白、お礼"},{n:"相手",p:"例: 付き合って1年の彼女"},{n:"伝えたいこと",p:"例: いつもありがとう"}],
+        outputLabel:"メッセージ候補",
+        results:["💬 案1: 「1年間ありがとう。君と過ごす毎日が宝物です。これからもよろしくね。」","💬 案2: 「出会えてよかった。2年目はもっとたくさん思い出作ろう。」","💬 案3: 「いつも支えてくれてありがとう。大好きです。」","📝 手書きカード向け/LINE向け/SNS向け 各3パターン","💡 案1が最も自然で好感度高め"]}
+    ]
+  },
+  {
+    id:"car",name:"CarAI",tagline:"車のことはAIに相談",emoji:"🚗",
+    gradient:"from-blue-600 to-blue-800",bgLight:"bg-blue-50",
+    tools:[
+      {id:"ca_diag",name:"故障診断",emoji:"🔧",type:"text-input",
+        inputLabel:"症状を入力",
+        placeholder:"例: エンジンをかけるとキュルキュル音がする、ブレーキを踏むと振動がある",
+        outputLabel:"診断結果",
+        results:["🔍 推定原因: ファンベルトの摩耗/劣化","⚠️ 緊急度: 中 — 放置すると走行中にベルト切れの恐れ","💰 修理費目安: ¥5,000〜¥15,000(部品+工賃)","🔧 自分で交換: 難易度★★★☆☆(工具必要)","💡 近くのディーラー/整備工場3件を検索可能"]},
+      {id:"ca_cost",name:"維持費計算",emoji:"💰",type:"form-input",
+        inputLabel:"車情報を入力",
+        fields:[{n:"車種",p:"例: トヨタ プリウス 2020"},{n:"年間走行距離",p:"例: 10000km"},{n:"駐車場代/月",p:"例: 20000円"}],
+        outputLabel:"年間維持費",
+        results:["🏦 自動車税: ¥36,000","⛽ ガソリン代: ¥60,000(燃費25km/L想定)","🅿️ 駐車場: ¥240,000","🔧 車検・整備: ¥80,000(2年に1回)","💰 年間合計: 約¥476,000(月額 ¥39,700)"]},
+      {id:"ca_sell",name:"売却査定",emoji:"📊",type:"form-input",
+        inputLabel:"車情報を入力",
+        fields:[{n:"車種",p:"例: ホンダ フィット 2019"},{n:"走行距離",p:"例: 35000km"},{n:"状態",p:"例: 目立つ傷なし"}],
+        outputLabel:"査定結果",
+        results:["💰 推定買取価格: ¥85万〜¥105万","📊 相場推移: 3ヶ月前比 -3万円(緩やかに下落中)","💡 売り時: 3月が需要期で高値がつきやすい","📋 高く売るコツ: 洗車+車内清掃で+5万円UP","🏪 近くの買取店3社の比較も可能"]}
+    ]
+  },
+  {
+    id:"sleep",name:"SleepAI",tagline:"眠りの質をAIで改善",emoji:"😴",
+    gradient:"from-indigo-500 to-purple-700",bgLight:"bg-indigo-50",
+    tools:[
+      {id:"sl_analyze",name:"睡眠分析",emoji:"📊",type:"form-input",
+        inputLabel:"睡眠情報を入力",
+        fields:[{n:"就寝時刻",p:"例: 0:30"},{n:"起床時刻",p:"例: 7:00"},{n:"途中覚醒",p:"例: 1回(トイレ)"},{n:"目覚めの気分",p:"例: だるい"}],
+        outputLabel:"睡眠分析結果",
+        results:["😴 睡眠時間: 6.5時間(推奨: 7〜8時間)","📊 睡眠スコア: 62/100","⚠️ 問題点: 就寝が遅い+途中覚醒あり","💡 改善策1: 23:30までに就寝(メラトニン分泌に合わせる)","💡 改善策2: 寝る2時間前から水分を控える"]},
+      {id:"sl_routine",name:"入眠ルーティン",emoji:"🌙",type:"form-input",
+        inputLabel:"生活情報を入力",
+        fields:[{n:"起床時刻",p:"例: 7:00"},{n:"仕事終わり",p:"例: 19:00"},{n:"悩み",p:"例: 寝つきが悪い、考え事が止まらない"}],
+        outputLabel:"入眠ルーティン",
+        results:["🕐 20:00 軽いストレッチ(10分)","🕐 20:30 ぬるめのお風呂(38-40℃/15分)","🕐 21:00 間接照明に切り替え+スマホOFF","🕐 21:30 読書 or 呼吸法(4-7-8メソッド)","🕐 22:00 就寝 → 推定入眠: 22:15"]},
+      {id:"sl_dream",name:"夢分析",emoji:"🔮",type:"text-input",
+        inputLabel:"夢の内容を入力",
+        placeholder:"例: 空を飛んでいたら突然海に落ちて、巨大な魚と一緒に泳いだ...",
+        outputLabel:"夢分析結果",
+        results:["🔮 テーマ: 自由への渇望と未知への不安","🧠 飛翔=現状からの解放願望、海=潜在意識の深層","🐟 巨大な魚=大きなチャンスの暗示","📊 今月の夢パターン: ポジティブ65% / 不安系35%","💡 寝る前に「良い夢を見る」と唱えると効果あり(研究あり)"]}
+    ]
+  },
+  {
+    id:"eco",name:"EcoAI",tagline:"エコな暮らしをAIでサポート",emoji:"🌍",
+    gradient:"from-green-600 to-emerald-700",bgLight:"bg-green-50",
+    tools:[
+      {id:"e_carbon",name:"CO2計算",emoji:"🏭",type:"form-input",
+        inputLabel:"生活情報を入力",
+        fields:[{n:"電気代/月",p:"例: 8000円"},{n:"ガス代/月",p:"例: 3000円"},{n:"通勤手段",p:"例: 電車30分"},{n:"食事傾向",p:"例: 肉多め"}],
+        outputLabel:"カーボンフットプリント",
+        results:["🏭 あなたの年間CO2排出量: 約4.2トン","📊 日本平均: 7.6トン → あなたは平均以下で優秀","🔴 最大要因: 食事(肉多め) → 年間1.8トン","💡 週1回のミートフリーデーで年間-0.3トン","🌱 目標: 3.5トン以下で「エコ認定」"]},
+      {id:"e_save",name:"節約診断",emoji:"💡",type:"form-input",
+        inputLabel:"月の支出を入力",
+        fields:[{n:"電気代",p:"例: 8000円"},{n:"ガス代",p:"例: 3000円"},{n:"水道代",p:"例: 2500円"},{n:"通信費",p:"例: 10000円"}],
+        outputLabel:"節約プラン",
+        results:["💡 電気: LED化+待機電力カットで月-1,200円","💡 通信: 格安SIMに変更で月-5,000円","💡 ガス: シャワーヘッド交換で月-800円","💰 年間節約額: 約84,000円","🌍 CO2削減効果: 年間-0.5トン"]},
+      {id:"e_recycle",name:"分別ガイド",emoji:"♻️",type:"image-upload",
+        inputLabel:"捨てたいものの写真をアップロード",
+        outputLabel:"分別ガイド",
+        results:["🔍 認識: ペットボトル(500ml/飲料用)","♻️ 分別: プラスチック資源ごみ","📋 手順: 1.キャップを外す 2.ラベルを剥がす 3.中を洗う 4.潰す","📅 次の収集日: 2月14日(金)","💡 キャップとラベルは「プラ」で別回収"]}
+    ]
+  },
+  {
+    id:"invest",name:"投資AI",tagline:"資産運用をAIで学ぶ",emoji:"📈",
+    gradient:"from-blue-700 to-indigo-800",bgLight:"bg-blue-50",
+    tools:[
+      {id:"inv_sim",name:"積立シミュレーション",emoji:"💹",type:"form-input",
+        inputLabel:"積立条件を入力",
+        fields:[{n:"毎月の積立額",p:"例: 30000円"},{n:"期間",p:"例: 20年"},{n:"想定利回り",p:"例: 5%"},{n:"初期投資額",p:"例: 0円"}],
+        outputLabel:"シミュレーション結果",
+        results:["💹 20年後の資産: 約1,233万円","💰 元本合計: 720万円 | 運用益: 513万円","📊 10年後: 約465万円 / 15年後: 約801万円","💡 積立額を+1万円(4万円)にすると → 1,644万円","⚠️ 注意: 実際の運用は上下します。分散投資を推奨"]},
+      {id:"inv_port",name:"ポートフォリオ診断",emoji:"🎯",type:"form-input",
+        inputLabel:"現在の資産配分を入力",
+        fields:[{n:"日本株",p:"例: 40%"},{n:"外国株",p:"例: 30%"},{n:"債券",p:"例: 20%"},{n:"現金",p:"例: 10%"}],
+        outputLabel:"ポートフォリオ診断",
+        results:["📊 リスクレベル: やや積極的","⚠️ 日本株比率が高め → 為替リスクは低いが成長性に偏り","💡 推奨: 外国株を40%に増やし、新興国10%を追加","📈 過去10年リターン(推定): 年平均6.2%","🎯 あなたの年齢・目標に最適な配分を提案済み"]},
+      {id:"inv_news",name:"ニュース要約",emoji:"📰",type:"text-input",
+        inputLabel:"気になる銘柄/テーマを入力",
+        placeholder:"例: S&P500、日経平均、半導体関連、AI銘柄",
+        outputLabel:"マーケット要約",
+        results:["📰 S&P500: 先週+1.2% — AI関連銘柄が牽引","📰 日経平均: 38,500円台 — 円安進行で輸出株堅調","📰 半導体: NVIDIA決算好調、TSMCも増産発表","💡 注目: AI需要は2026年も拡大予測(+35% YoY)","⚠️ リスク: 米金利据え置き長期化の可能性"]}
+    ]
+  },
+  {
+    id:"therapy",name:"MindAI",tagline:"心のケアをAIでサポート",emoji:"🧘",
+    gradient:"from-teal-400 to-emerald-500",bgLight:"bg-teal-50",
+    tools:[
+      {id:"th_journal",name:"ジャーナリング",emoji:"📓",type:"text-input",
+        inputLabel:"今の気持ちを自由に書いてみてください",
+        placeholder:"例: 今日は仕事でミスをして落ち込んでいる。上司にも怒られたし...",
+        outputLabel:"AIフィードバック",
+        results:["🤗 まず、気持ちを書き出せたことが素晴らしいです","🔍 感情分析: 落ち込み(60%)、不安(25%)、怒り(15%)","💡 リフレーミング: ミスは成長のチャンス。次に活かせます","🧘 おすすめ: 5分間の呼吸法でリセットしましょう","📊 今週の感情推移: 月◎ 火◎ 水△ 木▲ ← 今ここ"]},
+      {id:"th_breath",name:"呼吸法ガイド",emoji:"🌬️",type:"form-input",
+        inputLabel:"今の状態を選んでください",
+        fields:[{n:"状態",p:"例: 不安、イライラ、眠れない"},{n:"時間",p:"例: 5分、10分"}],
+        outputLabel:"呼吸法ガイド",
+        results:["🌬️ おすすめ: 4-7-8呼吸法(不安解消に最適)","📋 1. 4秒かけて鼻から吸う","📋 2. 7秒間息を止める","📋 3. 8秒かけて口からゆっくり吐く","📋 これを4サイクル繰り返す(約5分)","💡 科学的根拠: 副交感神経を活性化、心拍数を低下させる"]},
+      {id:"th_gratitude",name:"感謝日記",emoji:"🙏",type:"text-input",
+        inputLabel:"今日感謝できることを3つ書いてください",
+        placeholder:"例: 1.天気が良かった 2.同僚が助けてくれた 3.美味しいランチが食べられた",
+        outputLabel:"感謝日記フィードバック",
+        results:["🙏 素敵な3つの感謝です！","💡 「同僚が助けてくれた」→ 人間関係に恵まれていますね","📊 今月の感謝カテゴリ: 人間関係45% / 日常の幸せ35% / 達成20%","🌟 連続記録: 5日目！ 7日達成でバッジ獲得","📈 研究: 感謝日記を3週間続けると幸福度が25%向上"]}
+    ]
+  },
+  {
+    id:"fashion",name:"StyleAI",tagline:"ファッションをAIでアップデート",emoji:"👗",
+    gradient:"from-fuchsia-500 to-pink-600",bgLight:"bg-fuchsia-50",
+    tools:[
+      {id:"fa_diag",name:"骨格診断",emoji:"🦴",type:"image-upload",
+        inputLabel:"全身写真をアップロード",
+        outputLabel:"骨格診断結果",
+        results:["🦴 骨格タイプ: ウェーブ","📏 特徴: 華奢な上半身、柔らかい曲線","👕 似合う: フィット&フレア、ハイウエスト、柔らかい素材","👎 苦手: オーバーサイズ、ローウエスト、硬い素材","💡 おすすめブランド: SNIDEL、FRAY I.D、nano・universe"]},
+      {id:"fa_color",name:"パーソナルカラー",emoji:"🎨",type:"image-upload",
+        inputLabel:"顔のアップ写真をアップロード(自然光で)",
+        outputLabel:"パーソナルカラー診断",
+        results:["🎨 パーソナルカラー: ブルベ夏(サマー)","💜 得意色: ラベンダー、ローズピンク、スカイブルー","🤎 苦手色: オレンジ、キャメル、ゴールド","💄 リップ: ローズ系ピンク / アイシャドウ: モーヴ系","💡 アクセサリーはシルバーがお似合いです"]},
+      {id:"fa_coord",name:"コーデ提案",emoji:"👔",type:"image-upload",
+        inputLabel:"手持ち服の写真をアップロード",
+        outputLabel:"コーデ提案",
+        results:["👗 コーデ1: 白ニット+プリーツスカート+ショートブーツ","👗 コーデ2: ボーダートップス+デニム+白スニーカー","👗 コーデ3: シャツワンピ+レギンス+サンダル","📊 骨格ウェーブ × ブルベ夏に最適な組み合わせ","💡 次に買うべき1着: ラベンダーのカーディガン"]}
+    ]
+  },
+  {
+    id:"garden",name:"GardenAI",tagline:"ガーデニングをAIで楽しく",emoji:"🌻",
+    gradient:"from-lime-500 to-green-600",bgLight:"bg-lime-50",
+    tools:[
+      {id:"ga_diag",name:"植物診断",emoji:"🌿",type:"image-upload",
+        inputLabel:"植物の写真をアップロード",
+        outputLabel:"診断結果",
+        results:["🔍 植物: トマト(ミニトマト・アイコ)","⚠️ 症状: 下葉の黄変 — マグネシウム欠乏の可能性","💊 対処法: 苦土石灰をひとつまみ追肥","💡 環境: 日当たり良好が必要(6時間以上)","📅 収穫予定: あと2週間で赤くなります"]},
+      {id:"ga_plan",name:"栽培プラン",emoji:"📅",type:"form-input",
+        inputLabel:"栽培条件を入力",
+        fields:[{n:"育てたいもの",p:"例: ミニトマト、バジル"},{n:"環境",p:"例: ベランダ、南向き"},{n:"経験",p:"例: 初心者"}],
+        outputLabel:"栽培プラン",
+        results:["📅 2月: 種まき(室内で育苗)","📅 3月: ポットに植え替え","📅 4月: プランターに定植(ベランダへ)","📅 5-7月: 収穫期 → 週2回の水やりでOK","💡 バジルはトマトの隣で育てると虫除け効果あり(コンパニオンプランツ)"]},
+      {id:"ga_water",name:"水やりリマインダー",emoji:"💧",type:"form-input",
+        inputLabel:"植物情報を入力",
+        fields:[{n:"植物名",p:"例: モンステラ"},{n:"鉢のサイズ",p:"例: 6号鉢"},{n:"置き場所",p:"例: 室内・窓際"}],
+        outputLabel:"水やりスケジュール",
+        results:["💧 水やり頻度: 週1回(冬季は10日に1回)","📊 土の乾き目安: 表面から2cm乾いたらOK","🌡️ 現在の季節(冬): やや控えめに","📅 次の水やり: 2月17日(月)","💡 葉水は毎日OK(湿度を好む植物です)"]}
+    ]
+  },
+  {
+    id:"biz",name:"BizAI",tagline:"ビジネスの意思決定をAIで",emoji:"💼",
+    gradient:"from-gray-700 to-gray-900",bgLight:"bg-gray-50",
+    tools:[
+      {id:"bz_swot",name:"SWOT分析",emoji:"📊",type:"text-input",
+        inputLabel:"事業/製品の概要を入力",
+        placeholder:"例: 個人経営のオーガニックカフェ、駅から徒歩5分、SNSフォロワー2000人",
+        outputLabel:"SWOT分析結果",
+        results:["💪 強み: オーガニック特化のブランド、SNS基盤","⚠️ 弱み: 個人経営でスケーラビリティ低い、駅徒歩5分","📈 機会: 健康志向トレンド、UberEats対応で商圏拡大","🔴 脅威: 大手チェーンのオーガニック参入、原材料高騰","💡 戦略提案: デリバリー強化+サブスク型コーヒー豆販売"]},
+      {id:"bz_name",name:"サービス名生成",emoji:"💡",type:"form-input",
+        inputLabel:"サービス情報を入力",
+        fields:[{n:"内容",p:"例: AIで食品ロスを減らすアプリ"},{n:"ターゲット",p:"例: 飲食店オーナー"},{n:"イメージ",p:"例: エコ、テック、親しみやすい"}],
+        outputLabel:"サービス名候補",
+        results:["💡 FoodSave — 直球で覚えやすい","💡 Mottai — 「もったいない」から。グローバル展開可能","💡 FreshLoop — 食品の循環を表現","💡 Nokos — 「残す」を英語風に。短くキャッチー","💡 ZeroPlate — ゼロウェイストを想起 | .com取得可能"]},
+      {id:"bz_mail",name:"営業メール",emoji:"📧",type:"form-input",
+        inputLabel:"営業情報を入力",
+        fields:[{n:"自社サービス",p:"例: AI食品ロス削減SaaS"},{n:"送り先",p:"例: 飲食チェーンの経営企画部"},{n:"訴求ポイント",p:"例: コスト30%削減実績"}],
+        outputLabel:"営業メール",
+        results:["📧 件名: 食品ロス30%削減の実績をご紹介 — FoodSave","📝 ○○株式会社 経営企画部 御中","📝 突然のご連絡失礼いたします。FoodSaveの...","📝 導入企業様では平均30%の食品ロス削減を実現...","💡 開封率が高い件名パターンを3種類提案"]}
+    ]
+  },
+  {
+    id:"lang",name:"LangAI",tagline:"語学学習をAIで加速",emoji:"🗣️",
+    gradient:"from-sky-500 to-blue-600",bgLight:"bg-sky-50",
+    tools:[
+      {id:"la_conv",name:"会話練習",emoji:"💬",type:"text-input",
+        inputLabel:"英語で話しかけてみてください",
+        placeholder:"例: I'd like to book a table for two tonight. Do you have any availability?",
+        outputLabel:"会話フィードバック",
+        results:["✅ 文法: 正確です！","📊 自然さ: 4.5/5.0 — ネイティブに近い表現","💡 より自然に: 'Do you have any openings tonight?' も使えます","🔊 発音ガイド: availability → /əˌveɪləˈbɪləti/","📝 関連フレーズ: 'Could I get a window seat?' なども覚えましょう"]},
+      {id:"la_vocab",name:"単語帳生成",emoji:"📝",type:"form-input",
+        inputLabel:"学習条件を入力",
+        fields:[{n:"言語",p:"例: 英語、韓国語、中国語"},{n:"レベル",p:"例: TOEIC 600目標"},{n:"テーマ",p:"例: ビジネス、旅行、日常"}],
+        outputLabel:"単語帳",
+        results:["📝 negotiate(交渉する) — We need to negotiate the terms.","📝 implement(実行する) — Let's implement the new policy.","📝 strategy(戦略) — Our marketing strategy is working.","📊 50語生成 | 難易度: TOEIC 500-700レベル","💡 Ankiデッキ/PDF/CSV形式でエクスポート可能"]},
+      {id:"la_trans",name:"翻訳+解説",emoji:"🌐",type:"text-input",
+        inputLabel:"翻訳したい文を入力",
+        placeholder:"例: この案件について、来週中にお返事いただけますでしょうか。",
+        outputLabel:"翻訳結果",
+        results:["🇬🇧 Could you please get back to me on this matter by the end of next week?","📝 解説: 'get back to me'=返事をくれる(ビジネスで頻出)","📝 'by the end of next week'=来週末までに(期限の表現)","💡 よりフォーマル: 'I would appreciate your response by...'","🔊 発音ガイド付き"]}
+    ]
+  },
+  {
+    id:"archive",name:"整理AI",tagline:"片付け・整理をAIで効率化",emoji:"🗂️",
+    gradient:"from-amber-500 to-yellow-600",bgLight:"bg-amber-50",
+    tools:[
+      {id:"ar_closet",name:"クローゼット整理",emoji:"👕",type:"image-upload",
+        inputLabel:"クローゼットの写真をアップロード",
+        outputLabel:"整理プラン",
+        results:["📊 アイテム数: 約85着 → 適正50着まで断捨離推奨","❌ 手放し候補: 1年以上未着用のアイテム23着","📦 季節別収納: 夏物→圧縮袋、冬物→ハンガー保管","🎨 カラー分析: 黒系が40%超 → 差し色アイテム追加を推奨","💡 ハンガー統一で見た目スッキリ＆省スペース"]},
+      {id:"ar_desk",name:"デスク整理",emoji:"🖥️",type:"image-upload",
+        inputLabel:"デスクの写真をアップロード",
+        outputLabel:"デスク改善プラン",
+        results:["🔍 問題: ケーブル散乱、書類の山、モニター位置が低い","🛠️ Step1: ケーブルトレーで配線をまとめる","📁 Step2: 書類はスキャンしてデジタル化→シュレッダー","📐 Step3: モニターアームで目線の高さに調整","💰 必要アイテム: ケーブルトレー¥1,500 + モニターアーム¥4,000"]},
+      {id:"ar_digital",name:"スマホ整理",emoji:"📱",type:"form-input",
+        inputLabel:"スマホの状態を教えてください",
+        fields:[{n:"アプリ数(目安)",p:"例: 120個くらい"},{n:"写真枚数",p:"例: 15000枚"},{n:"ストレージ残り",p:"例: 5GB"}],
+        outputLabel:"デジタル整理プラン",
+        results:["📱 アプリ: 120個→60個に厳選 / 30日未使用は削除","📸 写真: 類似写真を自動検出→5,000枚削除で30GB節約","☁️ バックアップ: Google Photos無料15GBに自動同期設定","🗂️ フォルダ分け: 仕事/プライベート/スクショで整理","⚡ 週1回5分の「整理タイム」をリマインダー設定"]}
+    ]
+  },
+  {
+    id:"event",name:"EventAI",tagline:"イベント企画をAIで完璧に",emoji:"🎉",
+    gradient:"from-pink-500 to-rose-600",bgLight:"bg-pink-50",
+    tools:[
+      {id:"ev_plan",name:"イベント企画",emoji:"📋",type:"form-input",
+        inputLabel:"イベントの概要を入力",
+        fields:[{n:"種類",p:"例: 誕生日会、忘年会、BBQ"},{n:"人数",p:"例: 15人"},{n:"予算",p:"例: 5万円"},{n:"場所",p:"例: 東京都内"}],
+        outputLabel:"企画プラン",
+        results:["🎯 テーマ: 「大人のBBQパーティ」","📍 会場候補: 若洲公園BBQ場(¥3,000/区画) or 手ぶらBBQ豊洲","🍖 食材リスト: 15人分 → 肉3kg、野菜2kg、焼きそば4袋…","💰 予算内訳: 食材¥25,000 + 会場¥5,000 + 備品¥8,000 + 予備¥12,000","📝 タイムライン: 10時集合→12時BBQ開始→16時片付け→17時解散"]},
+      {id:"ev_invite",name:"招待状作成",emoji:"💌",type:"text-input",
+        inputLabel:"イベント情報を簡単に入力",
+        placeholder:"例: 3/15 土曜 18時から渋谷で花子の誕生日会。会費3000円。",
+        outputLabel:"招待状テキスト",
+        results:["💌 カジュアル版:","🎂 花子のBirthday Party! 🎂","📅 3月15日(土) 18:00〜","📍 渋谷エリア(詳細は後日!)","💰 会費: 3,000円","✅ 出欠は3/8までにLINEで!","📱 LINE/Instagram/メール 各形式でコピー可能"]},
+      {id:"ev_gift",name:"プレゼント提案",emoji:"🎁",type:"form-input",
+        inputLabel:"相手の情報を教えてください",
+        fields:[{n:"相手",p:"例: 30代女性、同僚"},{n:"予算",p:"例: 5000円"},{n:"好み",p:"例: コスメ好き、猫好き"}],
+        outputLabel:"プレゼント候補",
+        results:["🎁 第1候補: Aesopハンドクリーム(¥4,400) — コスメ好きに鉄板","🎁 第2候補: 猫モチーフのアクセサリートレイ(¥3,800)","🎁 第3候補: Lush入浴剤セット(¥4,500) — 猫の形あり!","💡 ラッピング: 無料ギフト包装あり(Amazon/楽天)","⭐ おすすめ: 第3候補 → コスメ×猫の両方をカバー!"]}
+    ]
+  },
+  {
+    id:"access",name:"バリアフリーAI",tagline:"アクセシビリティをAIで向上",emoji:"♿",
+    gradient:"from-teal-500 to-cyan-600",bgLight:"bg-teal-50",
+    tools:[
+      {id:"ac_web",name:"Webアクセス診断",emoji:"🌐",type:"text-input",
+        inputLabel:"WebサイトのURLを入力",
+        placeholder:"例: https://example.com",
+        outputLabel:"アクセシビリティ診断",
+        results:["📊 総合スコア: 72/100 (改善の余地あり)","❌ 画像alt属性: 15箇所が未設定 → スクリーンリーダー非対応","⚠️ コントラスト比: 3箇所が基準値(4.5:1)未満","❌ フォーカス順序: Tab移動が不自然な箇所あり","✅ 修正コード自動生成 → コピーして貼り付けるだけ"]},
+      {id:"ac_doc",name:"やさしい日本語変換",emoji:"📄",type:"text-input",
+        inputLabel:"変換したい文章を入力",
+        placeholder:"例: 当施設では、利用者の皆様に対し、所定の手続きを経た上で、各種サービスの提供を行っております。",
+        outputLabel:"やさしい日本語",
+        results:["📝 変換結果:","この施設(しせつ)では、いろいろなサービスを使(つか)うことができます。","使いたいときは、受付(うけつけ)で申し込み(もうしこみ)をしてください。","📊 読みやすさ: 小学3年生レベル → 外国人・高齢者にもわかりやすい","🌏 多言語翻訳ボタン: 英/中/韓/ベトナム/ポルトガル語"]},
+      {id:"ac_sign",name:"サイン・案内板作成",emoji:"🪧",type:"form-input",
+        inputLabel:"案内板の情報を入力",
+        fields:[{n:"内容",p:"例: トイレの場所案内"},{n:"設置場所",p:"例: 商業施設の1階"},{n:"対象者",p:"例: 外国人観光客、高齢者"}],
+        outputLabel:"案内板デザイン",
+        results:["🎨 ユニバーサルデザイン準拠の案内板を生成","🔤 4言語表記: 日本語 + 英語 + 中国語 + 韓国語","♿ ピクトグラム: ISO 7001準拠のアイコン配置","🎯 視認性: 高コントラスト配色(白背景×濃紺文字)","📐 推奨サイズ: A3横 / フォント24pt以上"]}
+    ]
+  },
+  {
+    id:"news",name:"NewsAI",tagline:"ニュースをAIで効率的にキャッチ",emoji:"📰",
+    gradient:"from-slate-600 to-gray-800",bgLight:"bg-slate-50",
+    tools:[
+      {id:"nw_summary",name:"ニュース要約",emoji:"📋",type:"text-input",
+        inputLabel:"ニュース記事のURLまたは本文を貼り付け",
+        placeholder:"例: https://news.example.com/article/12345 または記事本文をコピペ",
+        outputLabel:"要約結果",
+        results:["📰 3行要約:","1️⃣ 政府は2026年度からAI活用推進法を施行する方針を固めた","2️⃣ 企業のAI導入に対して最大500万円の補助金制度を新設","3️⃣ 一方でAI生成コンテンツの表示義務化も盛り込まれる","💡 キーワード: #AI推進法 #補助金 #規制 #2026年施行","📊 信頼度: 大手紙報道 / 複数ソース確認済み"]},
+      {id:"nw_brief",name:"朝のブリーフィング",emoji:"☀️",type:"form-input",
+        inputLabel:"あなたの関心分野を選択",
+        fields:[{n:"興味のある分野",p:"例: テクノロジー、経済、スポーツ"},{n:"読みたい量",p:"例: 5分で読める量"},{n:"言語",p:"例: 日本語"}],
+        outputLabel:"今日のブリーフィング",
+        results:["☀️ 2026年2月10日のブリーフィング","🔵 テクノロジー: Apple Vision Pro 2が3月発売決定 — 価格は$2,999に","🟢 経済: 日経平均が42,000円台を回復 — 半導体関連が牽引","🔴 注目: EU AI規制法の完全施行が4月に迫る — 日本企業にも影響","⏱️ 読了時間: 約3分 | 詳細記事リンク付き"]},
+      {id:"nw_fact",name:"ファクトチェック",emoji:"🔍",type:"text-input",
+        inputLabel:"確認したい情報を入力",
+        placeholder:"例: 日本の人口は2025年に1億人を下回った",
+        outputLabel:"ファクトチェック結果",
+        results:["🔍 判定: ❌ 不正確","📊 事実: 2025年時点の日本の総人口は約1億2,300万人(総務省統計局)","📉 ただし: 人口減少トレンドは事実 — 年間約80万人減少","📅 予測: 1億人を下回るのは2050年頃(国立社会保障・人口問題研究所)","🔗 出典: 総務省統計局「人口推計」2025年10月報"]}
+    ]
+  }
+];
+
+// ============================================================
+// CATEGORIES — 8 groups for 40 bundles
+// ============================================================
+const categories = [
+  {id:"life",name:"暮らし",emoji:"🏠",gradient:"from-orange-400 to-amber-500",
+    bundleIds:["daily","cook","archive","moving","realestate","sleep","eco"]},
+  {id:"health",name:"美容・健康",emoji:"💪",gradient:"from-pink-400 to-rose-500",
+    bundleIds:["health","beauty","fitness","fashion","therapy"]},
+  {id:"work",name:"仕事・マネー",emoji:"💼",gradient:"from-blue-500 to-indigo-600",
+    bundleIds:["sidehustle","biz","legal","money","invest"]},
+  {id:"creative",name:"クリエイティブ",emoji:"🎨",gradient:"from-violet-500 to-purple-600",
+    bundleIds:["creator","design","music","photo","writer"]},
+  {id:"study",name:"学び",emoji:"📚",gradient:"from-emerald-500 to-teal-600",
+    bundleIds:["student","learn","lang"]},
+  {id:"family",name:"家族・ペット",emoji:"👨‍👩‍👧",gradient:"from-sky-400 to-blue-500",
+    bundleIds:["parent","kid","senior","wedding","pet"]},
+  {id:"hobby",name:"趣味・遊び",emoji:"🎮",gradient:"from-fuchsia-500 to-pink-600",
+    bundleIds:["diy","garden","game","event","date"]},
+  {id:"outing",name:"おでかけ・情報",emoji:"🚗",gradient:"from-cyan-500 to-blue-600",
+    bundleIds:["travel","car","sns","news","access"]}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentView = "home"; // "home" | "category" | "bundle"
+let currentCategoryId = null;
+let currentBundleId = null;
+let currentBundle = null;
+let currentToolIdx = 0;
+
+// ============================================================
+// RENDER
+// ============================================================
+function render(){
+  const root = document.getElementById('root');
+  if(currentView === "home"){
+    root.innerHTML = renderHome();
+  } else if(currentView === "category"){
+    root.innerHTML = renderCategory();
+  } else {
+    currentBundle = bundles.find(b=>b.id===currentBundleId);
+    root.innerHTML = renderBundle(currentBundle);
+  }
+}
+
+function renderHome(){
+  const cards = categories.map(c=>{
+    const count = c.bundleIds.length;
+    return `
+    <button onclick="openCategory('${c.id}')" class="flex flex-col items-center gap-3 group">
+      <div class="w-24 h-24 md:w-28 md:h-28 rounded-[26px] bg-gradient-to-br ${c.gradient} shadow-lg flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-xl group-active:scale-95">
+        <span class="text-4xl md:text-5xl">${c.emoji}</span>
+      </div>
+      <div class="text-center">
+        <span class="text-xs font-bold text-gray-700 group-hover:text-gray-900 transition-colors block">${c.name}</span>
+        <span class="text-[10px] text-gray-400">${count}個のアプリ</span>
+      </div>
+    </button>`;
+  }).join('');
+
+  return `
+    <main class="max-w-lg mx-auto px-6 py-16 min-h-screen flex flex-col justify-center">
+      <div class="text-center mb-14">
+        <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">AI Super App</h1>
+        <p class="text-gray-400 text-sm">毎日開く、を作る。</p>
+      </div>
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-y-10 gap-x-4 justify-items-center">${cards}</div>
+      <p class="text-center text-[10px] text-gray-300 mt-16">40 AI apps in one — Inspired by Pieter Levels</p>
+    </main>`;
+}
+
+function renderCategory(){
+  const cat = categories.find(c=>c.id===currentCategoryId);
+  const catBundles = cat.bundleIds.map(id=>bundles.find(b=>b.id===id)).filter(Boolean);
+  const cards = catBundles.map(b=>`
+    <button onclick="openBundle('${b.id}')" class="flex flex-col items-center gap-2 group">
+      <div class="w-20 h-20 md:w-24 md:h-24 rounded-[22px] bg-gradient-to-br ${b.gradient} shadow-lg flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-xl group-active:scale-95">
+        <span class="text-3xl md:text-4xl">${b.emoji}</span>
+      </div>
+      <div class="text-center">
+        <span class="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors block">${b.name}</span>
+        <span class="text-[10px] text-gray-400">${b.tools.length} tools</span>
+      </div>
+    </button>
+  `).join('');
+
+  return `
+    <main class="max-w-lg mx-auto px-4 min-h-screen">
+      <!-- Category Header -->
+      <div class="bg-gradient-to-r ${cat.gradient} rounded-b-3xl px-6 pt-8 pb-8 text-white mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <button onclick="goHome()" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center hover:bg-white/40 transition-colors active:scale-90">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <span class="text-xs text-white/50">${catBundles.length} apps</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-5xl">${cat.emoji}</span>
+          <div>
+            <h1 class="text-3xl font-bold">${cat.name}</h1>
+            <p class="text-white/70 text-sm mt-1">${catBundles.length}個のAIアプリ</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bundle Grid -->
+      <div class="px-2 pb-16">
+        <div class="grid grid-cols-3 sm:grid-cols-4 gap-y-8 gap-x-4 justify-items-center">${cards}</div>
+      </div>
+    </main>`;
+}
+
+function renderBundle(b){
+  const tool = b.tools[currentToolIdx];
+  const inputHTML = buildInput(tool, b.gradient);
+  const tabs = b.tools.map((t,i)=>{
+    const active = i===currentToolIdx;
+    return `<button onclick="switchTool(${i})" class="flex flex-col items-center gap-1 py-2 px-1 flex-1 transition-colors ${active?'text-gray-900':'text-gray-400 hover:text-gray-600'}">
+      <span class="text-xl">${t.emoji}</span>
+      <span class="text-[10px] font-medium leading-tight">${t.name}</span>
+      ${active?`<span class="w-1 h-1 rounded-full bg-gradient-to-r ${b.gradient} inline-block"></span>`:''}
+    </button>`;
+  }).join('');
+
+  return `
+    <div class="max-w-lg mx-auto min-h-screen flex flex-col">
+      <!-- Header -->
+      <div class="bg-gradient-to-r ${b.gradient} px-5 pt-6 pb-5 text-white">
+        <div class="flex items-center justify-between mb-1">
+          <button onclick="goBackToCategory()" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center hover:bg-white/40 transition-colors active:scale-90">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <span class="text-xs text-white/50">${b.tools.length} tools</span>
+        </div>
+        <div class="flex items-center gap-3 mt-2">
+          <span class="text-3xl">${b.emoji}</span>
+          <div>
+            <h1 class="text-2xl font-bold">${b.name}</h1>
+            <p class="text-white/70 text-xs">${b.tagline}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tool Content -->
+      <div class="flex-1 px-4 py-6 pb-24 tab-enter" id="tool-content">
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <h3 class="font-semibold text-gray-800 mb-4 text-sm">${tool.inputLabel}</h3>
+          <div class="space-y-3">${inputHTML}</div>
+          <button id="process-btn" onclick="processAI()" class="mt-4 w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r ${b.gradient} hover:opacity-90 transition-opacity active:scale-[0.98]">
+            ${tool.emoji} AIで処理する
+          </button>
+        </div>
+        <div id="results-area" class="mt-5"></div>
+      </div>
+
+      <!-- Bottom Tab Nav -->
+      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 pb-[env(safe-area-inset-bottom)]">
+        <div class="max-w-lg mx-auto flex">${tabs}</div>
+      </div>
+    </div>`;
+}
+
+function buildInput(tool, gradient){
+  if(tool.type==='image-upload'||tool.type==='file-upload'){
+    const icon = tool.type==='image-upload'?'📷':'📎';
+    const accept = tool.type==='image-upload'?'image/*':'.pdf,.doc,.docx,.txt';
+    return `
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-gray-400 transition-colors">
+        <div class="text-3xl mb-2">${icon}</div>
+        <p class="text-xs text-gray-400 mb-3">クリックまたはドラッグ&ドロップ</p>
+        <input type="file" class="hidden" id="file-input" accept="${accept}" onchange="document.getElementById('file-name').textContent='✓ '+this.files[0]?.name">
+        <label for="file-input" class="inline-block px-4 py-2 rounded-lg text-xs font-medium cursor-pointer bg-gradient-to-r ${gradient} text-white hover:opacity-90 transition-opacity">ファイルを選択</label>
+        <p id="file-name" class="text-xs text-green-600 mt-2"></p>
+      </div>`;
+  } else if(tool.type==='text-input'){
+    return `<textarea class="w-full border border-gray-300 rounded-xl p-3 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" rows="4" placeholder="${tool.placeholder||''}"></textarea>`;
+  } else {
+    return tool.fields.map(f=>`
+      <div><label class="block text-xs font-medium text-gray-500 mb-1">${f.n}</label>
+      <input type="text" placeholder="${f.p}" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"></div>
+    `).join('');
+  }
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function openCategory(id){
+  currentView = "category";
+  currentCategoryId = id;
+  render();
+  window.scrollTo(0,0);
+}
+
+function openBundle(id){
+  currentView = "bundle";
+  currentBundleId = id;
+  currentToolIdx = 0;
+  render();
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  currentView = "home";
+  currentCategoryId = null;
+  currentBundleId = null;
+  currentBundle = null;
+  currentToolIdx = 0;
+  render();
+  window.scrollTo(0,0);
+}
+
+function goBackToCategory(){
+  currentView = "category";
+  currentBundleId = null;
+  currentBundle = null;
+  currentToolIdx = 0;
+  render();
+  window.scrollTo(0,0);
+}
+
+function switchTool(idx){
+  currentToolIdx = idx;
+  render();
+}
+
+function processAI(){
+  const b = currentBundle;
+  const tool = b.tools[currentToolIdx];
+  const btn = document.getElementById('process-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="flex items-center justify-center gap-2"><span class="flex gap-1"><span class="w-2 h-2 bg-white rounded-full dot1 inline-block"></span><span class="w-2 h-2 bg-white rounded-full dot2 inline-block"></span><span class="w-2 h-2 bg-white rounded-full dot3 inline-block"></span></span> AIが処理中...</span>`;
+
+  setTimeout(()=>{
+    btn.disabled = false;
+    btn.innerHTML = `${tool.emoji} AIで処理する`;
+    const resultsHTML = tool.results.map((r,i)=>`
+      <div class="text-sm text-gray-700 p-3 bg-gray-50 rounded-lg fadein" style="animation-delay:${i*80}ms">${r}</div>
+    `).join('');
+    document.getElementById('results-area').innerHTML = `
+      <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm fadein">
+        <h3 class="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
+          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block"></span>${tool.outputLabel}
+        </h3>
+        <div class="space-y-2">${resultsHTML}</div>
+        <div class="mt-4 flex gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">📋 コピー</button>
+          <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">💾 保存</button>
+          <button onclick="processAI()" class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">🔄 再生成</button>
+        </div>
+      </div>`;
+  }, 2000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+render();
+</script>
+</body>
+</html>
